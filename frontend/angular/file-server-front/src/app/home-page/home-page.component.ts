@@ -34,6 +34,7 @@ import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
+import { environment } from "src/environments/environment";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -215,6 +216,10 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
     this.uploadParam.files = files;
     this._setDisplayedFileName();
+
+    if (!environment.production) {
+      console.log("uploadParam.files", this.uploadParam.files);
+    }
   }
 
   onIsCompressedChanged() {

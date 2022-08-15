@@ -1,6 +1,8 @@
 import { HttpClient, HttpEvent, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { env } from "process";
 import { Observable } from "rxjs";
+import { environment } from "src/environments/environment";
 import {
   FetchFileExtList,
   FileExt,
@@ -172,6 +174,7 @@ export class FileInfoService {
    * @param uploadFile
    */
   public postFile(uploadParam: UploadFileParam): Observable<HttpEvent<any>> {
+    if (!environment.production) console.log("postFile", uploadParam);
     if (uploadParam.files.length > 1) return this._postFileViaForm(uploadParam);
     else return this._postFileViaStream(uploadParam);
   }
@@ -210,7 +213,7 @@ export class FileInfoService {
     uploadParam: UploadFileParam
   ): Observable<HttpEvent<any>> {
     const headers = new HttpHeaders()
-      .append("fileName", uploadParam.fileName)
+      .append("fileName", encodeURI(uploadParam.fileName))
       .append("Authorization", getToken())
       .append("userGroup", uploadParam.userGroup.toString())
       .append("Content-Type", "application/octet-stream");
