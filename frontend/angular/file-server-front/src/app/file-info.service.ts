@@ -212,13 +212,12 @@ export class FileInfoService {
   private _postFileViaStream(
     uploadParam: UploadFileParam
   ): Observable<HttpEvent<any>> {
-    const headers = new HttpHeaders()
+    let headers = new HttpHeaders()
       .append("fileName", encodeURI(uploadParam.fileName))
       .append("Authorization", getToken())
       .append("userGroup", uploadParam.userGroup.toString())
       .append("Content-Type", "application/octet-stream");
-
-    if (uploadParam.tags) headers.append("tag", uploadParam.tags);
+    if (uploadParam.tags) headers = headers.append("tag", uploadParam.tags);
 
     console.log("headers", headers);
 
