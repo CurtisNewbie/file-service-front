@@ -172,16 +172,24 @@ export class FileInfoService {
    * @param uploadFile
    */
   public postFile(uploadParam: UploadFileParam): Observable<HttpEvent<any>> {
+    if (uploadParam.files.length > 1) return this._postFileViaForm(uploadParam);
+    else return this._postFileViaStream(uploadParam);
+  }
+
+  private _postFileViaForm(
+    uploadParam: UploadFileParam
+  ): Observable<HttpEvent<any>> {
     let formData = new FormData();
     formData.append("fileName", uploadParam.fileName);
-    for (let f of uploadParam.files) {
-      formData.append("file", f);
-    }
     formData.append("userGroup", uploadParam.userGroup.toString());
     if (uploadParam.tags) {
       for (let t of uploadParam.tags) {
         formData.append("tag", t);
       }
+    }
+
+    for (let f of uploadParam.files) {
+      formData.append("file", f);
     }
 
     return this.http.post<HttpEvent<any>>(
@@ -194,6 +202,31 @@ export class FileInfoService {
         headers: new HttpHeaders({
           Authorization: getToken(),
         }),
+      }
+    );
+  }
+
+  private _postFileViaStream(
+    uploadParam: UploadFileParam
+  ): Observable<HttpEvent<any>> {
+    const headers = new HttpHeaders()
+      .append("fileName", uploadParam.fileName)
+      .append("Authorization", getToken())
+      .append("userGroup", uploadParam.userGroup.toString())
+      .append("Content-Type", "application/octet-stream");
+
+    if (uploadParam.tags) headers.append("tag", uploadParam.tags);
+
+    console.log("headers", headers);
+
+    return this.http.post<HttpEvent<any>>(
+      buildApiPath("/file/upload/stream"),
+      uploadParam.files[0],
+      {
+        observe: "events",
+        reportProgress: true,
+        withCredentials: true,
+        headers: headers,
       }
     );
   }
