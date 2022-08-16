@@ -1,12 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { Output, EventEmitter } from "@angular/core";
+import { environment } from "src/environments/environment";
+import { BaseOpt } from "src/models/nav";
 import { UserInfo } from "src/models/user-info";
 import { UserService } from "../user.service";
-
-export interface BaseOpt {
-  base: string;
-  name: string;
-}
 
 @Component({
   selector: "app-nav",
@@ -16,16 +13,7 @@ export interface BaseOpt {
 export class NavComponent implements OnInit {
   isAdmin: boolean = false;
   userInfo: UserInfo = null;
-  baseOptions: BaseOpt[] = [
-    {
-      base: "file-service",
-      name: "File Service",
-    },
-    // {
-    //   base: "fantahsea",
-    //   name: "Fantahsea",
-    // },
-  ];
+  baseOptions: BaseOpt[] = environment.services;
   base: string = "file-service";
 
   @Output() baseChangeEvent = new EventEmitter<string>();

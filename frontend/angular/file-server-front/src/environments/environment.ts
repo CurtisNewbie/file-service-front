@@ -2,9 +2,15 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+import { fantahseaOpt, fileServiceOpt } from "src/models/nav";
+
 export const environment = {
   production: false,
   file_server_path: "http://localhost:7070",
+  services: [fileServiceOpt, fantahseaOpt],
+
+  // if fantahsea is down
+  // services: [fileServiceOpt],
 };
 
 /*
