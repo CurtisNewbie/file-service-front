@@ -37,6 +37,11 @@ export class GalleryImageComponent implements OnInit {
   ) {
     _lighboxConfig.containerElementResolver = (doc: Document) =>
       doc.getElementById("lightboxdiv");
+    _lighboxConfig.wrapAround = true;
+    _lighboxConfig.disableScrolling = false;
+    _lighboxConfig.showZoom = true;
+    _lighboxConfig.resizeDuration = 0.2;
+    _lighboxConfig.fadeDuration = 0.3;
   }
 
   ngOnInit(): void {
