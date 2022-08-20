@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Subscription, timer } from "rxjs";
 import { Observable, Subject } from "rxjs";
+import { environment } from "src/environments/environment";
 import { Resp } from "src/models/resp";
 import { ChangePasswordParam, UserInfo } from "src/models/user-info";
 import { NavigationService, NavType } from "./navigation.service";
@@ -57,7 +58,7 @@ export class UserService {
    */
   public login(username: string, password: string): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      buildApiPath("/user/login", "auth-service"),
+      buildApiPath("/user/login", environment.authServicePath),
       {
         username: username,
         password: password,
@@ -90,7 +91,7 @@ export class UserService {
     userRole: string
   ): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      buildApiPath("/user/register", "auth-service"),
+      buildApiPath("/user/register", environment.authServicePath),
       { username, password, userRole },
       buildOptions()
     );
@@ -104,7 +105,7 @@ export class UserService {
    */
   public register(username: string, password: string): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      buildApiPath("/user/register/request", "auth-service"),
+      buildApiPath("/user/register/request", environment.authServicePath),
       { username, password },
       buildOptions()
     );
@@ -116,7 +117,7 @@ export class UserService {
   public fetchUserInfo(callback = null): void {
     this.http
       .get<Resp<UserInfo>>(
-        buildApiPath("/user/info", "auth-service"),
+        buildApiPath("/user/info", environment.authServicePath),
         buildOptions()
       )
       .subscribe({
@@ -162,7 +163,7 @@ export class UserService {
     }>
   > {
     return this.http.get<Resp<any>>(
-      buildApiPath("/user/detail", "auth-service"),
+      buildApiPath("/user/detail", environment.authServicePath),
       buildOptions()
     );
   }
@@ -172,7 +173,7 @@ export class UserService {
    */
   private exchangeToken(token: string): Observable<Resp<string>> {
     return this.http.post<Resp<any>>(
-      buildApiPath("/token/exchange", "auth-service"),
+      buildApiPath("/token/exchange", environment.authServicePath),
       { token: token },
       buildOptions()
     );

@@ -6,7 +6,9 @@ import { fantahseaOpt, fileServiceOpt } from "src/models/nav";
 
 export const environment = {
   production: false,
-  file_server_path: "http://localhost:7070",
+  fantahseaPath: "fantahsea",
+  fileServicePath: "file-service",
+  authServicePath: "auth-service",
   services: [fileServiceOpt, fantahseaOpt],
 
   // if fantahsea is down

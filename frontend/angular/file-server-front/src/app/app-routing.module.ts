@@ -1,6 +1,8 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { FsGroupComponent } from "./fs-group/fs-group.component";
+import { GalleryImageComponent } from "./gallery-image/gallery-image.component";
+import { GalleryComponent } from "./gallery/gallery.component";
 import { HomePageComponent } from "./home-page/home-page.component";
 import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
 import { LoginComponent } from "./login/login.component";
@@ -42,11 +44,19 @@ const routes: Routes = [
     path: "image-viewer",
     component: ImageViewerComponent,
   },
+  {
+    path: "gallery",
+    component: GalleryComponent,
+  },
+  {
+    path: "gallery-image",
+    component: GalleryImageComponent,
+  },
   { path: "**", redirectTo: "/login-page" },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
+  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: "legacy" })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

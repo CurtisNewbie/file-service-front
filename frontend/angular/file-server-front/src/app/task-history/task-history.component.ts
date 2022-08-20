@@ -38,13 +38,12 @@ export class TaskHistoryComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // let ti = this.route.snapshot.paramMap.get("id");
-    // if (ti != null) this.taskId = Number(ti);
     this.route.paramMap.subscribe((params) => {
       let ti = params.get("taskId");
       if (ti != null) this.taskId = Number(ti);
+
+      this.fetchHistoryList();
     });
-    this.fetchHistoryList();
   }
 
   fetchHistoryList() {

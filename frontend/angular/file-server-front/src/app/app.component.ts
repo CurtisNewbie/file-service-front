@@ -1,6 +1,8 @@
 import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 import { NLink, selectLinks } from "src/models/link";
 import { UserInfo } from "src/models/user-info";
+import { NavigationService } from "./navigation.service";
 import { UserService } from "./user.service";
 
 @Component({
@@ -13,7 +15,7 @@ export class AppComponent {
   userInfo: UserInfo = null;
   activeRoute: string = "";
   links: NLink[] = [];
-  base: string = "file-service";
+  base: string = this.getBase("file-service");
 
   onNavClicked = (link: NLink): void => {
     this.activeRoute = link.route;
@@ -23,7 +25,10 @@ export class AppComponent {
     return this.activeRoute === link.route;
   };
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private navigation: NavigationService
+  ) {}
 
   ngOnInit(): void {
     this.userService.fetchUserInfo();
@@ -48,6 +53,8 @@ export class AppComponent {
   onBaseChange(base: string): void {
     this.base = base;
     this.selectLinks();
+    localStorage.setItem("nav-base", base);
+    this.navigation.navigateToUrl(this.links[0].route);
   }
 
   selectLinks(): void {
@@ -55,5 +62,16 @@ export class AppComponent {
       this.base,
       this.userInfo ? this.userInfo.role : null
     );
+  }
+
+  getBase(defaultBase: string) {
+    let base = localStorage.getItem("nav-base");
+    console.log("Previous base:", base);
+    if (!base) {
+      base = defaultBase;
+    }
+
+    localStorage.setItem("nav-base", base);
+    return base;
   }
 }

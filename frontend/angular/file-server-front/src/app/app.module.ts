@@ -40,9 +40,10 @@ import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.
 import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
 import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
 import { MatCheckboxModule } from "@angular/material/checkbox";
-import { LightgalleryModule } from "lightgallery/angular/10";
-import { LightGallery } from "lightgallery/lightgallery";
 import { MatTabsModule } from "@angular/material/tabs";
+import { GalleryComponent } from "./gallery/gallery.component";
+import { GalleryImageComponent } from "./gallery-image/gallery-image.component";
+import { MatCardModule } from "@angular/material/card";
 
 @NgModule({
   exports: [],
@@ -60,6 +61,8 @@ import { MatTabsModule } from "@angular/material/tabs";
     GrantAccessDialogComponent,
     ManageTagDialogComponent,
     ImageViewerComponent,
+    GalleryComponent,
+    GalleryImageComponent,
   ],
   imports: [
     MatTabsModule,
@@ -84,7 +87,7 @@ import { MatTabsModule } from "@angular/material/tabs";
     MatInputModule,
     MatSelectModule,
     MatDialogModule,
-    LightgalleryModule,
+    MatCardModule,
   ],
   entryComponents: [
     ConfirmDialogComponent,

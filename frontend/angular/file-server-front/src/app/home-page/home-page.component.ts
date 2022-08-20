@@ -1,4 +1,4 @@
-import { HttpEventType } from "@angular/common/http";
+import { HttpClient, HttpEventType } from "@angular/common/http";
 import {
   Component,
   ElementRef,
@@ -28,13 +28,14 @@ import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.compone
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { animateElementExpanding } from "../../animate/animate-util";
-import { buildApiPath } from "../util/api-util";
+import { buildApiPath, buildOptions } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
 import { environment } from "src/environments/environment";
+import { ThisReceiver } from "@angular/compiler";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -47,6 +48,8 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   animations: [animateElementExpanding()],
 })
 export class HomePageComponent implements OnInit, OnDestroy {
+  readonly fantahseaEnabled: boolean =
+    environment.services.find((v) => v.base === "fantahsea") != null;
   readonly OWNERSHIP_ALL_FILES = FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES;
   readonly OWNERSHIP_MY_FILES = FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES;
   readonly PRIVATE_GROUP = FileUserGroupEnum.USER_GROUP_PRIVATE;
@@ -80,6 +83,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   selectedTags: string[] = [];
   filteredTags: string[] = [];
   isMobile: boolean = isMobile();
+  galleryNo: string = null;
 
   /*
   ---------
@@ -109,7 +113,8 @@ export class HomePageComponent implements OnInit, OnDestroy {
     private notifi: NotificationService,
     private dialog: MatDialog,
     private fileService: FileInfoService,
-    private nav: NavigationService
+    private nav: NavigationService,
+    private http: HttpClient
   ) {}
 
   ngOnDestroy(): void {
@@ -343,6 +348,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
         complete: () => {
           this.fetchFileInfoList();
           this.expandedElement = null;
+          this.galleryNo = null;
         },
       });
   }
@@ -365,7 +371,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
         const token = resp.data;
         const url = buildApiPath(
           "/file/token/download?token=" + token,
-          "file-service"
+          environment.fileServicePath
         );
         let navType = this._isPdf(u.name)
           ? NavType.PDF_VIEWER
@@ -432,6 +438,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((confirm) => {
       this._fetchTags();
       this.expandedElement = null;
+      this.galleryNo = null;
     });
   }
 
@@ -467,7 +474,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
         const token = resp.data;
         const url = buildApiPath(
           "/file/token/download?token=" + token,
-          "file-service"
+          environment.fileServicePath
         );
         window.open(url, "_parent");
       },
@@ -480,6 +487,32 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   onTagNameChanged() {
     this.filteredTags = this.filter(this.searchParam.tagName);
+  }
+
+  transferToGallery(fileInfo: FileInfo, galleryNo: string) {
+    if (!galleryNo) {
+      this.notifi.toast("Please enter Fantahsea gallery no first");
+      return;
+    }
+    this.http
+      .post(
+        buildApiPath("/gallery/image/transfer", environment.fantahseaPath),
+        {
+          images: [
+            {
+              name: fileInfo.name,
+              fileKey: fileInfo.uuid,
+              galleryNo: galleryNo,
+            },
+          ],
+        },
+        buildOptions()
+      )
+      .subscribe({
+        complete: () => {
+          this.expandedElement = null;
+        },
+      });
   }
 
   // -------------------------- private helper methods ------------------------
@@ -517,7 +550,10 @@ export class HomePageComponent implements OnInit, OnDestroy {
       window.location.protocol +
       "//" +
       window.location.host +
-      buildApiPath("/file/token/download?token=" + tempToken, "file-service")
+      buildApiPath(
+        "/file/token/download?token=" + tempToken,
+        environment.fileServicePath
+      )
     );
   }
 

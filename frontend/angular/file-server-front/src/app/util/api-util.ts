@@ -1,4 +1,5 @@
 import { HttpHeaders } from "@angular/common/http";
+import { environment } from "src/environments/environment";
 
 // for development
 const isThroughGateway = true;
@@ -13,18 +14,15 @@ export function onEmptyToken(callback) {
 
 export function buildApiPath(
   subPath: string,
-  service = "/file-service"
+  service = environment.fileServicePath
 ): string {
-  service = service.startsWith("/", 0) ? service : "/" + service;
   subPath = subPath.startsWith("/", 0) ? subPath : "/" + subPath;
   return (isThroughGateway ? service : "") + BASE_API + subPath;
 }
 
 export function buildOptions() {
   let token = getToken();
-  if (!token && emptyTokenCallback) {
-    console.log("No token found, invoking registered onEmptyToken callback");
-    emptyTokenCallback();
+  if (!token) {
     return;
   }
   return {
@@ -44,5 +42,10 @@ export function setToken(token: string) {
 }
 
 export function getToken() {
-  return localStorage.getItem(TOKEN);
+  let tkn = localStorage.getItem(TOKEN);
+  if (!tkn && emptyTokenCallback) {
+    console.log("No token found, invoking registered onEmptyToken callback");
+    emptyTokenCallback();
+  }
+  return tkn;
 }
