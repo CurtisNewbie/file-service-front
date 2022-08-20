@@ -5,6 +5,7 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { HomePageComponent } from "./home-page/home-page.component";
 import { MatAutocompleteModule } from "@angular/material/autocomplete";
+import { LightboxModule } from "ngx-lightbox";
 import {
   APP_BASE_HREF,
   HashLocationStrategy,
@@ -88,6 +89,7 @@ import { MatCardModule } from "@angular/material/card";
     MatSelectModule,
     MatDialogModule,
     MatCardModule,
+    LightboxModule,
   ],
   entryComponents: [
     ConfirmDialogComponent,

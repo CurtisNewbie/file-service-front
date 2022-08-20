@@ -23,6 +23,7 @@
     "@angular/router": "~11.2.14",
     "bootstrap": "^5.0.1",
     "ng2-pdfjs-viewer": "^6.0.2",
+    "ngx-lightbox": "^2.6.1",
     "rxjs": "~6.6.7",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"

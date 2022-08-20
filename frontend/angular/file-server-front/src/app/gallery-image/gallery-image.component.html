@@ -1,3 +1,9 @@
+<div id="lightboxdiv">
+    <div *ngFor="let image of images; let i=index">
+        <img [src]="image.thumb" (click)="open(i)" />
+    </div>
+</div>
+
 <mat-paginator #paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
     [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page"
     [showFirstLastButtons]="true">

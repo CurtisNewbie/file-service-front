@@ -10,6 +10,7 @@ import { Resp } from "src/models/resp";
 import { NavigationService, NavType } from "../navigation.service";
 import { forkJoin, Observable } from "rxjs";
 import { DomSanitizer } from "@angular/platform-browser";
+import { IAlbum, Lightbox, LightboxConfig } from "ngx-lightbox";
 
 @Component({
   selector: "app-gallery-image",
@@ -25,14 +26,18 @@ export class GalleryImageComponent implements OnInit {
 
   galleryNo: string = null;
   title = "fantahsea";
-  images: { src: any; thumbnail: any }[] = [];
+  images: IAlbum[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private navigation: NavigationService,
-    private sanitizer: DomSanitizer
-  ) {}
+    private _lightbox: Lightbox,
+    private _lighboxConfig: LightboxConfig
+  ) {
+    _lighboxConfig.containerElementResolver = (doc: Document) =>
+      doc.getElementById("lightboxdiv");
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -63,17 +68,18 @@ export class GalleryImageComponent implements OnInit {
             let imgs = resp.data.imageNos;
             this.images = [];
             for (let i = 0; i < imgs.length; i++) {
-              let imageObs = this._downloadImage(imgs[i], false);
-              let thumbnailObs = this._downloadImage(imgs[i], true);
-              forkJoin([imageObs, thumbnailObs]).subscribe((results) => {
-                this.images.push({
-                  src: this.sanitizer.bypassSecurityTrustUrl(
-                    URL.createObjectURL(results[0])
-                  ),
-                  thumbnail: this.sanitizer.bypassSecurityTrustUrl(
-                    URL.createObjectURL(results[1])
-                  ),
-                });
+              let src = buildApiPath(
+                `/gallery/image/download?token=${imgs[i]}&thumbnail=${false}`,
+                environment.fantahseaPath
+              );
+              let thumb = buildApiPath(
+                `/gallery/image/download?token=${imgs[i]}&thumbnail=${true}`,
+                environment.fantahseaPath
+              );
+              this.images.push({
+                src: src,
+                thumb: thumb,
+                downloadUrl: src,
               });
             }
           }
@@ -81,41 +87,20 @@ export class GalleryImageComponent implements OnInit {
       });
   }
 
-  _downloadImage(
-    imageNo: string,
-    isThumbnail: boolean = false
-  ): Observable<Blob> {
-    let token = getToken();
-    if (!token) {
-      return null;
-    }
-
-    let options: {
-      headers?: HttpHeaders;
-      observe?: "body";
-      reportProgress?: boolean;
-      responseType: "blob";
-      withCredentials?: boolean;
-    } = {
-      headers: new HttpHeaders({
-        "Content-Type": "application/json",
-        Authorization: token,
-      }),
-      responseType: "blob",
-      withCredentials: true,
-    };
-
-    return this.http.get(
-      buildApiPath(
-        `/gallery/image/download?imageNo=${imageNo}&thumbnail=${isThumbnail}`,
-        environment.fantahseaPath
-      ),
-      options
-    );
-  }
-
   handle(e: PageEvent): void {
     this.pagingController.handle(e);
     this.fetchImages();
+  }
+
+  open(index: number): void {
+    this._lightbox.open(this.images, index, {
+      wrapAround: true,
+      showImageNumberLabel: true,
+    });
+  }
+
+  close(): void {
+    // close lightbox programmatically
+    this._lightbox.close();
   }
 }
