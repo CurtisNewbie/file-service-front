@@ -132,6 +132,21 @@
                         </mat-select>
                     </mat-form-field>
                 </div>
+                <ng-container *ngIf="fantahseaEnabled">
+                    <div class="col-12">
+                        <mat-form-field appearance="fill">
+                            <mat-label>Fantahsea Gallery No</mat-label>
+                            <input matInput type="text" [(ngModel)]="galleryNo">
+                        </mat-form-field>
+                    </div>
+                    <ng-container *ngIf="galleryNo">
+                        <div class="col-12">
+                            <button mat-raised-button class="m-2" (click)="transferToGallery()">Host
+                                files on
+                                Fantahsea</button>
+                        </div>
+                    </ng-container>
+                </ng-container>
             </div>
         </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
@@ -142,6 +157,14 @@
 
         <table mat-table [dataSource]="fileInfoList" class="mat-elevation-z8 mb-4" style="width: 100%;"
             multiTemplateDataRows>
+            <ng-container matColumnDef="selected">
+                <th mat-header-cell *matHeaderCellDef> <span (click)="selectAllFiles()">Selected</span> </th>
+                <td mat-cell *matCellDef="let f">
+                    <mat-checkbox [checked]="f._selected" (change)="selectFile($event, f)"
+                        (click)="$event.stopPropagation();"></mat-checkbox>
+                </td>
+            </ng-container>
+
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
                 <td mat-cell *matCellDef="let f"> <span class="pl-1 pr-1">{{f.name}} </span></td>
@@ -235,22 +258,6 @@
                                         delete
                                     </button>
                                 </div>
-                                <ng-container *ngIf="fantahseaEnabled">
-                                    <div class="col-12">
-                                        <mat-form-field appearance="fill" style="width: 100%;">
-                                            <mat-label>Fantahsea Gallery No</mat-label>
-                                            <input matInput type="text" [(ngModel)]="galleryNo" [disabled]="!u.isOwner">
-                                        </mat-form-field>
-                                    </div>
-                                    <ng-container *ngIf="u.isOwner">
-                                        <div class="col-12">
-                                            <button mat-raised-button
-                                                (click)="transferToGallery(expandedElement, galleryNo)">
-                                                Transfer To Fantahsea Gallery
-                                            </button>
-                                        </div>
-                                    </ng-container>
-                                </ng-container>
                             </ng-container>
                         </div>
                     </div>

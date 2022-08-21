@@ -35,7 +35,6 @@ import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
 import { environment } from "src/environments/environment";
-import { ThisReceiver } from "@angular/compiler";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -57,8 +56,8 @@ export class HomePageComponent implements OnInit, OnDestroy {
   readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = FILE_USER_GROUP_OPTIONS;
   readonly FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] =
     FILE_OWNERSHIP_OPTIONS;
-
   readonly DESKTOP_COLUMNS = [
+    "selected",
     "name",
     "uploader",
     "uploadTime",
@@ -489,30 +488,69 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.filteredTags = this.filter(this.searchParam.tagName);
   }
 
-  transferToGallery(fileInfo: FileInfo, galleryNo: string) {
-    if (!galleryNo) {
+  transferToGallery() {
+    if (!this.galleryNo) {
       this.notifi.toast("Please enter Fantahsea gallery no first");
       return;
     }
+
+    if (!this.fileInfoList) {
+      this.notifi.toast("Please select files first");
+      return;
+    }
+
+    console.log("pre-filtered: ", this.fileInfoList);
+
+    let selected = this.fileInfoList
+      .map((v) => {
+        if (v._selected && v.isOwner) {
+          return v;
+        }
+
+        return null;
+      })
+      .filter((v) => v != null && this._isImage(v.name))
+      .map((f) => {
+        return {
+          name: f.name,
+          fileKey: f.uuid,
+          galleryNo: this.galleryNo,
+        };
+      });
+
+    console.log("(post-filtered) selected: ", selected);
+
+    if (!selected) return;
+
     this.http
       .post(
         buildApiPath("/gallery/image/transfer", environment.fantahseaPath),
         {
-          images: [
-            {
-              name: fileInfo.name,
-              fileKey: fileInfo.uuid,
-              galleryNo: galleryNo,
-            },
-          ],
+          images: selected,
         },
         buildOptions()
       )
       .subscribe({
         complete: () => {
           this.expandedElement = null;
+          this.fetchFileInfoList();
         },
       });
+  }
+
+  selectFile(event: any, f: FileInfo) {
+    //  console.log(event);
+
+    if (f.isOwner) {
+      f._selected = event.checked;
+    }
+  }
+
+  selectAllFiles() {
+    console.log("select all");
+    this.fileInfoList.forEach((v) => {
+      if (v.isOwner) v._selected = true;
+    });
   }
 
   // -------------------------- private helper methods ------------------------

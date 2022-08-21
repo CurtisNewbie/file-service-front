@@ -34,6 +34,11 @@ export interface FileInfo {
    * Where the file is owned by current user
    */
   isOwner: boolean;
+
+  /**
+   * whether file is selected; this is not from the backend, it's used only locally by the frontend
+   */
+  _selected: boolean;
 }
 
 /** Enum for FileInfo.userGroup */
