@@ -107,8 +107,6 @@ export class GalleryComponent implements OnInit {
    * @returns expandedElement
    */
   determineExpandedElement(row: Gallery): Gallery {
-    if (this.isMobile) return null; // mobile should never expand
-
     return this.idEquals(this.expandedElement, row) ? null : this._copy(row);
   }
 
