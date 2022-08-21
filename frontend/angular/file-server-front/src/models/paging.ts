@@ -16,7 +16,7 @@ export interface Paging {
 export class PagingConst {
   /** Get default paging limit options */
   public static getPagingLimitOptions(): number[] {
-    return [10, 20, 50];
+    return [10, 30, 50];
   }
 }
 

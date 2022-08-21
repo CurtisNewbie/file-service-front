@@ -33,15 +33,18 @@ export class GalleryImageComponent implements OnInit {
     private http: HttpClient,
     private navigation: NavigationService,
     private _lightbox: Lightbox,
-    private _lighboxConfig: LightboxConfig
+    private _lbConfig: LightboxConfig
   ) {
-    _lighboxConfig.containerElementResolver = (doc: Document) =>
+    _lbConfig.containerElementResolver = (doc: Document) =>
       doc.getElementById("lightboxdiv");
-    _lighboxConfig.wrapAround = true;
-    _lighboxConfig.disableScrolling = false;
-    _lighboxConfig.showZoom = true;
-    _lighboxConfig.resizeDuration = 0.2;
-    _lighboxConfig.fadeDuration = 0.3;
+    _lbConfig.wrapAround = false;
+    _lbConfig.disableScrolling = false;
+    _lbConfig.showZoom = false;
+    _lbConfig.resizeDuration = 0.2;
+    _lbConfig.fadeDuration = 0.2;
+    _lbConfig.showRotate = false;
+
+    this.pagingController.setPageLimit(15);
   }
 
   ngOnInit(): void {
@@ -61,7 +64,7 @@ export class GalleryImageComponent implements OnInit {
     this.http
       .post<Resp<ListGalleryImagesResp>>(
         buildApiPath("/gallery/images", environment.fantahseaPath),
-        { galleryNo: this.galleryNo },
+        { galleryNo: this.galleryNo, pagingVo: this.pagingController.paging },
         buildOptions()
       )
       .subscribe({
