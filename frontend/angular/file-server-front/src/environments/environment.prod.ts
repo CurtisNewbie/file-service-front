@@ -3,7 +3,7 @@ import { fantahseaOpt, fileServiceOpt } from "src/models/nav";
 export const environment = {
   production: true,
   fantahseaPath: "fantahsea",
-  fileSerivcePath: "file-service",
+  fileServicePath: "file-service",
   authServicePath: "auth-service",
   services: [fileServiceOpt, fantahseaOpt],
 
