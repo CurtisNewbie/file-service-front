@@ -76,7 +76,9 @@ export class UserService {
   public logout(): void {
     setToken(null);
     this.notifyLoginStatus(false);
-    this.nav.navigateTo(NavType.LOGIN_PAGE);
+    if (environment.loginRedirect) {
+      this.nav.navigateTo(NavType.LOGIN_PAGE);
+    }
   }
 
   /**
