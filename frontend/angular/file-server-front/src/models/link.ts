@@ -18,6 +18,11 @@ const fileServicesLinks: NLink[] = [
     permitRoles: anyRoles,
   },
   {
+    route: "/folders",
+    name: "Folders",
+    permitRoles: anyRoles,
+  },
+  {
     route: "/manage-extension",
     name: "Manage File Extension",
     permitRoles: adminOnly,
@@ -45,11 +50,6 @@ const fantahseaLinks: NLink[] = [
     name: "Gallery",
     permitRoles: anyRoles,
   },
-  // {
-  //   route: "/gallery-image",
-  //   name: "Gallery Image",
-  //   permitRoles: anyRoles,
-  // },
 ];
 
 const linkGroups: Map<string /* base */, NLink[]> = new Map<string, NLink[]>([

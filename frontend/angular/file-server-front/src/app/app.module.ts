@@ -45,6 +45,8 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { GalleryComponent } from "./gallery/gallery.component";
 import { GalleryImageComponent } from "./gallery-image/gallery-image.component";
 import { MatCardModule } from "@angular/material/card";
+import { FolderComponent } from "./folder/folder.component";
+import { MatListModule } from "@angular/material/list";
 
 @NgModule({
   exports: [],
@@ -64,6 +66,7 @@ import { MatCardModule } from "@angular/material/card";
     ImageViewerComponent,
     GalleryComponent,
     GalleryImageComponent,
+    FolderComponent,
   ],
   imports: [
     MatTabsModule,
@@ -90,6 +93,7 @@ import { MatCardModule } from "@angular/material/card";
     MatDialogModule,
     MatCardModule,
     LightboxModule,
+    MatListModule,
   ],
   entryComponents: [
     ConfirmDialogComponent,

@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
+import { FolderComponent } from "./folder/folder.component";
 import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { GalleryImageComponent } from "./gallery-image/gallery-image.component";
 import { GalleryComponent } from "./gallery/gallery.component";
@@ -52,6 +53,11 @@ const routes: Routes = [
     path: "gallery-image",
     component: GalleryImageComponent,
   },
+  {
+    path: "folders",
+    component: FolderComponent,
+  },
+
   { path: "**", redirectTo: "/login-page" },
 ];
 
