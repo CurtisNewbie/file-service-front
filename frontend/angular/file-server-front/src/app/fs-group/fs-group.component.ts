@@ -40,9 +40,12 @@ export class FsGroupComponent implements OnInit {
   expandedElement: FsGroup = null;
   fsGroups: FsGroup[] = [];
   searchParam: FsGroup = emptyFsGroup();
-  pagingController: PagingController = new PagingController();
+  pagingController: PagingController;
 
-  constructor(private fileService: FileInfoService) {}
+  constructor(private fileService: FileInfoService) {
+    this.pagingController = new PagingController();
+    this.pagingController.onPageChanged = () => this.fetchFsGroups();
+  }
 
   ngOnInit() {
     this.fetchFsGroups();
@@ -60,11 +63,6 @@ export class FsGroupComponent implements OnInit {
           this.pagingController.updatePages(resp.data.pagingVo.total);
         },
       });
-  }
-
-  handle(e: PageEvent): void {
-    this.pagingController.handle(e);
-    this.fetchFsGroups();
   }
 
   /**

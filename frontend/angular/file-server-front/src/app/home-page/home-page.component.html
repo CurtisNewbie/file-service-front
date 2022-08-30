@@ -275,8 +275,8 @@
         </table>
 
         <mat-paginator #paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
-            [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page"
-            [showFirstLastButtons]="true">
+            [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="pagingController.onPageEvent($event)"
+            aria-label="Select page" [showFirstLastButtons]="true">
         </mat-paginator>
 
     </div>

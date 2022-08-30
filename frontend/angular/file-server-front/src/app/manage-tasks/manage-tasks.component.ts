@@ -78,7 +78,7 @@ export class ManageTasksComponent implements OnInit {
   }
 
   handle(e: PageEvent): void {
-    this.pagingController.handle(e);
+    this.pagingController.onPageEvent(e);
     this.fetchTaskList();
   }
 

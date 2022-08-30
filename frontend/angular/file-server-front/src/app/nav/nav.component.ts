@@ -4,6 +4,7 @@ import { environment } from "src/environments/environment";
 import { BaseOpt } from "src/models/nav";
 import { UserInfo } from "src/models/user-info";
 import { UserService } from "../user.service";
+import { getToken } from "../util/api-util";
 
 @Component({
   selector: "app-nav",
@@ -26,7 +27,9 @@ export class NavComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userService.fetchUserInfo();
+    if (getToken()) {
+      this.userService.fetchUserInfo();
+    }
     this.userService.userInfoObservable.subscribe({
       next: (user) => {
         this.isAdmin = user.role === "admin";

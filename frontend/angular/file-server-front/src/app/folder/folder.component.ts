@@ -1,3 +1,4 @@
+import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
 import { Folder } from "src/models/folder";
@@ -12,7 +13,7 @@ export class FolderComponent implements OnInit {
   searchParam: { name: string } = {
     name: "",
   };
-  pagingController: PagingController = new PagingController();
+  pagingController: PagingController;
 
   folders: Folder[] = [
     {
@@ -47,14 +48,12 @@ export class FolderComponent implements OnInit {
     },
   ];
 
-  constructor() {}
+  constructor(private http: HttpClient) {
+    this.pagingController = new PagingController();
+    this.pagingController.onPageChanged = () => this.fetchFolders();
+  }
 
   ngOnInit(): void {}
-
-  handle(e: PageEvent): void {
-    this.pagingController.handle(e);
-    this.fetchFolders();
-  }
 
   fetchFolders(): void {}
 }

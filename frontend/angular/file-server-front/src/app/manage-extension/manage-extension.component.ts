@@ -108,7 +108,7 @@ export class ManageExtensionComponent implements OnInit {
   }
 
   handle(e: PageEvent): void {
-    this.pagingController.handle(e);
+    this.pagingController.onPageEvent(e);
     this.fetchSupportedExtensionsDetails();
   }
 

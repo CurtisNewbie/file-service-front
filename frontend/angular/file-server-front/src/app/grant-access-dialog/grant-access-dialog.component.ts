@@ -26,7 +26,7 @@ export class GrantAccessDialogComponent implements OnInit {
   ];
   grantedTo: string = "";
   grantedAccesses: FileAccessGranted[] = [];
-  pagingController: PagingController = new PagingController();
+  pagingController: PagingController;
 
   constructor(
     private fileService: FileInfoService,
@@ -36,7 +36,10 @@ export class GrantAccessDialogComponent implements OnInit {
       GrantAccessDialogData
     >,
     @Inject(MAT_DIALOG_DATA) public data: GrantAccessDialogData
-  ) {}
+  ) {
+    this.pagingController = new PagingController();
+    this.pagingController.onPageChanged = () => this.fetchAccessGranted();
+  }
 
   ngOnInit() {
     this.fetchAccessGranted();
@@ -73,11 +76,6 @@ export class GrantAccessDialogComponent implements OnInit {
           this.pagingController.updatePages(resp.data.pagingVo.total);
         },
       });
-  }
-
-  handle(e: PageEvent): void {
-    this.pagingController.handle(e);
-    this.fetchAccessGranted();
   }
 
   removeAccess(userId: number): void {

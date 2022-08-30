@@ -32,6 +32,9 @@ export class PagingController {
   };
   pages: number[] = [1];
 
+  /** callback invoked when current page is changed */
+  onPageChanged: () => void = null;
+
   /** Update the list of pages that it can select */
   public updatePages(total: number): void {
     this.pages = [];
@@ -77,9 +80,10 @@ export class PagingController {
     this.paging.page = 1;
   }
 
-  public handle(e: PageEvent): void {
+  public onPageEvent(e: PageEvent): void {
     console.log(e);
     this.paging.page = e.pageIndex + 1;
     this.paging.limit = e.pageSize;
+    if (this.onPageChanged) this.onPageChanged();
   }
 }

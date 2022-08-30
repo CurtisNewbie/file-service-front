@@ -4,6 +4,7 @@ import { NLink, selectLinks } from "src/models/link";
 import { UserInfo } from "src/models/user-info";
 import { NavigationService } from "./navigation.service";
 import { UserService } from "./user.service";
+import { getToken } from "./util/api-util";
 
 @Component({
   selector: "app-root",
@@ -31,7 +32,9 @@ export class AppComponent {
   ) {}
 
   ngOnInit(): void {
-    this.userService.fetchUserInfo();
+    if (getToken()) {
+      this.userService.fetchUserInfo();
+    }
     this.userService.userInfoObservable.subscribe({
       next: (user) => {
         this.isAdmin = user.role === "admin";

@@ -83,6 +83,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   filteredTags: string[] = [];
   isMobile: boolean = isMobile();
   galleryNo: string = null;
+  isAllSelected: boolean = false;
 
   /*
   ---------
@@ -114,7 +115,10 @@ export class HomePageComponent implements OnInit, OnDestroy {
     private fileService: FileInfoService,
     private nav: NavigationService,
     private http: HttpClient
-  ) {}
+  ) {
+    this.pagingController = new PagingController();
+    this.pagingController.onPageChanged = () => this.fetchFileInfoList();
+  }
 
   ngOnDestroy(): void {
     this.fetchTagTimerSub.unsubscribe();
@@ -149,6 +153,9 @@ export class HomePageComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => console.log(err),
+        complete: () => {
+          this.isAllSelected = false;
+        },
       });
   }
 
@@ -298,11 +305,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
       console.log("Pressed 'Enter' key, init search file list procedure");
       this.fetchFileInfoList();
     }
-  }
-
-  handle(e: PageEvent): void {
-    this.pagingController.handle(e);
-    this.fetchFileInfoList();
   }
 
   fileExtToolTip(): string {
@@ -547,9 +549,9 @@ export class HomePageComponent implements OnInit, OnDestroy {
   }
 
   selectAllFiles() {
-    console.log("select all");
+    this.isAllSelected = !this.isAllSelected;
     this.fileInfoList.forEach((v) => {
-      if (v.isOwner) v._selected = true;
+      if (v.isOwner) v._selected = this.isAllSelected;
     });
   }
 
@@ -644,6 +646,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   private _resetFileUploadParam(): void {
     if (this.isUploading) return;
 
+    this.isAllSelected = false;
     this.selectedTags = [];
     this.isCompressed = false;
     this.uploadParam = emptyUploadFileParam();

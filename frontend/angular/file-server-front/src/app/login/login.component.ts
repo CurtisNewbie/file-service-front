@@ -1,9 +1,8 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
 import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
-import { setToken } from "../util/api-util";
+import { setToken, getToken } from "../util/api-util";
 
 @Component({
   selector: "app-login",
@@ -21,9 +20,11 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.userService.fetchUserInfo(() =>
-      this.nav.navigateTo(NavType.HOME_PAGE)
-    );
+    if (getToken()) {
+      this.userService.fetchUserInfo(() =>
+        this.nav.navigateTo(NavType.HOME_PAGE)
+      );
+    }
   }
 
   /**

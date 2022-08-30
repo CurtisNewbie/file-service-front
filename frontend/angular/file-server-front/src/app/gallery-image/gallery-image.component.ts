@@ -1,15 +1,13 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
+import { HttpClient } from "@angular/common/http";
+import { MatPaginator } from "@angular/material/paginator";
 import { PagingController } from "src/models/paging";
 import { ListGalleryImagesResp } from "src/models/gallery";
-import { buildApiPath, buildOptions, getToken } from "../util/api-util";
+import { buildApiPath, buildOptions } from "../util/api-util";
 import { environment } from "src/environments/environment";
 import { Resp } from "src/models/resp";
 import { NavigationService, NavType } from "../navigation.service";
-import { forkJoin, Observable } from "rxjs";
-import { DomSanitizer } from "@angular/platform-browser";
 import { IAlbum, Lightbox, LightboxConfig } from "ngx-lightbox";
 
 @Component({
@@ -22,7 +20,7 @@ export class GalleryImageComponent implements OnInit {
   @ViewChild("paginator", { static: true })
   paginator: MatPaginator;
 
-  pagingController: PagingController = new PagingController();
+  pagingController: PagingController;
 
   galleryNo: string = null;
   title = "fantahsea";
@@ -44,6 +42,8 @@ export class GalleryImageComponent implements OnInit {
     _lbConfig.fadeDuration = 0.2;
     _lbConfig.showRotate = false;
 
+    this.pagingController = new PagingController();
+    this.pagingController.onPageChanged = () => this.fetchImages();
     this.pagingController.setPageLimit(15);
   }
 
@@ -93,11 +93,6 @@ export class GalleryImageComponent implements OnInit {
           }
         },
       });
-  }
-
-  handle(e: PageEvent): void {
-    this.pagingController.handle(e);
-    this.fetchImages();
   }
 
   open(index: number): void {

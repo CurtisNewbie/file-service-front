@@ -31,7 +31,7 @@ export class GalleryComponent implements OnInit {
   @ViewChild("paginator", { static: true })
   paginator: MatPaginator;
 
-  pagingController: PagingController = new PagingController();
+  pagingController: PagingController;
   galleries: Gallery[] = [];
   isMobile: boolean = isMobile();
   expandedElement: Gallery = null;
@@ -44,11 +44,9 @@ export class GalleryComponent implements OnInit {
     private userService: UserService,
     private notification: NotificationService,
     private navigation: NavigationService
-  ) {}
-
-  handle(e: PageEvent): void {
-    this.pagingController.handle(e);
-    this.fetchGalleries();
+  ) {
+    this.pagingController = new PagingController();
+    this.pagingController.onPageChanged = () => this.fetchGalleries();
   }
 
   ngOnInit() {
