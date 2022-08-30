@@ -35,7 +35,7 @@ export class RespInterceptor implements HttpInterceptor {
 
         if (e instanceof HttpResponse) {
           let r: Resp<any> = e.body as Resp<any>;
-          if (r.hasError) {
+          if (r.error) {
             this.notifi.toast(r.msg, 6000);
             return false; // filter out this value
           }

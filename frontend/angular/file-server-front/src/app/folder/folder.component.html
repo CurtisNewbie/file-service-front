@@ -1,9 +1,31 @@
+<div class="container bootstrap p-3 mt-3 mb-5 shadow" *ngIf="creatingFolder">
+    <h4 class="mt-2 mb-2">New Folder</h4>
+
+    <mat-form-field appearance="fill" style="width: 100%;">
+        <mat-label>Folder Name</mat-label>
+        <input matInput type="text" id="usernameInput" [(ngModel)]="newFolderName">
+        <button *ngIf="newFolderName" class="btn-close" matSuffix aria-label="Clear" (click)="newFolderName=''">
+        </button>
+    </mat-form-field>
+
+    <div class="justify-content-md-end d-md-flex">
+        <button mat-raised-button class="mt-2" (click)="createFolder()">Create</button>
+    </div>
+</div>
+
 <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-3">
     <mat-label>Folder Name:</mat-label>
     <input matInput type="text" [(ngModel)]="searchParam.name">
     <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''" class="btn-close">
     </button>
 </mat-form-field>
+
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+    <button mat-raised-button class="m-2" (click)="creatingFolder=!creatingFolder">Create Folder</button>
+    <button mat-raised-button class="m-2" (click)="fetchFolders()">Fetch</button>
+    <button mat-raised-button class="m-2" (click)="resetSearchParam()">Reset</button>
+</div>
 
 <mat-list>
     <mat-list-item *ngFor="let folder of folders">
@@ -15,7 +37,7 @@
             {{folder.name}}
         </div>
         <p matLine>
-            <span>{{folder.createBy}} {{folder.createTime}} </span>
+            <span>{{folder.createBy}} {{folder.createTime}} ({{folder.ownership}}) </span>
         </p>
     </mat-list-item>
 </mat-list>

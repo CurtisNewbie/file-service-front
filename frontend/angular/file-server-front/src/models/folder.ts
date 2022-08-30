@@ -1,3 +1,5 @@
+import { Paging } from "./paging";
+
 export interface Folder {
   id: number;
 
@@ -21,4 +23,9 @@ export interface Folder {
 
   /** ownership */
   ownership: string;
+}
+
+export interface FolderListResp {
+  payload: Folder[];
+  pagingVo: Paging;
 }

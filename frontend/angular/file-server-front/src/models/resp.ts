@@ -3,7 +3,7 @@ export interface Resp<T> {
   msg: string;
 
   /** whether current response has an error */
-  hasError: boolean;
+  error: boolean;
 
   /** data */
   data: T;
