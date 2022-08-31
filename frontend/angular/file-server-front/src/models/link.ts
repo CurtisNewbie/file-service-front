@@ -14,7 +14,7 @@ const adminOnly: Set<string> = new Set<string>().add("admin");
 const fileServicesLinks: NLink[] = [
   {
     route: "/home-page",
-    name: "Home",
+    name: "Files",
     permitRoles: anyRoles,
   },
   {

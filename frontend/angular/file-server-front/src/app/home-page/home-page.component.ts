@@ -35,6 +35,7 @@ import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
 import { environment } from "src/environments/environment";
+import { ActivatedRoute } from "@angular/router";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -65,6 +66,15 @@ export class HomePageComponent implements OnInit, OnDestroy {
     "userGroup",
     "download",
   ];
+
+  readonly DESKTOP_FOLDER_COLUMNS = [
+    "name",
+    "uploader",
+    "uploadTime",
+    "size",
+    "userGroup",
+    "download",
+  ];
   readonly MOBILE_COLUMNS = ["name", "size", "download"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp"]);
   readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) =>
@@ -82,8 +92,11 @@ export class HomePageComponent implements OnInit, OnDestroy {
   selectedTags: string[] = [];
   filteredTags: string[] = [];
   isMobile: boolean = isMobile();
-  galleryNo: string = null;
+  addToGalleryNo: string = null;
+  addToFolderNo: string = null;
   isAllSelected: boolean = false;
+  folderNo: string = "";
+  folderName: string = "";
 
   /*
   ---------
@@ -114,7 +127,8 @@ export class HomePageComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private fileService: FileInfoService,
     private nav: NavigationService,
-    private http: HttpClient
+    private http: HttpClient,
+    private route: ActivatedRoute
   ) {
     this.pagingController = new PagingController();
     this.pagingController.onPageChanged = () => this.fetchFileInfoList();
@@ -125,6 +139,14 @@ export class HomePageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.route.paramMap.subscribe((params) => {
+      let folderNo = params.get("folderNo");
+      let folderName = params.get("folderName");
+      this.folderNo = folderNo;
+      this.folderName = folderName;
+      this.fetchFileInfoList();
+    });
+
     this.userService.fetchUserInfo();
     this.userService.roleObservable.subscribe(
       (role) => (this.isGuest = role === "guest")
@@ -135,7 +157,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   }
 
   /** fetch file info list */
-  fetchFileInfoList(): void {
+  fetchFileInfoList() {
     this.fileService
       .fetchFileInfoList({
         pagingVo: this.pagingController.paging,
@@ -143,10 +165,11 @@ export class HomePageComponent implements OnInit, OnDestroy {
         userGroup: this.searchParam.userGroup,
         ownership: this.searchParam.ownership,
         tagName: this.searchParam.tagName,
+        folderNo: this.folderNo,
       })
       .subscribe({
         next: (resp) => {
-          this.fileInfoList = resp.data.fileInfoList;
+          this.fileInfoList = resp.data.payload;
           let total = resp.data.pagingVo.total;
           if (total != null) {
             this.pagingController.updatePages(total);
@@ -349,7 +372,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
         complete: () => {
           this.fetchFileInfoList();
           this.expandedElement = null;
-          this.galleryNo = null;
+          this.addToGalleryNo = null;
         },
       });
   }
@@ -439,7 +462,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((confirm) => {
       this._fetchTags();
       this.expandedElement = null;
-      this.galleryNo = null;
+      this.addToGalleryNo = null;
     });
   }
 
@@ -490,8 +513,59 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.filteredTags = this.filter(this.searchParam.tagName);
   }
 
+  addToFolder() {
+    if (!this.addToFolderNo) {
+      this.notifi.toast("Please enter folder no first");
+      return;
+    }
+
+    if (!this.fileInfoList) {
+      this.notifi.toast("Please select files first");
+      return;
+    }
+
+    console.log("pre-filtered: ", this.fileInfoList);
+
+    let fileKeys = this.fileInfoList
+      .map((v) => {
+        if (v._selected && v.isOwner) {
+          return v;
+        }
+        return null;
+      })
+      .filter((v) => v != null)
+      .map((f) => {
+        return f.uuid;
+      });
+
+    console.log("(post-filtered) selected: ", fileKeys);
+
+    if (!fileKeys) return;
+
+    this.http
+      .post(
+        buildApiPath("/vfolder/file/add"),
+        {
+          folderNo: this.addToFolderNo,
+          fileKeys: fileKeys,
+        },
+        buildOptions()
+      )
+      .subscribe({
+        complete: () => {
+          this.expandedElement = null;
+          this.fetchFileInfoList();
+        },
+      });
+  }
+
+  selectColumns() {
+    if (isMobile()) return this.MOBILE_COLUMNS;
+    return this.folderNo ? this.DESKTOP_FOLDER_COLUMNS : this.DESKTOP_COLUMNS;
+  }
+
   transferToGallery() {
-    if (!this.galleryNo) {
+    if (!this.addToGalleryNo) {
       this.notifi.toast("Please enter Fantahsea gallery no first");
       return;
     }
@@ -516,7 +590,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
         return {
           name: f.name,
           fileKey: f.uuid,
-          galleryNo: this.galleryNo,
+          galleryNo: this.addToGalleryNo,
         };
       });
 

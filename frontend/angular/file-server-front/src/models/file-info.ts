@@ -61,7 +61,7 @@ export enum FileOwnershipEnum {
 /** Response model for fetching file info list */
 export interface FetchFileInfoList {
   /** list of file info */
-  fileInfoList: FileInfo[];
+  payload: FileInfo[];
 
   /** paging vo */
   pagingVo: Paging;
@@ -97,6 +97,8 @@ export interface SearchFileInfoParam {
   ownership: number;
   /** name of tag */
   tagName: string;
+  /** folder no */
+  folderNo: string;
 }
 
 /** Parameters for uploading a file */
@@ -156,6 +158,7 @@ export function emptySearchFileInfoParam(): SearchFileInfoParam {
     userGroup: null,
     ownership: null,
     tagName: null,
+    folderNo: null,
   };
 }
 

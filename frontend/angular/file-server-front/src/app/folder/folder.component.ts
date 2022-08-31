@@ -1,9 +1,9 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
-import { PageEvent } from "@angular/material/paginator";
 import { Folder, FolderListResp } from "src/models/folder";
 import { Paging, PagingController } from "src/models/paging";
 import { Resp } from "src/models/resp";
+import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
 import { buildApiPath, buildOptions } from "../util/api-util";
 
@@ -21,42 +21,12 @@ export class FolderComponent implements OnInit {
   };
   pagingController: PagingController;
 
-  folders: Folder[] = [
-    {
-      id: 1,
-      name: "Mega Monga",
-      createBy: "Yongj Zhuang",
-      createTime: "2022-08-29 23:24:38",
-      updateBy: "Yongj Zhuang",
-      updateTime: "2022-08-29 23:24:38",
-      folderNo: "A123123123",
-      ownership: "OWNER",
-    },
-    {
-      id: 2,
-      name: "Secret stuff",
-      createBy: "Yongj Zhuang",
-      createTime: "2022-08-29 23:24:38",
-      updateBy: "Yongj Zhuang",
-      updateTime: "2022-08-29 23:24:38",
-      folderNo: "A123123123",
-      ownership: "OWNER",
-    },
-    {
-      id: 3,
-      name: "What is it?",
-      createBy: "Yongj Zhuang",
-      createTime: "2022-08-29 23:24:38",
-      updateBy: "Yongj Zhuang",
-      updateTime: "2022-08-29 23:24:38",
-      folderNo: "A123123123",
-      ownership: "OWNER",
-    },
-  ];
+  folders: Folder[] = [];
 
   constructor(
     private http: HttpClient,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private navi: NavigationService
   ) {
     this.pagingController = new PagingController();
     this.pagingController.onPageChanged = () => this.fetchFolders();
@@ -67,6 +37,12 @@ export class FolderComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchFolders();
+  }
+
+  selectFolder(f: Folder): void {
+    this.navi.navigateTo(NavType.HOME_PAGE, [
+      { folderNo: f.folderNo, folderName: f.name },
+    ]);
   }
 
   fetchFolders(): void {
