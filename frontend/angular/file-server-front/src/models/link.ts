@@ -19,7 +19,7 @@ const fileServicesLinks: NLink[] = [
   },
   {
     route: "/folders",
-    name: "Folders",
+    name: "Virtual Folders",
     permitRoles: anyRoles,
   },
   {

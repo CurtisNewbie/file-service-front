@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
-import { Folder, FolderListResp } from "src/models/folder";
+import { VFolder, FolderListResp } from "src/models/folder";
 import { Paging, PagingController } from "src/models/paging";
 import { Resp } from "src/models/resp";
 import { NavigationService, NavType } from "../navigation.service";
@@ -21,7 +21,7 @@ export class FolderComponent implements OnInit {
   };
   pagingController: PagingController;
 
-  folders: Folder[] = [];
+  folders: VFolder[] = [];
 
   constructor(
     private http: HttpClient,
@@ -39,7 +39,7 @@ export class FolderComponent implements OnInit {
     this.fetchFolders();
   }
 
-  selectFolder(f: Folder): void {
+  selectFolder(f: VFolder): void {
     this.navi.navigateTo(NavType.HOME_PAGE, [
       { folderNo: f.folderNo, folderName: f.name },
     ]);

@@ -1,6 +1,7 @@
 import { Paging } from "./paging";
 
-export interface Folder {
+/** Virtual Folder */
+export interface VFolder {
   id: number;
 
   /** when the record is created */
@@ -26,6 +27,6 @@ export interface Folder {
 }
 
 export interface FolderListResp {
-  payload: Folder[];
+  payload: VFolder[];
   pagingVo: Paging;
 }
