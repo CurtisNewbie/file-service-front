@@ -288,7 +288,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   /**
    * Delete file
    */
-  deleteFile(id: number, name: string): void {
+  deleteFile(uuid: string, name: string): void {
     const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
       this.dialog.open(ConfirmDialogComponent, {
         width: "500px",
@@ -302,7 +302,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
       console.log(confirm);
       if (confirm) {
         this.fileService
-          .deleteFile(id)
+          .deleteFile(uuid)
           .subscribe((resp) => this.fetchFileInfoList());
       }
     });

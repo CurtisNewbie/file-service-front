@@ -1,6 +1,5 @@
 import { HttpClient, HttpEvent, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { env } from "process";
 import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import {
@@ -29,15 +28,15 @@ import { buildApiPath, buildOptions, getToken } from "./util/api-util";
   providedIn: "root",
 })
 export class FileInfoService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Delete file
    */
-  public deleteFile(id: number): Observable<Resp<any>> {
+  public deleteFile(uuid: string): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
       buildApiPath("/file/delete"),
-      { id: id },
+      { uuid: uuid },
       buildOptions()
     );
   }
