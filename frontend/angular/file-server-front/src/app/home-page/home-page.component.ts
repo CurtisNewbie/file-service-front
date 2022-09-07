@@ -7,7 +7,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
+import { MatPaginator } from "@angular/material/paginator";
 import { Subscription, timer } from "rxjs";
 
 import {
@@ -16,11 +16,13 @@ import {
   FileInfo,
   FileOwnershipEnum,
   FileOwnershipOption,
+  FileType,
   FileUserGroupEnum,
   FileUserGroupOption,
   FILE_OWNERSHIP_OPTIONS,
   FILE_USER_GROUP_OPTIONS,
   SearchFileInfoParam,
+  transFileType,
   UploadFileParam,
 } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
@@ -36,6 +38,7 @@ import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
 import { environment } from "src/environments/environment";
 import { ActivatedRoute } from "@angular/router";
+import { TransformVisitor } from "@angular/compiler/src/render3/r3_ast";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -63,10 +66,10 @@ export class HomePageComponent implements OnInit, OnDestroy {
     "uploader",
     "uploadTime",
     "size",
+    "fileType",
     "userGroup",
     "download",
   ];
-
   readonly DESKTOP_FOLDER_COLUMNS = [
     "name",
     "uploader",
@@ -75,7 +78,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     "userGroup",
     "download",
   ];
-  readonly MOBILE_COLUMNS = ["name", "size", "download"];
+  readonly MOBILE_COLUMNS = ["name", "fileType", "download"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp"]);
   readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) =>
     this._fetchTags()
@@ -627,6 +630,10 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.fileInfoList.forEach((v) => {
       if (v.isOwner) v._selected = this.isAllSelected;
     });
+  }
+
+  fileTypeLabel(ft: FileType) {
+    return transFileType(ft);
   }
 
   // -------------------------- private helper methods ------------------------

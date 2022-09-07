@@ -36,9 +36,33 @@ export interface FileInfo {
   isOwner: boolean;
 
   /**
+   * File Type
+   */
+  fileType: FileType;
+
+  /** Label for File Type */
+  fileTypeLabel: string;
+
+  /**
    * whether file is selected; this is not from the backend, it's used only locally by the frontend
    */
   _selected: boolean;
+}
+
+export enum FileType {
+  /** File */
+  FILE = "FILE",
+  /** Directory */
+  DIR = "DIR"
+}
+
+const fileTypeTransMap: Map<FileType, string> = new Map<FileType, string>()
+  .set(FileType.FILE, "File")
+  .set(FileType.DIR, "Directory");
+
+/** Translate FileType */
+export function transFileType(ft: FileType): string {
+  return fileTypeTransMap.get(ft);
 }
 
 /** Enum for FileInfo.userGroup */

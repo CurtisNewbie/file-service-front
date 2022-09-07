@@ -199,6 +199,12 @@
                 <th mat-header-cell *matHeaderCellDef> Size </th>
                 <td mat-cell *matCellDef="let f"> {{resolveSize(f.sizeInBytes)}} </td>
             </ng-container>
+
+            <ng-container matColumnDef="fileType">
+                <th mat-header-cell *matHeaderCellDef> Type </th>
+                <td mat-cell *matCellDef="let f"> {{fileTypeLabel(f.fileType)}} </td>
+            </ng-container>
+
             <ng-container matColumnDef="userGroup">
                 <th mat-header-cell *matHeaderCellDef> User Group </th>
                 <td mat-cell *matCellDef="let f">
@@ -287,7 +293,6 @@
                 [matTooltip]="row.isOwner ? 'Click to expand' : ''">
             </tr>
             <tr mat-row *matRowDef="let element; columns: ['expandedElement'];" class="detail-row">
-
         </table>
 
         <mat-paginator #paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
