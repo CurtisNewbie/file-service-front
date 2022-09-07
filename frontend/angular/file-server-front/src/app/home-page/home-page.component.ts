@@ -38,7 +38,6 @@ import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
 import { environment } from "src/environments/environment";
 import { ActivatedRoute } from "@angular/router";
-import { TransformVisitor } from "@angular/compiler/src/render3/r3_ast";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
