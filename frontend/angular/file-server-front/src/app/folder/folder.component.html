@@ -3,7 +3,7 @@
 
     <mat-form-field appearance="fill" style="width: 100%;">
         <mat-label>Folder Name</mat-label>
-        <input matInput type="text" id="usernameInput" [(ngModel)]="newFolderName">
+        <input matInput type="text" [(ngModel)]="newFolderName">
         <button *ngIf="newFolderName" class="btn-close" matSuffix aria-label="Clear" (click)="newFolderName=''">
         </button>
     </mat-form-field>
@@ -14,7 +14,7 @@
 </div>
 
 <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-3">
-    <mat-label>Folder Name:</mat-label>
+    <mat-label>Virtual Folder Name:</mat-label>
     <input matInput type="text" [(ngModel)]="searchParam.name">
     <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''" class="btn-close">
     </button>

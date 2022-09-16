@@ -44,7 +44,7 @@ export class FileInfoService {
   /**
    * Fetch list of file info
    */
-  public fetchFileInfoList(param): Observable<Resp<FetchFileInfoList>> {
+  public fetchFileInfoList(param: FetchFileInfoListParam): Observable<Resp<FetchFileInfoList>> {
     return this.http.post<Resp<FetchFileInfoList>>(
       buildApiPath("/file/list"),
       param,

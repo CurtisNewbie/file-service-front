@@ -1,6 +1,8 @@
 import { HttpClient, HttpEventType } from "@angular/common/http";
 import {
+  AfterViewChecked,
   Component,
+  DoCheck,
   ElementRef,
   OnDestroy,
   OnInit,
@@ -11,7 +13,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { Subscription, timer } from "rxjs";
 
 import {
-  emptySearchFileInfoParam,
+  DirBrief,
   emptyUploadFileParam,
   FileInfo,
   FileOwnershipEnum,
@@ -38,6 +40,7 @@ import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
 import { environment } from "src/environments/environment";
 import { ActivatedRoute } from "@angular/router";
+import { Resp } from "src/models/resp";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -49,7 +52,7 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   styleUrls: ["./home-page.component.css"],
   animations: [animateElementExpanding()],
 })
-export class HomePageComponent implements OnInit, OnDestroy {
+export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   readonly fantahseaEnabled: boolean =
     environment.services.find((v) => v.base === "fantahsea") != null;
   readonly OWNERSHIP_ALL_FILES = FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES;
@@ -86,7 +89,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   expandedElement: FileInfo;
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
-  searchParam: SearchFileInfoParam = emptySearchFileInfoParam();
+  searchParam: SearchFileInfoParam = {}
   isGuest: boolean = true;
   pagingController: PagingController = new PagingController();
   progress: string = null;
@@ -95,10 +98,27 @@ export class HomePageComponent implements OnInit, OnDestroy {
   filteredTags: string[] = [];
   isMobile: boolean = isMobile();
   addToGalleryNo: string = null;
-  addToFolderNo: string = null;
   isAllSelected: boolean = false;
+  fileListTitle: string = null;
+
+  /*
+    Virtual Folder
+  */
+  addToFolderNo: string = null;
   folderNo: string = "";
   folderName: string = "";
+
+  /*
+    Directory
+  */
+  parentFileName: string = null;
+  dirBriefList: DirBrief[] = [];
+  filteredDirs: string[] = [];
+  moveIntoDirName: string = null;
+  moveIntoDirUuid: string = null;
+  makingDir: boolean = false;
+  newDirName: string = null;
+
 
   /*
   ---------
@@ -107,7 +127,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
   
   ---------
   */
-
   uploadParam: UploadFileParam = emptyUploadFileParam();
   displayedUploadName: string = null;
   isCompressed: boolean = false;
@@ -136,6 +155,10 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.pagingController.onPageChanged = () => this.fetchFileInfoList();
   }
 
+  ngDoCheck(): void {
+    this.fileListTitle = this._getListTitle();
+  }
+
   ngOnDestroy(): void {
     this.fetchTagTimerSub.unsubscribe();
   }
@@ -156,6 +179,79 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this._fetchSupportedExtensions();
     this.fetchFileInfoList();
     this._fetchTags();
+    this.fetchDirBriefList();
+  }
+
+  // fetch dir brief list
+  fetchDirBriefList() {
+    this.http.get<Resp<DirBrief[]>>(
+      buildApiPath("/file/dir/list"),
+      buildOptions()
+    ).subscribe({
+      next: (resp) => {
+        this.dirBriefList = resp.data;
+      }
+    });
+  }
+
+  // make dir
+  mkdir() {
+    if (!this.newDirName) {
+      this.notifi.toast("Please enter new directory name")
+      return;
+    }
+
+    this.http.post(
+      buildApiPath("/file/make-dir"),
+      {
+        name: this.newDirName,
+        userGroup: FileUserGroupEnum.USER_GROUP_PRIVATE
+      },
+      buildOptions()
+    ).subscribe({
+      next: () => {
+        this.fetchFileInfoList();
+        this.fetchDirBriefList();
+        this.makingDir = false;
+      }
+    });
+  }
+
+  goIntoDir(dir: FileInfo) {
+    this.searchParam.parentFile = dir.uuid;
+    this.searchParam.parentFileName = dir.name;
+    this.fetchFileInfoList();
+  }
+
+  // Move into dir
+  doMoveIntoDir(uuid: string, dirName: string) {
+    if (!uuid) {
+      this.notifi.toast("Please select a file first")
+      return
+    }
+
+    let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === dirName)
+    if (!matched || matched.length < 1) {
+      this.notifi.toast("Directory not found, please check and try again")
+      return
+    }
+
+    if (matched.length > 1) {
+      this.notifi.toast("Found multiple directories with the same name, please update their names and try again")
+      return
+    }
+
+    let first = matched[0]
+    this.http.post(
+      buildApiPath("/file/move-to-dir"),
+      {
+        uuid: uuid,
+        parentFileUuid: first.uuid,
+      },
+      buildOptions()
+    ).subscribe({
+      complete: () => this.fetchFileInfoList()
+    });
   }
 
   /** fetch file info list */
@@ -168,14 +264,20 @@ export class HomePageComponent implements OnInit, OnDestroy {
         ownership: this.searchParam.ownership,
         tagName: this.searchParam.tagName,
         folderNo: this.folderNo,
+        parentFile: this.searchParam.parentFile
       })
       .subscribe({
         next: (resp) => {
           this.fileInfoList = resp.data.payload;
+          for (let f of this.fileInfoList) {
+            f.fileTypeLabel = this._translateFileType(f.fileType)
+          }
+
           let total = resp.data.pagingVo.total;
           if (total != null) {
             this.pagingController.updatePages(total);
           }
+          this.parentFileName = this.searchParam.parentFileName
         },
         error: (err) => console.log(err),
         complete: () => {
@@ -277,7 +379,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   /** Reset all parameters used for searching, and the fetch the list */
   resetSearchParam(): void {
-    this.searchParam = emptySearchFileInfoParam();
+    this.searchParam = {};
     this.paginator.firstPage();
     this.fetchFileInfoList();
   }
@@ -512,10 +614,13 @@ export class HomePageComponent implements OnInit, OnDestroy {
   }
 
   onTagNameChanged() {
-    this.filteredTags = this.filter(this.searchParam.tagName);
+    this.filteredTags = this._doAutoCompFilter(this.tags, this.searchParam.tagName);
+  }
+  onDirNameChanged() {
+    this.filteredDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.moveIntoDirName);
   }
 
-  addToFolder() {
+  addToVirtualFolder() {
     if (!this.addToFolderNo) {
       this.notifi.toast("Please enter folder no first");
       return;
@@ -631,7 +736,8 @@ export class HomePageComponent implements OnInit, OnDestroy {
     });
   }
 
-  fileTypeLabel(ft: FileType) {
+  private _translateFileType(ft: FileType): string {
+    if (!ft) return "";
     return transFileType(ft);
   }
 
@@ -854,11 +960,17 @@ export class HomePageComponent implements OnInit, OnDestroy {
     return this.uploadParam.files.length > 1;
   }
 
-  private filter(value: string): string[] {
-    if (!value) return this.tags;
+  private _doAutoCompFilter(candidates: string[], value: string): string[] {
+    if (!value) return candidates;
 
-    return this.tags.filter((option) =>
+    return candidates.filter((option) =>
       option.toLowerCase().includes(value.toLowerCase())
     );
+  }
+
+  private _getListTitle() {
+    if (this.folderNo) return "Files In Virtual Folder"
+    if (this.parentFileName) return "Under Directory"
+    return "File List"
   }
 }

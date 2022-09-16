@@ -111,18 +111,29 @@ export const FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] = [
   { name: "My Files", value: FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES },
 ];
 
+/** Brief info for DIR type file */
+export interface DirBrief {
+  id : number;
+  uuid : string;
+  name : string;
+}
+
 /** Parameters used for fetching list of file info */
 export interface SearchFileInfoParam {
   /** filename */
-  name: string;
+  name?: string;
   /** user group */
-  userGroup: number;
+  userGroup?: number;
   /** ownership */
-  ownership: number;
+  ownership?: number;
   /** name of tag */
-  tagName: string;
+  tagName?: string;
   /** folder no */
-  folderNo: string;
+  folderNo?: string;
+  /** parent file UUID */
+  parentFile?: string;
+  /** parent file name (not used by backend) */
+  parentFileName?: string;
 }
 
 /** Parameters for uploading a file */
@@ -140,50 +151,19 @@ export interface UploadFileParam {
 /** Parameters for fetching list of file info */
 export interface FetchFileInfoListParam {
   /** filename */
-  filename: string;
+  filename?: string;
   /** user group */
-  userGroup: number;
+  userGroup?: number;
   /** paging  */
-  pagingVo: Paging;
+  pagingVo?: Paging;
   /** ownership */
-  ownership: number;
+  ownership?: number;
   /** tagName */
-  tagName: string;
-}
-
-/** Parameters used for fetching list of file info */
-export interface SearchFileInfoParam {
-  /** filename */
-  name: string;
-  /** user group */
-  userGroup: number;
-  /** ownership */
-  ownership: number;
-}
-
-/** Parameters for fetching list of file info */
-export interface FetchFileInfoListParam {
-  /** filename */
-  filename: string;
-  /** user group */
-  userGroup: number;
-  /** paging  */
-  pagingVo: Paging;
-  /** ownership */
-  ownership: number;
-}
-
-/**
- * Empty object with all properties being null values
- */
-export function emptySearchFileInfoParam(): SearchFileInfoParam {
-  return {
-    name: null,
-    userGroup: null,
-    ownership: null,
-    tagName: null,
-    folderNo: null,
-  };
+  tagName?: string;
+  /** folder no */
+  folderNo?: string;
+  /** parent file UUID */
+  parentFile?: string;
 }
 
 /**
