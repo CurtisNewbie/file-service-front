@@ -156,6 +156,8 @@ export interface UploadFileParam {
   userGroup?: number;
   /** tags */
   tags?: string[];
+  /** parent file uuid */
+  parentFile?: string;
 }
 
 /** Parameters for fetching list of file info */

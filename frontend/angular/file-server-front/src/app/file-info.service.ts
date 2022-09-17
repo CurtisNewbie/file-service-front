@@ -210,6 +210,7 @@ export class FileInfoService {
     uploadParam: UploadFileParam
   ): Observable<HttpEvent<any>> {
     let headers = new HttpHeaders()
+      .append("parentFile", encodeURI(uploadParam.parentFile))
       .append("fileName", encodeURI(uploadParam.fileName))
       .append("Authorization", getToken())
       .append("userGroup", uploadParam.userGroup.toString())

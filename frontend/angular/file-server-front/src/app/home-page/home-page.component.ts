@@ -115,7 +115,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   dirBriefList: DirBrief[] = [];
   filteredDirs: string[] = [];
   moveIntoDirName: string = null;
-  moveIntoDirUuid: string = null;
   makingDir: boolean = false;
   newDirName: string = null;
 
@@ -131,6 +130,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   displayedUploadName: string = null;
   isCompressed: boolean = false;
   isUploading: boolean = false;
+  uploadDirName: string = null;
+  filteredUploadDirs: string[] = [];
 
   /** Always points to current file, so the next will be uploadIndex+1 */
   uploadIndex = -1;
@@ -161,6 +162,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   ngDoCheck(): void {
     this.fileListTitle = this._getListTitle();
     this.displayedColumns = this._selectColumns();
+    if (this.isCompressed) this.uploadDirName = null;
   }
 
   ngOnDestroy(): void {
@@ -627,8 +629,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.filteredTags = this._doAutoCompFilter(this.tags, this.searchParam.tagName);
   }
 
-  onDirNameChanged() {
+  onMoveIntoDirNameChanged() {
     this.filteredDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.moveIntoDirName);
+  }
+
+  onUploadDirNameChanged() {
+    this.filteredUploadDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.uploadDirName);
   }
 
   addToVirtualFolder() {
@@ -898,6 +904,21 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _doUpload(uploadParam: UploadFileParam) {
+    if (this.uploadDirName) {
+      let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === this.uploadDirName)
+      if (!matched || matched.length < 1) {
+        this.notifi.toast("Directory not found, please check and try again")
+        return
+      }
+      if (matched.length > 1) {
+        this.notifi.toast("Found multiple directories with the same name, please update their names and try again")
+        return
+      }
+      uploadParam.parentFile = matched[0].uuid;
+    } else {
+      uploadParam = null;
+    }
+
     const name = uploadParam.fileName;
     this.uploadSub = this.fileService.postFile(uploadParam).subscribe({
       next: (event) => {
@@ -989,7 +1010,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     ).subscribe({
       next: (resp) => {
         this.dirBriefList = resp.data;
-        this.onDirNameChanged();
+        this.onMoveIntoDirNameChanged();
+        this.onUploadDirNameChanged();
       }
     });
   }
