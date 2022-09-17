@@ -44,7 +44,7 @@ export class GalleryImageComponent implements OnInit {
 
     this.pagingController = new PagingController();
     this.pagingController.onPageChanged = () => this.fetchImages();
-    this.pagingController.setPageLimit(15);
+    this.pagingController.setPageLimit(30);
   }
 
   ngOnInit(): void {

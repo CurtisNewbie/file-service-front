@@ -729,6 +729,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         complete: () => {
           this.expandedElement = null;
           this.fetchFileInfoList();
+          this.notifi.toast("Images are being transferred");
         },
       });
   }
