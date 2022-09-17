@@ -1,9 +1,9 @@
-<h1 mat-dialog-title>Mange File Tags</h1>
+<h1 mat-dialog-title>Mange File Tags for '{{data.filename}}'</h1>
 <div mat-dialog-content>
     <form class="mb-2">
-        <p>Adding tag to '{{data.filename}}'</p>
+        <p>Note: These tags are only visible to you</p>
         <mat-form-field appearance="fill" style="width: 100%;">
-            <mat-label>Tag Name</mat-label>
+            <mat-label>New Tag Name</mat-label>
             <input matInput type="text" [(ngModel)]="tagName" (ngModelChange)="onTagNameChanged()"
                 [matAutocomplete]="auto" [ngModelOptions]="{standalone: true}">
             <mat-autocomplete #auto="matAutocomplete">

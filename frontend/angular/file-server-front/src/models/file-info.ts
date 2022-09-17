@@ -47,6 +47,16 @@ export interface FileInfo {
    * whether file is selected; this is not from the backend, it's used only locally by the frontend
    */
   _selected: boolean;
+
+  /**
+   * whether fileType == 'FILE'; this is not from the backend, it's used only locally by the frontend
+   */
+  isFile: boolean;
+
+  /**
+   * whether fileType == 'DIR'; this is not from the backend, it's used only locally by the frontend
+   */
+  isDir: boolean;
 }
 
 export enum FileType {
@@ -113,9 +123,9 @@ export const FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] = [
 
 /** Brief info for DIR type file */
 export interface DirBrief {
-  id : number;
-  uuid : string;
-  name : string;
+  id: number;
+  uuid: string;
+  name: string;
 }
 
 /** Parameters used for fetching list of file info */
@@ -139,13 +149,13 @@ export interface SearchFileInfoParam {
 /** Parameters for uploading a file */
 export interface UploadFileParam {
   /** name of the file */
-  fileName: string;
+  fileName?: string;
   /** file */
-  files: File[];
+  files?: File[];
   /** user group that the file belongs to */
-  userGroup: number;
+  userGroup?: number;
   /** tags */
-  tags: string[];
+  tags?: string[];
 }
 
 /** Parameters for fetching list of file info */
@@ -191,7 +201,6 @@ export interface UpdateFileUserGroupParam {
 
 export interface ListGrantedAccessResp {
   list: FileAccessGranted[];
-
   pagingVo: Paging;
 }
 

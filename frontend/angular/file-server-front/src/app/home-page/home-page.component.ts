@@ -1,6 +1,5 @@
 import { HttpClient, HttpEventType } from "@angular/common/http";
 import {
-  AfterViewChecked,
   Component,
   DoCheck,
   ElementRef,
@@ -64,11 +63,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     FILE_OWNERSHIP_OPTIONS;
   readonly DESKTOP_COLUMNS = [
     "selected",
+    "fileType",
     "name",
     "uploader",
     "uploadTime",
     "size",
-    "fileType",
     "userGroup",
     "download",
   ];
@@ -80,7 +79,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     "userGroup",
     "download",
   ];
-  readonly MOBILE_COLUMNS = ["name", "fileType", "download"];
+  readonly MOBILE_COLUMNS = ["fileType", "name", "download"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp"]);
   readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) =>
     this._fetchTags()
@@ -100,6 +99,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   addToGalleryNo: string = null;
   isAllSelected: boolean = false;
   fileListTitle: string = null;
+  displayedColumns: string[] = this._selectColumns();
 
   /*
     Virtual Folder
@@ -153,10 +153,14 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   ) {
     this.pagingController = new PagingController();
     this.pagingController.onPageChanged = () => this.fetchFileInfoList();
+    this.userService.roleObservable.subscribe(
+      (role) => (this.isGuest = role === "guest")
+    );
   }
 
   ngDoCheck(): void {
     this.fileListTitle = this._getListTitle();
+    this.displayedColumns = this._selectColumns();
   }
 
   ngOnDestroy(): void {
@@ -164,6 +168,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngOnInit() {
+
     this.route.paramMap.subscribe((params) => {
       let folderNo = params.get("folderNo");
       let folderName = params.get("folderName");
@@ -173,25 +178,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     });
 
     this.userService.fetchUserInfo();
-    this.userService.roleObservable.subscribe(
-      (role) => (this.isGuest = role === "guest")
-    );
     this._fetchSupportedExtensions();
     this.fetchFileInfoList();
     this._fetchTags();
-    this.fetchDirBriefList();
-  }
-
-  // fetch dir brief list
-  fetchDirBriefList() {
-    this.http.get<Resp<DirBrief[]>>(
-      buildApiPath("/file/dir/list"),
-      buildOptions()
-    ).subscribe({
-      next: (resp) => {
-        this.dirBriefList = resp.data;
-      }
-    });
+    this._fetchDirBriefList();
   }
 
   // make dir
@@ -211,42 +201,48 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     ).subscribe({
       next: () => {
         this.fetchFileInfoList();
-        this.fetchDirBriefList();
+        this._fetchDirBriefList();
         this.makingDir = false;
       }
     });
   }
 
+  // Go into dir, i.e., list files under the directory
   goIntoDir(dir: FileInfo) {
     this.searchParam.parentFile = dir.uuid;
     this.searchParam.parentFileName = dir.name;
+    this.expandedElement = null;
     this.fetchFileInfoList();
   }
 
-  // Move into dir
-  doMoveIntoDir(uuid: string, dirName: string) {
+  // Move (into/out of) dir
+  doMoveToDir(uuid: string, dirName: string, into: boolean = true) {
     if (!uuid) {
       this.notifi.toast("Please select a file first")
       return
     }
 
-    let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === dirName)
-    if (!matched || matched.length < 1) {
-      this.notifi.toast("Directory not found, please check and try again")
-      return
+    let parentFileUuid;
+    if (into) {
+      let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === dirName)
+      if (!matched || matched.length < 1) {
+        this.notifi.toast("Directory not found, please check and try again")
+        return
+      }
+      if (matched.length > 1) {
+        this.notifi.toast("Found multiple directories with the same name, please update their names and try again")
+        return
+      }
+      parentFileUuid = matched[0].uuid;
+    } else {
+      parentFileUuid = "";
     }
 
-    if (matched.length > 1) {
-      this.notifi.toast("Found multiple directories with the same name, please update their names and try again")
-      return
-    }
-
-    let first = matched[0]
     this.http.post(
       buildApiPath("/file/move-to-dir"),
       {
         uuid: uuid,
-        parentFileUuid: first.uuid,
+        parentFileUuid: parentFileUuid,
       },
       buildOptions()
     ).subscribe({
@@ -271,6 +267,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           this.fileInfoList = resp.data.payload;
           for (let f of this.fileInfoList) {
             f.fileTypeLabel = this._translateFileType(f.fileType)
+            f.isFile = f.fileType == FileType.FILE
+            f.isDir = !f.isFile
           }
 
           let total = resp.data.pagingVo.total;
@@ -378,8 +376,17 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   /** Reset all parameters used for searching, and the fetch the list */
-  resetSearchParam(): void {
+  resetSearchParam(resetParentFile: boolean = false): void {
+
+    let prevParentFile = this.searchParam.parentFile
+    let prevParentFileName = this.searchParam.parentFileName
     this.searchParam = {};
+
+    if (!resetParentFile) {
+      this.searchParam.parentFile = prevParentFile;
+      this.searchParam.parentFileName = prevParentFileName
+    }
+
     this.paginator.firstPage();
     this.fetchFileInfoList();
   }
@@ -407,7 +414,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       if (confirm) {
         this.fileService
           .deleteFile(uuid)
-          .subscribe((resp) => this.fetchFileInfoList());
+          .subscribe((resp) => {
+            this.fetchFileInfoList()
+            this._fetchDirBriefList();
+          });
       }
     });
   }
@@ -616,6 +626,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   onTagNameChanged() {
     this.filteredTags = this._doAutoCompFilter(this.tags, this.searchParam.tagName);
   }
+
   onDirNameChanged() {
     this.filteredDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.moveIntoDirName);
   }
@@ -631,7 +642,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return;
     }
 
-    console.log("pre-filtered: ", this.fileInfoList);
+    // console.log("pre-filtered: ", this.fileInfoList);
 
     let fileKeys = this.fileInfoList
       .map((v) => {
@@ -645,7 +656,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         return f.uuid;
       });
 
-    console.log("(post-filtered) selected: ", fileKeys);
+    //console.log("(post-filtered) selected: ", fileKeys);
 
     if (!fileKeys) return;
 
@@ -664,11 +675,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           this.fetchFileInfoList();
         },
       });
-  }
-
-  selectColumns() {
-    if (isMobile()) return this.MOBILE_COLUMNS;
-    return this.folderNo ? this.DESKTOP_FOLDER_COLUMNS : this.DESKTOP_COLUMNS;
   }
 
   transferToGallery() {
@@ -761,6 +767,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       next: (resp) => {
         this.tags = resp.data;
         this.selectedTags = [];
+        this.onTagNameChanged();
       },
     });
   }
@@ -972,5 +979,23 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     if (this.folderNo) return "Files In Virtual Folder"
     if (this.parentFileName) return "Under Directory"
     return "File List"
+  }
+
+  // fetch dir brief list
+  private _fetchDirBriefList() {
+    this.http.get<Resp<DirBrief[]>>(
+      buildApiPath("/file/dir/list"),
+      buildOptions()
+    ).subscribe({
+      next: (resp) => {
+        this.dirBriefList = resp.data;
+        this.onDirNameChanged();
+      }
+    });
+  }
+
+  private _selectColumns() {
+    if (isMobile()) return this.MOBILE_COLUMNS;
+    return this.folderNo ? this.DESKTOP_FOLDER_COLUMNS : this.DESKTOP_COLUMNS;
   }
 }
