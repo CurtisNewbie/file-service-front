@@ -22,7 +22,7 @@
 
     <div class="d-md-flex justify-content-end mb-2">
         <button mat-raised-button class="m-2" id="reloadBtn" (click)="fetchGalleries()">Fetch</button>
-        <button mat-raised-button class="m-1" (click)="showCreateGalleryDiv=!showCreateGalleryDiv">Create
+        <button mat-raised-button class="m-2" (click)="showCreateGalleryDiv=!showCreateGalleryDiv">Create
             Gallery</button>
     </div>
 
@@ -63,11 +63,16 @@
                             </button>
                         </div>
                         <ng-container *ngIf="u.isOwner">
-                            <div class="col-12">
+                            <div class="col-12 m-2">
+                                <button mat-raised-button (click)="deleteGallery(u.galleryNo)">
+                                    Delete
+                                </button>
+                            </div>
+                            <!-- <div class="col-12 m-2">
                                 <button mat-raised-button (click)="shareGallery(u)">
                                     Share
                                 </button>
-                            </div>
+                            </div> -->
                         </ng-container>
                     </div>
                 </div>

@@ -14,6 +14,7 @@ export interface Gallery {
   createBy: string;
   updateTime: string;
   updateBy: string;
+  isOwner: boolean;
 }
 
 export interface ListGalleryImagesResp {

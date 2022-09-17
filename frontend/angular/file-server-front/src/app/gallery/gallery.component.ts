@@ -109,7 +109,22 @@ export class GalleryComponent implements OnInit {
   }
 
   // todo (impl this later)
-  shareGallery(g: Gallery) {}
+  shareGallery(g: Gallery) { }
+
+  deleteGallery(galleryNo: string) {
+    if (!galleryNo) return;
+    this.httpClient
+      .post<Resp<any>>(
+        buildApiPath("/gallery/delete", environment.fantahseaPath),
+        {
+          galleryNo: galleryNo,
+        },
+        buildOptions()
+      )
+      .subscribe({
+        complete: () => this.fetchGalleries(),
+      });
+  }
 
   browse(galleryNo: string) {
     this.navigation.navigateTo(NavType.GALLERY_IMAGE, [
