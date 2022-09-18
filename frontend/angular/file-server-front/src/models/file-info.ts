@@ -40,21 +40,32 @@ export interface FileInfo {
    */
   fileType: FileType;
 
+  /*
+    ---------------------------
+
+    Used by frontend only
+
+    ---------------------------
+  */
+
   /** Label for File Type */
   fileTypeLabel: string;
 
+  /** Label for size */
+  sizeLabel: string;
+
   /**
-   * whether file is selected; this is not from the backend, it's used only locally by the frontend
+   * whether file is selected
    */
   _selected: boolean;
 
   /**
-   * whether fileType == 'FILE'; this is not from the backend, it's used only locally by the frontend
+   * whether fileType == 'FILE'
    */
   isFile: boolean;
 
   /**
-   * whether fileType == 'DIR'; this is not from the backend, it's used only locally by the frontend
+   * whether fileType == 'DIR'
    */
   isDir: boolean;
 }

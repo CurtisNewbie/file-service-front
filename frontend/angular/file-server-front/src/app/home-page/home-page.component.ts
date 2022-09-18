@@ -273,33 +273,23 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         next: (resp) => {
           this.fileInfoList = resp.data.payload;
           for (let f of this.fileInfoList) {
-            f.fileTypeLabel = this._translateFileType(f.fileType)
-            f.isFile = f.fileType == FileType.FILE
-            f.isDir = !f.isFile
+            f.fileTypeLabel = this._translateFileType(f.fileType);
+            f.isFile = f.fileType == FileType.FILE;
+            f.isDir = !f.isFile;
+            f.sizeLabel = this._resolveSize(f.sizeInBytes);
           }
 
           let total = resp.data.pagingVo.total;
           if (total != null) {
             this.pagingController.updatePages(total);
           }
-          this.parentFileName = this.searchParam.parentFileName
+          this.parentFileName = this.searchParam.parentFileName;
         },
         error: (err) => console.log(err),
         complete: () => {
           this.isAllSelected = false;
         },
       });
-  }
-
-  /** Convert number of bytes to appropriate unit */
-  resolveSize(sizeInBytes: number): string {
-    if (sizeInBytes > GB_UNIT) {
-      return this._divideUnit(sizeInBytes, GB_UNIT) + " gb";
-    }
-    if (sizeInBytes > MB_UNIT) {
-      return this._divideUnit(sizeInBytes, MB_UNIT) + " mb";
-    }
-    return this._divideUnit(sizeInBytes, KB_UNIT) + " kb";
   }
 
   /** Upload file */
@@ -1032,5 +1022,16 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   private _selectColumns() {
     if (isMobile()) return this.MOBILE_COLUMNS;
     return this.folderNo ? this.DESKTOP_FOLDER_COLUMNS : this.DESKTOP_COLUMNS;
+  }
+
+  /** Convert number of bytes to appropriate unit */
+  private _resolveSize(sizeInBytes: number): string {
+    if (sizeInBytes > GB_UNIT) {
+      return this._divideUnit(sizeInBytes, GB_UNIT) + " gb";
+    }
+    if (sizeInBytes > MB_UNIT) {
+      return this._divideUnit(sizeInBytes, MB_UNIT) + " mb";
+    }
+    return this._divideUnit(sizeInBytes, KB_UNIT) + " kb";
   }
 }
