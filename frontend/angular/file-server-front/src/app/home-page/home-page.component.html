@@ -203,7 +203,7 @@
         </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-            <button mat-raised-button class="m-2" *ngIf="!isGuest && parentFileName" (click)="resetSearchParam(true)">Go
+            <button mat-raised-button class="m-2" *ngIf="!isGuest && parentFileName" (click)="leaveDir()">Go
                 Back</button>
             <button mat-raised-button class="m-2" *ngIf="!isGuest && !folderNo && !parentFileName"
                 (click)="makingDir=!makingDir">Make
@@ -219,7 +219,7 @@
                 <th mat-header-cell *matHeaderCellDef> <span (click)="selectAllFiles()">Selected</span> </th>
                 <td mat-cell *matCellDef="let f">
                     <mat-checkbox [checked]="f._selected" (change)="selectFile($event, f)"
-                        (click)="$event.stopPropagation();"></mat-checkbox>
+                        (click)="$event.stopPropagation();" [disabled]="!f.isOwner"></mat-checkbox>
                 </td>
             </ng-container>
 
@@ -256,10 +256,16 @@
                 </td>
             </ng-container>
 
-            <ng-container matColumnDef="download">
-                <th mat-header-cell *matHeaderCellDef> Download </th>
-                <td mat-cell *matCellDef="let f"> <a
-                        (click)="jumpToDownloadUrl(f.id, $event)"><small>Download</small></a> </td>
+            <ng-container matColumnDef="operation">
+                <th mat-header-cell *matHeaderCellDef> Operation </th>
+                <td mat-cell *matCellDef="let f">
+                    <ng-container *ngIf="f.isFile">
+                        <a (click)="jumpToDownloadUrl(f.id, $event)"><small>Download</small></a>
+                    </ng-container>
+                    <ng-container *ngIf="f.isDir">
+                        <a (click)="goIntoDir(f)"><small>Go Into</small></a>
+                    </ng-container>
+                </td>
             </ng-container>
 
             <ng-container matColumnDef="expandedElement">
@@ -323,13 +329,6 @@
                                         <div class="col-12">
                                             <button mat-raised-button (click)="display(expandedElement)">
                                                 Preview
-                                            </button>
-                                        </div>
-                                    </ng-container>
-                                    <ng-container *ngIf="u.isDir">
-                                        <div class="col-12">
-                                            <button mat-raised-button (click)="goIntoDir(expandedElement)">
-                                                Go Into Directory
                                             </button>
                                         </div>
                                     </ng-container>

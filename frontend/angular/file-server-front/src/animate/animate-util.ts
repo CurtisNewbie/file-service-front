@@ -13,7 +13,7 @@ export function animateElementExpanding(): AnimationTriggerMetadata {
     state("expanded", style({ height: "*" })),
     transition(
       "expanded <=> collapsed",
-      animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+      animate("100ms cubic-bezier(0.4, 0.0, 0.2, 1)")
     ),
   ]);
 }

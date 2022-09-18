@@ -69,7 +69,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     "uploadTime",
     "size",
     "userGroup",
-    "download",
+    "operation",
   ];
   readonly DESKTOP_FOLDER_COLUMNS = [
     "name",
@@ -77,9 +77,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     "uploadTime",
     "size",
     "userGroup",
-    "download",
+    "operation",
   ];
-  readonly MOBILE_COLUMNS = ["fileType", "name", "download"];
+  readonly MOBILE_COLUMNS = ["fileType", "name", "operation"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp"]);
   readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) =>
     this._fetchTags()
@@ -137,8 +137,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   uploadIndex = -1;
   uploadSub: Subscription = null;
 
-  @ViewChild("uploadFileInput", { static: true })
-  uploadFileInput: ElementRef<HTMLInputElement>;
+  @ViewChild("uploadFileInput")
+  uploadFileInput: ElementRef;
 
   @ViewChild("paginator", { static: true })
   paginator: MatPaginator;
@@ -172,10 +172,13 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   ngOnInit() {
 
     this.route.paramMap.subscribe((params) => {
-      let folderNo = params.get("folderNo");
-      let folderName = params.get("folderName");
-      this.folderNo = folderNo;
-      this.folderName = folderName;
+      // vfolder
+      this.folderNo = params.get("folderNo");
+      this.folderName = params.get("folderName");
+
+      // directory
+      this.searchParam.parentFileName = params.get("parentDirName");
+      this.searchParam.parentFile = params.get("parentDirKey");
       this.fetchFileInfoList();
     });
 
@@ -188,15 +191,17 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   // make dir
   mkdir() {
-    if (!this.newDirName) {
+    const dirName = this.newDirName;
+    if (!dirName) {
       this.notifi.toast("Please enter new directory name")
       return;
     }
 
+    this.newDirName = null;
     this.http.post(
       buildApiPath("/file/make-dir"),
       {
-        name: this.newDirName,
+        name: dirName,
         userGroup: FileUserGroupEnum.USER_GROUP_PRIVATE
       },
       buildOptions()
@@ -211,10 +216,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   // Go into dir, i.e., list files under the directory
   goIntoDir(dir: FileInfo) {
-    this.searchParam.parentFile = dir.uuid;
-    this.searchParam.parentFileName = dir.name;
     this.expandedElement = null;
-    this.fetchFileInfoList();
+    this.nav.navigateTo(NavType.HOME_PAGE, [
+      { parentDirName: dir.name, parentDirKey: dir.uuid },
+    ]);
   }
 
   // Move (into/out of) dir
@@ -377,6 +382,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return "";
   }
 
+  leaveDir() {
+    this.nav.navigateTo(NavType.HOME_PAGE, [
+    ]);
+  }
+
   /** Reset all parameters used for searching, and the fetch the list */
   resetSearchParam(resetParentFile: boolean = false): void {
 
@@ -389,6 +399,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.searchParam.parentFileName = prevParentFileName
     }
 
+    if (this.fantahseaEnabled) this.addToGalleryNo = null;
+    this.folderNo = null;
     this.paginator.firstPage();
     this.fetchFileInfoList();
   }
@@ -598,7 +610,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
    * @returns expandedElement
    */
   determineExpandedElement(row: FileInfo): FileInfo {
-    if (this.isMobile) return null; // mobile should never expand
+    if (this.isMobile) return null; // mobile should never expand 
 
     return this.idEquals(this.expandedElement, row) ? null : this._copy(row);
   }
@@ -917,7 +929,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       }
       uploadParam.parentFile = matched[0].uuid;
     } else {
-      uploadParam = null;
+      uploadParam.parentFile = null;
     }
 
     const name = uploadParam.fileName;
