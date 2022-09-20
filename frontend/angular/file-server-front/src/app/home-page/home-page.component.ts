@@ -40,6 +40,7 @@ import { isMobile } from "../util/env-util";
 import { environment } from "src/environments/environment";
 import { ActivatedRoute } from "@angular/router";
 import { Resp } from "src/models/resp";
+import { VFolderBrief } from "src/models/folder";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -127,54 +128,68 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** currently displayed columns */
   displayedColumns: string[] = this._selectColumns();
 
-  /** folderNo that we will add files into */
-  addToFolderNo: string = null;
+  /*
+  -----------------------
 
+  Virtual Folders 
+
+  -----------------------
+  */
+
+  /** list of brief info of all vfolder that we owned */
+  vfolderBrief: VFolderBrief[] = [];
+  /** Auto complete for vfolders that we may add file into */
+  autoCompAddToVFolderName: string[];
+  /** name of the folder that we may add files into */
+  addToVFolderName: string = null;
   /** the folderNo of the folder that we are currently in */
-  folderNo: string = "";
-
+  inFolderNo: string = "";
   /** the name of the folder that we are currently in */
-  folderName: string = "";
+  inFolderName: string = "";
 
-  /** the name of the directory that we are currently in */
-  parentFileName: string = null;
+  /*
+  -----------------------
+
+  Directory
+
+  -----------------------
+  */
 
   /** list of brief info of all directories that we can access */
   dirBriefList: DirBrief[] = [];
-
+  /** the name of the directory that we are currently in */
+  inDirFileName: string = null;
   /** auto complete for dirs that we may move file into */
   autoCompMoveIntoDirs: string[] = [];
-
   /** name of dir that we may move file into */
   moveIntoDirName: string = null;
-
   /** whether we are making directory */
   makingDir: boolean = false;
-
   /** name of new dir */
   newDirName: string = null;
 
+
+  /*
+  -----------------------
+
+  Uploading 
+
+  -----------------------
+  */
   /** params for uploading */
   uploadParam: UploadFileParam = emptyUploadFileParam();
-
   /** displayed upload file name */
   displayedUploadName: string = null;
-
   /** whether uploading involves compression (for multiple files) */
   isCompressed: boolean = false;
-
   /** whether we are uploading */
   isUploading: boolean = false;
-
   /** name of directory that we may upload files into */
   uploadDirName: string = null;
-
   /** auto complete for dirs that we may upload file into */
   autoCompUploadDirs: string[] = [];
-
   /** Always points to current file, so the next will be uploadIndex+1 */
   uploadIndex = -1;
-
   /* subscription of current uploading */
   uploadSub: Subscription = null;
 
@@ -214,8 +229,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.isMobile = isMobile();
     this.route.paramMap.subscribe((params) => {
       // vfolder
-      this.folderNo = params.get("folderNo");
-      this.folderName = params.get("folderName");
+      this.inFolderNo = params.get("folderNo");
+      this.inFolderName = params.get("folderName");
 
       // directory
       this.searchParam.parentFileName = params.get("parentDirName");
@@ -228,6 +243,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.fetchFileInfoList();
     this._fetchTags();
     this._fetchDirBriefList();
+    this._fetchOwnedVFolderBrief();
   }
 
   // make dir
@@ -307,7 +323,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         userGroup: this.searchParam.userGroup,
         ownership: this.searchParam.ownership,
         tagName: this.searchParam.tagName,
-        folderNo: this.folderNo,
+        folderNo: this.inFolderNo,
         parentFile: this.searchParam.parentFile
       })
       .subscribe({
@@ -324,7 +340,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           if (total != null) {
             this.pagingController.updatePages(total);
           }
-          this.parentFileName = this.searchParam.parentFileName;
+          this.inDirFileName = this.searchParam.parentFileName;
         },
         error: (err) => console.log(err),
         complete: () => {
@@ -431,7 +447,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
 
     if (this.fantahseaEnabled) this.addToGalleryNo = null;
-    this.folderNo = null;
+    this.inFolderNo = null;
+    this.addToVFolderName = null;
     this.paginator.firstPage();
     this.fetchFileInfoList();
   }
@@ -668,6 +685,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return this.isUploading || this._isBatchUpload();
   }
 
+  onAddToVFolderNameChanged() {
+    this.autoCompAddToVFolderName = this._doAutoCompFilter(this.vfolderBrief.map(v => v.name), this.addToVFolderName);
+  }
+
   onMoveIntoDirNameChanged() {
     this.autoCompMoveIntoDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.moveIntoDirName);
   }
@@ -677,10 +698,24 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   addToVirtualFolder() {
-    if (!this.addToFolderNo) {
-      this.notifi.toast("Please enter folder no first");
-      return;
+
+    const vfolderName = this.addToVFolderName
+    if (!vfolderName) {
+      this.notifi.toast("Please select a folder first")
+      return
     }
+
+    let addToFolderNo;
+    let matched: VFolderBrief[] = this.vfolderBrief.filter(v => v.name === vfolderName)
+    if (!matched || matched.length < 1) {
+      this.notifi.toast("Virtual Folder not found, please check and try again")
+      return
+    }
+    if (matched.length > 1) {
+      this.notifi.toast("Found multiple virtual folder with the same name, please try again")
+      return
+    }
+    addToFolderNo = matched[0].folderNo
 
     if (!this.fileInfoList) {
       this.notifi.toast("Please select files first");
@@ -709,7 +744,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       .post(
         buildApiPath("/vfolder/file/add"),
         {
-          folderNo: this.addToFolderNo,
+          folderNo: addToFolderNo,
           fileKeys: fileKeys,
         },
         buildOptions()
@@ -1036,8 +1071,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _getListTitle() {
-    if (this.folderNo) return "Files In Virtual Folder"
-    if (this.parentFileName) return "Under Directory"
+    if (this.inFolderNo) return "Files In Virtual Folder"
+    if (this.inDirFileName) return "Under Directory"
     return "File List"
   }
 
@@ -1057,7 +1092,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   private _selectColumns() {
     if (isMobile()) return this.MOBILE_COLUMNS;
-    return this.folderNo ? this.DESKTOP_FOLDER_COLUMNS : this.DESKTOP_COLUMNS;
+    return this.inFolderNo ? this.DESKTOP_FOLDER_COLUMNS : this.DESKTOP_COLUMNS;
   }
 
   /** Convert number of bytes to appropriate unit */
@@ -1069,5 +1104,17 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return this._divideUnit(sizeInBytes, MB_UNIT) + " mb";
     }
     return this._divideUnit(sizeInBytes, KB_UNIT) + " kb";
+  }
+
+  private _fetchOwnedVFolderBrief() {
+    this.http.get<Resp<VFolderBrief[]>>(
+      buildApiPath("/vfolder/brief/owned"),
+      buildOptions()
+    ).subscribe({
+      next: (resp) => {
+        this.vfolderBrief = resp.data;
+        this.onAddToVFolderNameChanged();
+      }
+    });
   }
 }

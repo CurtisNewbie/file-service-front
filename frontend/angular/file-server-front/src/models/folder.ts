@@ -30,3 +30,11 @@ export interface FolderListResp {
   payload: VFolder[];
   pagingVo: Paging;
 }
+
+
+export interface VFolderBrief {
+  /** folder no */
+  folderNo: string;
+  /** name of the folder */
+  name: string;
+}
