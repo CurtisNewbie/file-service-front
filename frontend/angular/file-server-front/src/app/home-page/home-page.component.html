@@ -1,5 +1,4 @@
-<div *ngIf="!isGuest && !inFolderNo && !inDirFileName">
-
+<div *ngIf="!isGuest && !inFolderNo && !inDirFileName && expandUploadPanel">
     <ng-container *ngIf="uploadParam.files != null && uploadParam.files.length > 0">
         <mat-form-field appearance="fill" style="width: 100%;" class="mt-1 mb-1">
             <mat-label>Filename</mat-label>
@@ -198,6 +197,8 @@
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
             <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName" (click)="leaveDir()">Go
                 Back</button>
+            <button mat-raised-button class="m-2" *ngIf="!isGuest && !inFolderNo && !inDirFileName"
+                (click)="expandUploadPanel=!expandUploadPanel">Upload Panel</button>
             <button mat-raised-button class="m-2" *ngIf="!isGuest && !inFolderNo && !inDirFileName"
                 (click)="makingDir=!makingDir">Make
                 Directory</button>

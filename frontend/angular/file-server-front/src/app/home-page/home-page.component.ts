@@ -176,6 +176,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   -----------------------
   */
+  /** whther the upload panel is expanded */
+  expandUploadPanel = false;
   /** params for uploading */
   uploadParam: UploadFileParam = emptyUploadFileParam();
   /** displayed upload file name */
