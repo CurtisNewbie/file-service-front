@@ -48,7 +48,7 @@
                     <input matInput type="text" [(ngModel)]="uploadDirName" (ngModelChange)="onUploadDirNameChanged()"
                         [matAutocomplete]="auto0" [disabled]="isUploading || isCompressed">
                     <mat-autocomplete #auto0="matAutocomplete">
-                        <mat-option *ngFor="let option of filteredUploadDirs" [value]="option">
+                        <mat-option *ngFor="let option of autoCompUploadDirs" [value]="option">
                             {{option}}
                         </mat-option>
                     </mat-autocomplete>
@@ -104,19 +104,6 @@
                 <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''"
                     class="btn-close">
                 </button>
-            </mat-form-field>
-            <mat-form-field appearance="fill" style="width: 100%;" class="mb-1" *ngIf="!isMobile">
-                <mat-label>Tag name:</mat-label>
-                <input matInput type="text" [(ngModel)]="searchParam.tagName" (ngModelChange)="onTagNameChanged()"
-                    [matAutocomplete]="auto">
-                <button *ngIf="searchParam.tagName" matSuffix aria-label="Clear" (click)="searchParam.tagName=''"
-                    class="btn-close">
-                </button>
-                <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option *ngFor="let option of filteredTags" [value]="option">
-                        {{option}}
-                    </mat-option>
-                </mat-autocomplete>
             </mat-form-field>
             <div class="row row-cols-lg-auto g-3 align-items-center">
                 <div class="col-12">
@@ -350,7 +337,7 @@
                                                             (ngModelChange)="onMoveIntoDirNameChanged()"
                                                             [matAutocomplete]="auto1">
                                                         <mat-autocomplete #auto1="matAutocomplete">
-                                                            <mat-option *ngFor="let option of filteredDirs"
+                                                            <mat-option *ngFor="let option of autoCompMoveIntoDirs"
                                                                 [value]="option">
                                                                 {{option}}
                                                             </mat-option>

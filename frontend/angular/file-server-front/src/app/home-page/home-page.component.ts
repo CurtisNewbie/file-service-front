@@ -85,56 +85,97 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this._fetchTags()
   );
 
+  /** expanded fileInfo */
   expandedElement: FileInfo;
+
+  /** file extension name set */
   fileExtSet: Set<string> = new Set();
+
+  /** list of files fetched */
   fileInfoList: FileInfo[] = [];
+
+  /** searching param */
   searchParam: SearchFileInfoParam = {}
+
+  /** whether current user is a guest */
   isGuest: boolean = true;
+
+  /** controller for pagination */
   pagingController: PagingController = new PagingController();
+
+  /** progress string */
   progress: string = null;
+
+  /** all accessible tags */
   tags: string[];
+
+  /** tags selected for the uploaded files */
   selectedTags: string[] = [];
-  filteredTags: string[] = [];
-  isMobile: boolean = isMobile();
+
+  /** whether current user is using mobile device */
+  isMobile: boolean = false;
+
+  /** galleryNo of fantahsea gallery that we may add files into */
   addToGalleryNo: string = null;
+
+  /** check if all files are selected */
   isAllSelected: boolean = false;
+
+  /** title of the list section */
   fileListTitle: string = null;
+
+  /** currently displayed columns */
   displayedColumns: string[] = this._selectColumns();
 
-  /*
-    Virtual Folder
-  */
+  /** folderNo that we will add files into */
   addToFolderNo: string = null;
+
+  /** the folderNo of the folder that we are currently in */
   folderNo: string = "";
+
+  /** the name of the folder that we are currently in */
   folderName: string = "";
 
-  /*
-    Directory
-  */
+  /** the name of the directory that we are currently in */
   parentFileName: string = null;
+
+  /** list of brief info of all directories that we can access */
   dirBriefList: DirBrief[] = [];
-  filteredDirs: string[] = [];
+
+  /** auto complete for dirs that we may move file into */
+  autoCompMoveIntoDirs: string[] = [];
+
+  /** name of dir that we may move file into */
   moveIntoDirName: string = null;
+
+  /** whether we are making directory */
   makingDir: boolean = false;
+
+  /** name of new dir */
   newDirName: string = null;
 
-
-  /*
-  ---------
-
-  For uploading
-  
-  ---------
-  */
+  /** params for uploading */
   uploadParam: UploadFileParam = emptyUploadFileParam();
+
+  /** displayed upload file name */
   displayedUploadName: string = null;
+
+  /** whether uploading involves compression (for multiple files) */
   isCompressed: boolean = false;
+
+  /** whether we are uploading */
   isUploading: boolean = false;
+
+  /** name of directory that we may upload files into */
   uploadDirName: string = null;
-  filteredUploadDirs: string[] = [];
+
+  /** auto complete for dirs that we may upload file into */
+  autoCompUploadDirs: string[] = [];
 
   /** Always points to current file, so the next will be uploadIndex+1 */
   uploadIndex = -1;
+
+  /* subscription of current uploading */
   uploadSub: Subscription = null;
 
   @ViewChild("uploadFileInput")
@@ -170,7 +211,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngOnInit() {
-
+    this.isMobile = isMobile();
     this.route.paramMap.subscribe((params) => {
       // vfolder
       this.folderNo = params.get("folderNo");
@@ -627,16 +668,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return this.isUploading || this._isBatchUpload();
   }
 
-  onTagNameChanged() {
-    this.filteredTags = this._doAutoCompFilter(this.tags, this.searchParam.tagName);
-  }
-
   onMoveIntoDirNameChanged() {
-    this.filteredDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.moveIntoDirName);
+    this.autoCompMoveIntoDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.moveIntoDirName);
   }
 
   onUploadDirNameChanged() {
-    this.filteredUploadDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.uploadDirName);
+    this.autoCompUploadDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.uploadDirName);
   }
 
   addToVirtualFolder() {
@@ -776,7 +813,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       next: (resp) => {
         this.tags = resp.data;
         this.selectedTags = [];
-        this.onTagNameChanged();
       },
     });
   }
