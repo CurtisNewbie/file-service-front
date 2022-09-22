@@ -56,7 +56,7 @@ export class ManageTasksComponent implements OnInit {
     private taskService: TaskService,
     private notifi: NotificationService,
     private navi: NavigationService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.fetchTaskList();
@@ -114,6 +114,7 @@ export class ManageTasksComponent implements OnInit {
       .subscribe({
         complete: () => {
           this.notifi.toast("Task triggered");
+          this.expandedElement = null;
         },
       });
   }

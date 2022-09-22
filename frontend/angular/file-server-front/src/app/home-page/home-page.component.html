@@ -257,7 +257,7 @@
                         <a (click)="jumpToDownloadUrl(f.id, $event)"><small>Download</small></a>
                     </ng-container>
                     <ng-container *ngIf="f.isDir">
-                        <a (click)="goIntoDir(f)"><small>Go Into</small></a>
+                        <a (click)="goIntoDir(f, $event)"><small>Go Into</small></a>
                     </ng-container>
                 </td>
             </ng-container>

@@ -274,7 +274,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   // Go into dir, i.e., list files under the directory
-  goIntoDir(dir: FileInfo) {
+  goIntoDir(dir: FileInfo, event: any) {
+    event.stopPropagation();
     this.expandedElement = null;
     this.nav.navigateTo(NavType.HOME_PAGE, [
       { parentDirName: dir.name, parentDirKey: dir.uuid },
