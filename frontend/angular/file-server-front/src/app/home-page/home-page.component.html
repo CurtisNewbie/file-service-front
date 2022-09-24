@@ -159,6 +159,11 @@
                                 files on
                                 Fantahsea</button>
                         </div>
+                        <div class="col-12">
+                            <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName"
+                                (click)="transferDirToGallery()">Host
+                                All Images on Fantahsea</button>
+                        </div>
                     </ng-container>
                 </ng-container>
 

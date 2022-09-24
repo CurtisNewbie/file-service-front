@@ -785,31 +785,35 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       });
   }
 
+  transferDirToGallery() {
+    const inDirFileKey = this.searchParam.parentFile;
+    if (!inDirFileKey) {
+      this.fetchFileInfoList();
+      return;
+    }
+
+    const addToGalleryNo = this._extractToGalleryNo();
+    if (!addToGalleryNo) return;
+
+    this.http
+      .post(
+        buildApiPath("/gallery/image/dir/transfer", environment.fantahseaPath),
+        {
+          fileKey: inDirFileKey,
+          galleryNo: addToGalleryNo
+        },
+        buildOptions()
+      )
+      .subscribe({
+        complete: () => {
+          this.expandedElement = null;
+          this.notifi.toast("Request success! It may take a while.");
+        },
+      });
+  }
+
   transferToGallery() {
-    const gname = this.addToGalleryName;
-    if (!gname) {
-      this.notifi.toast("Please enter Fantahsea gallery name first");
-      return;
-    }
-
-    if (!this.fileInfoList) {
-      this.notifi.toast("Please select files first");
-      return;
-    }
-
-    // console.log("pre-filtered: ", this.fileInfoList);
-
-    let matched: GalleryBrief[] = this.galleryBriefs.filter(v => v.name === gname)
-    if (!matched || matched.length < 1) {
-      this.notifi.toast("Gallery not found, please check and try again")
-      return
-    }
-    if (matched.length > 1) {
-      this.notifi.toast("Found multiple galleries with the same name, please try again")
-      return
-    }
-    const addToGalleryNo = matched[0].galleryNo
-
+    const addToGalleryNo = this._extractToGalleryNo()
     let selected = this.fileInfoList
       .map((v) => {
         if (v._selected && v.isOwner) {
@@ -827,9 +831,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         };
       });
 
-    console.log("(post-filtered) selected: ", selected);
-
-    if (!selected) return;
+    if (!selected) {
+      this.notifi.toast("Please select image files")
+      return;
+    }
 
     this.http
       .post(
@@ -843,7 +848,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         complete: () => {
           this.expandedElement = null;
           this.fetchFileInfoList();
-          this.notifi.toast("Success");
+          this.notifi.toast("Request success! It may take a while.");
         },
       });
   }
@@ -932,7 +937,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     let suffix = filename.slice(i + 1);
 
-    return this.IMAGE_SUFFIX.has(suffix);
+    return this.IMAGE_SUFFIX.has(suffix.toLowerCase());
   }
 
   /**
@@ -1180,5 +1185,24 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         this.onAddToGalleryNameChanged();
       }
     });
+  }
+
+  private _extractToGalleryNo() {
+    const gname = this.addToGalleryName;
+    if (!gname) {
+      this.notifi.toast("Please enter Fantahsea gallery name first");
+      return;
+    }
+
+    let matched: GalleryBrief[] = this.galleryBriefs.filter(v => v.name === gname)
+    if (!matched || matched.length < 1) {
+      this.notifi.toast("Gallery not found, please check and try again")
+      return
+    }
+    if (matched.length > 1) {
+      this.notifi.toast("Found multiple galleries with the same name, please try again")
+      return
+    }
+    return matched[0].galleryNo
   }
 }

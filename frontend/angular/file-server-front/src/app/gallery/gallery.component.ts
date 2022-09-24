@@ -85,7 +85,7 @@ export class GalleryComponent implements OnInit {
         buildOptions()
       )
       .subscribe({
-        complete: () => this.fetchGalleries(),
+        complete: () => { this.fetchGalleries(); this.expandedElement = null },
       });
   }
 
