@@ -21,3 +21,10 @@ export interface ListGalleryImagesResp {
   imageNos: string[];
   pagingVo: Paging;
 }
+
+export interface GalleryBrief {
+  /** gallery no */
+  galleryNo: string;
+  /** name of the gallery */
+  name: string;
+}

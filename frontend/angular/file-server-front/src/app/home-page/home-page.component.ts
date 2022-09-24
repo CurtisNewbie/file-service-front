@@ -41,6 +41,7 @@ import { environment } from "src/environments/environment";
 import { ActivatedRoute } from "@angular/router";
 import { Resp } from "src/models/resp";
 import { VFolderBrief } from "src/models/folder";
+import { GalleryBrief } from "src/models/gallery";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -116,9 +117,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** whether current user is using mobile device */
   isMobile: boolean = false;
 
-  /** galleryNo of fantahsea gallery that we may add files into */
-  addToGalleryNo: string = null;
-
   /** check if all files are selected */
   isAllSelected: boolean = false;
 
@@ -131,12 +129,27 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /*
   -----------------------
 
+  Fantahsea gallery 
+
+  -----------------------
+  */
+
+  /** list of brief info of all galleries that we created */
+  galleryBriefs: GalleryBrief[] = [];
+  /** name of fantahsea gallery that we may transfer files to */
+  addToGalleryName: string = null;
+  /** Auto complete for fantahsea gallery that we may transfer files to */
+  autoCompAddToGalleryName: string[];
+
+  /*
+  -----------------------
+
   Virtual Folders 
 
   -----------------------
   */
 
-  /** list of brief info of all vfolder that we owned */
+  /** list of brief info of all vfolder that we created */
   vfolderBrief: VFolderBrief[] = [];
   /** Auto complete for vfolders that we may add file into */
   autoCompAddToVFolderName: string[];
@@ -246,6 +259,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this._fetchTags();
     this._fetchDirBriefList();
     this._fetchOwnedVFolderBrief();
+
+    if (this.fantahseaEnabled) {
+      this._fetchOwnedGalleryBrief();
+    }
   }
 
   // make dir
@@ -449,7 +466,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.searchParam.parentFileName = prevParentFileName
     }
 
-    if (this.fantahseaEnabled) this.addToGalleryNo = null;
+    if (this.fantahseaEnabled) this.addToGalleryName = null;
     this.inFolderNo = null;
     this.addToVFolderName = null;
     this.paginator.firstPage();
@@ -551,16 +568,19 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         complete: () => {
           this.fetchFileInfoList();
           this.expandedElement = null;
-          this.addToGalleryNo = null;
+          this.addToGalleryName = null;
         },
       });
   }
 
   /** Guess whether the file is displayable by its name */
-  isDisplayable(filename: string): boolean {
+  isDisplayable(f: FileInfo): boolean {
+    if (f == null || !f.isFile) return false;
+
+    let filename: string;
     if (!filename) return false;
 
-    if (this._isPdf(filename) || this._isImage(filename)) return true;
+    if (this._isPdf(filename) || this._isImageByName(filename)) return true;
 
     // videos are not supported for now, these can be downloaded and then played right? :D
 
@@ -641,7 +661,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     dialogRef.afterClosed().subscribe((confirm) => {
       this._fetchTags();
       this.expandedElement = null;
-      this.addToGalleryNo = null;
+      this.addToGalleryName = null;
     });
   }
 
@@ -686,6 +706,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   isFileNameInputDisabled(): boolean {
     return this.isUploading || this._isBatchUpload();
+  }
+
+  onAddToGalleryNameChanged() {
+    this.autoCompAddToGalleryName = this._doAutoCompFilter(this.galleryBriefs.map(v => v.name), this.addToGalleryName);
   }
 
   onAddToVFolderNameChanged() {
@@ -762,8 +786,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   transferToGallery() {
-    if (!this.addToGalleryNo) {
-      this.notifi.toast("Please enter Fantahsea gallery no first");
+    const gname = this.addToGalleryName;
+    if (!gname) {
+      this.notifi.toast("Please enter Fantahsea gallery name first");
       return;
     }
 
@@ -772,7 +797,18 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return;
     }
 
-    console.log("pre-filtered: ", this.fileInfoList);
+    // console.log("pre-filtered: ", this.fileInfoList);
+
+    let matched: GalleryBrief[] = this.galleryBriefs.filter(v => v.name === gname)
+    if (!matched || matched.length < 1) {
+      this.notifi.toast("Gallery not found, please check and try again")
+      return
+    }
+    if (matched.length > 1) {
+      this.notifi.toast("Found multiple galleries with the same name, please try again")
+      return
+    }
+    const addToGalleryNo = matched[0].galleryNo
 
     let selected = this.fileInfoList
       .map((v) => {
@@ -782,12 +818,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
         return null;
       })
-      .filter((v) => v != null && this._isImage(v.name))
+      .filter((v) => this._isImage(v))
       .map((f) => {
         return {
           name: f.name,
           fileKey: f.uuid,
-          galleryNo: this.addToGalleryNo,
+          galleryNo: addToGalleryNo,
         };
       });
 
@@ -823,16 +859,16 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   selectAllFiles() {
     this.isAllSelected = !this.isAllSelected;
     this.fileInfoList.forEach((v) => {
-      if (v.isOwner) v._selected = this.isAllSelected;
+      if (v.isOwner && v.isFile) v._selected = this.isAllSelected;
     });
   }
+
+  // -------------------------- private helper methods ------------------------
 
   private _translateFileType(ft: FileType): string {
     if (!ft) return "";
     return transFileType(ft);
   }
-
-  // -------------------------- private helper methods ------------------------
 
   /** fetch supported file extension */
   private _fetchSupportedExtensions(): void {
@@ -878,7 +914,19 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return filename.indexOf(".pdf") != -1;
   }
 
-  private _isImage(filename: string): boolean {
+  private _isImageByName(filename: string): boolean {
+    let i = filename.lastIndexOf(".");
+    if (i < 0 || i == filename.length - 1) return false;
+
+    let suffix = filename.slice(i + 1);
+
+    return this.IMAGE_SUFFIX.has(suffix);
+  }
+
+  private _isImage(f: FileInfo): boolean {
+    if (f == null || !f.isFile) return false;
+
+    const filename = f.name;
     let i = filename.lastIndexOf(".");
     if (i < 0 || i == filename.length - 1) return false;
 
@@ -1118,6 +1166,18 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       next: (resp) => {
         this.vfolderBrief = resp.data;
         this.onAddToVFolderNameChanged();
+      }
+    });
+  }
+
+  private _fetchOwnedGalleryBrief() {
+    this.http.get<Resp<GalleryBrief[]>>(
+      buildApiPath("/gallery/brief/owned", environment.fantahseaPath),
+      buildOptions()
+    ).subscribe({
+      next: (resp) => {
+        this.galleryBriefs = resp.data;
+        this.onAddToGalleryNameChanged();
       }
     });
   }
