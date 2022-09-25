@@ -47,7 +47,6 @@ import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
 const GB_UNIT: number = 1024 * 1024 * 1024;
-const PAGE_CACHE = "homepage.page";
 
 @Component({
   selector: "app-home-page",
@@ -229,10 +228,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     private route: ActivatedRoute
   ) {
     this.pagingController = new PagingController();
-    this.pagingController.onPageChanged = () => {
-      this.fetchFileInfoList();
-      localStorage.setItem(PAGE_CACHE, String(this.pagingController.paging.page));
-    }
+    this.pagingController.onPageChanged = () => this.fetchFileInfoList();
     this.userService.roleObservable.subscribe(
       (role) => (this.isGuest = role === "guest")
     );
@@ -250,13 +246,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   ngOnInit() {
     this.isMobile = isMobile();
-
-    // previous page 
-    const page = localStorage.getItem(PAGE_CACHE);
-    if (page) {
-      this.paginator.pageIndex = parseInt(page) - 1;
-    }
-
     this.route.paramMap.subscribe((params) => {
       // vfolder
       this.inFolderNo = params.get("folderNo");
