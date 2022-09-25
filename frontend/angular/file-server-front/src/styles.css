@@ -5,6 +5,7 @@ html,
 body {
   height: 100%;
 }
+
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -12,21 +13,23 @@ body {
 
 @media only screen and (min-width: 801px) {
   html {
-    font-size: 0.7rem;
+    font-size: 11px;
   }
 }
 
 @media only screen and (max-width: 800px) {
   html {
-    font-size: 0.5rem;
+    font-size: 9px;
   }
+
+
   .mat-raised-button,
   mat-form-field,
   mat-label,
   mat-table,
   .mat-header-cell,
   .mat-cell {
-    font-size: 1rem;
+    font-size: 9px;
   }
 }
 
