@@ -414,7 +414,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       }
 
       this.isUploading = true;
-      this._doUpload(this._prepNextUpload());
+      this._doUpload(this._prepNextUpload(), false);
     }
   }
 
@@ -1039,7 +1039,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return true;
   }
 
-  private _doUpload(uploadParam: UploadFileParam) {
+  private _doUpload(uploadParam: UploadFileParam, fetchOnComplete: boolean = true) {
     if (this.uploadDirName) {
       let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === this.uploadDirName)
       if (!matched || matched.length < 1) {
@@ -1083,16 +1083,17 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         }
       },
       complete: () => {
-        // Delay this because the uploaded file may not yet be written to the database
-        setTimeout(() => this.fetchFileInfoList(), 1_000);
+
+        if (fetchOnComplete) this.fetchFileInfoList();
 
         let next = this._prepNextUpload();
         if (!next) {
           this.progress = null;
           this.isUploading = false;
           this._resetFileUploadParam();
+          this.fetchFileInfoList()
         } else {
-          this._doUpload(next); // upload next file
+          this._doUpload(next, false); // upload next file
         }
       },
       error: () => {
