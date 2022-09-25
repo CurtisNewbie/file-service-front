@@ -16,7 +16,7 @@ export class AppComponent {
   userInfo: UserInfo = null;
   activeRoute: string = "";
   links: NLink[] = [];
-  base: string = this.getBase("file-service");
+  base: string = "file-service";
 
   onNavClicked = (link: NLink): void => {
     this.activeRoute = link.route;
@@ -29,7 +29,7 @@ export class AppComponent {
   constructor(
     private userService: UserService,
     private navigation: NavigationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     if (getToken()) {
@@ -67,14 +67,4 @@ export class AppComponent {
     );
   }
 
-  getBase(defaultBase: string) {
-    let base = localStorage.getItem("nav-base");
-    console.log("Previous base:", base);
-    if (!base) {
-      base = defaultBase;
-    }
-
-    localStorage.setItem("nav-base", base);
-    return base;
-  }
 }
