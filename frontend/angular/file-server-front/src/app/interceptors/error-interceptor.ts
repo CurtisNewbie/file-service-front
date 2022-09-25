@@ -10,6 +10,7 @@ import { Observable, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { UserService } from "../user.service";
 import { NotificationService } from "../notification.service";
+import { Resp } from "src/models/resp";
 
 /**
  * Intercept http error response
@@ -28,12 +29,14 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(httpRequest).pipe(
       catchError((e) => {
         if (e instanceof HttpErrorResponse) {
-          console.log("Http error response status:", e.status);
+          console.log("Http error response: ", e);
 
-          if (e.status === 401 || e.status === 403) {
+          if (e.status === 401) {
             this.notifi.toast("Please login first");
-            console.log("intercepted error: status:", e)
             this.userService.logout();
+          } else if (e.status === 403) {
+            let r: Resp<any> = e.error as Resp<any>;
+            this.notifi.toast(r.msg, 6000);
           } else {
             this.notifi.toast("Unknown server error, please try again later");
           }
