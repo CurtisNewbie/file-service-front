@@ -208,7 +208,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** subscription of current uploading */
   uploadSub: Subscription = null;
   /** Ignore upload on duplicate name found*/
-  ignoreOnDupName: boolean = false;
+  ignoreOnDupName: boolean = true;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
