@@ -579,9 +579,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** Guess whether the file is displayable by its name */
   isDisplayable(f: FileInfo): boolean {
-    if (f == null || !f.isFile) return false;
+    if (!f || !f.isFile) return false;
 
-    let filename: string;
+    const filename: string = f.name;
     if (!filename) return false;
 
     if (this._isPdf(filename) || this._isImageByName(filename)) return true;
