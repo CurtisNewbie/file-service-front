@@ -169,6 +169,8 @@ export interface UploadFileParam {
   tags?: string[];
   /** parent file uuid */
   parentFile?: string;
+  /** ignore on duplicate name */
+  ignoreOnDupName?: boolean;
 }
 
 /** Parameters for fetching list of file info */

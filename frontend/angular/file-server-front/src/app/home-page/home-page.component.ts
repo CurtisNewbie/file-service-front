@@ -205,8 +205,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   autoCompUploadDirs: string[] = [];
   /** Always points to current file, so the next will be uploadIndex+1 */
   uploadIndex = -1;
-  /* subscription of current uploading */
+  /** subscription of current uploading */
   uploadSub: Subscription = null;
+  /** Ignore upload on duplicate name found*/
+  ignoreOnDupName: boolean = false;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
@@ -392,7 +394,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     if (this.uploadParam.userGroup == null)
       this.uploadParam.userGroup = FileUserGroupEnum.USER_GROUP_PRIVATE;
+
     this.uploadParam.tags = this.selectedTags ? this.selectedTags : [];
+    this.uploadParam.ignoreOnDupName = this.ignoreOnDupName;
 
     /*
       if it's a single file upload, or it's zip compressed, we only validate the 
@@ -1007,6 +1011,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       files: [next],
       userGroup: this.uploadParam.userGroup,
       tags: this.uploadParam.tags,
+      ignoreOnDupName: this.uploadParam.ignoreOnDupName
     };
   }
 

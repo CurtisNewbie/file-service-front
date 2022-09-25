@@ -75,6 +75,14 @@
                     </mat-checkbox>
                 </section>
             </div>
+            <div class="col-12">
+                <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 0 && !isCompressed"
+                    [matTooltip]="'Ignore files with duplicate name'" matTooltipPosition="below">
+                    <mat-checkbox class="m-1" [disabled]="isUploading" [(ngModel)]="ignoreOnDupName"
+                        (ngModelChange)="onIsCompressedChanged()">Ignore On Duplicate Name
+                    </mat-checkbox>
+                </section>
+            </div>
         </div>
     </div>
     <small class="mt-2" style="color: grey;" [matTooltip]="fileExtToolTip()">Supported File Extensions:
@@ -153,18 +161,6 @@
                             </mat-autocomplete>
                         </mat-form-field>
                     </div>
-                    <ng-container *ngIf="addToGalleryName">
-                        <div class="col-12">
-                            <button mat-raised-button class="m-2" (click)="transferToGallery()">Host
-                                files on
-                                Fantahsea</button>
-                        </div>
-                        <div class="col-12">
-                            <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName"
-                                (click)="transferDirToGallery()">Host
-                                All Images on Fantahsea</button>
-                        </div>
-                    </ng-container>
                 </ng-container>
 
                 <ng-container *ngIf="!inDirFileName">
@@ -180,12 +176,6 @@
                             </mat-autocomplete>
                         </mat-form-field>
                     </div>
-                    <ng-container *ngIf="addToVFolderName">
-                        <div class="col-12">
-                            <button mat-raised-button class="m-2" (click)="addToVirtualFolder()">Add to virtual
-                                folder</button>
-                        </div>
-                    </ng-container>
                 </ng-container>
             </div>
         </div>
@@ -206,16 +196,29 @@
         </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+            <ng-container *ngIf="addToGalleryName">
+                <button mat-raised-button class="m-2" (click)="transferToGallery()">Host
+                    Selected Images On
+                    Fantahsea</button>
+                <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName"
+                    (click)="transferDirToGallery()">Host
+                    All Images On Fantahsea</button>
+            </ng-container>
+            <ng-container *ngIf="!inDirFileName">
+                <button mat-raised-button class="m-2" *ngIf="addToVFolderName" (click)="addToVirtualFolder()">Add
+                    Selected To Virtual
+                    Folder</button>
+                <ng-container *ngIf="!isGuest && !inFolderNo">
+                    <button mat-raised-button class="m-2" (click)="expandUploadPanel=!expandUploadPanel">Upload
+                        Panel</button>
+                    <button mat-raised-button class="m-2" (click)="makingDir=!makingDir">Make
+                        Directory</button>
+                </ng-container>
+            </ng-container>
             <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName" (click)="leaveDir()">Go
                 Back</button>
-            <button mat-raised-button class="m-2" *ngIf="!isGuest && !inFolderNo && !inDirFileName"
-                (click)="expandUploadPanel=!expandUploadPanel">Upload Panel</button>
-            <button mat-raised-button class="m-2" *ngIf="!isGuest && !inFolderNo && !inDirFileName"
-                (click)="makingDir=!makingDir">Make
-                Directory</button>
             <button mat-raised-button class="m-2" id="reloadBtn" (click)="fetchFileInfoList()">Fetch</button>
-            <button mat-raised-button class="m-2" id="resetBtn" *ngIf="!isGuest && !inFolderNo"
-                (click)="resetSearchParam()">Reset</button>
+            <button mat-raised-button class="m-2" id="resetBtn" (click)="resetSearchParam()">Reset</button>
         </div>
 
         <table mat-table [dataSource]="fileInfoList" class="mat-elevation-z8 mb-4" style="width: 100%;"
