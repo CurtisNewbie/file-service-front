@@ -246,6 +246,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   ngOnInit() {
     this.isMobile = isMobile();
+
     this.route.paramMap.subscribe((params) => {
       // vfolder
       this.inFolderNo = params.get("folderNo");
@@ -255,12 +256,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.searchParam.parentFileName = params.get("parentDirName");
       this.searchParam.parentFile = params.get("parentDirKey");
 
+      this.paginator.firstPage();
       this.fetchFileInfoList();
     });
 
     this.userService.fetchUserInfo();
     this._fetchSupportedExtensions();
-    this.fetchFileInfoList();
     this._fetchTags();
     this._fetchDirBriefList();
     this._fetchOwnedVFolderBrief();
