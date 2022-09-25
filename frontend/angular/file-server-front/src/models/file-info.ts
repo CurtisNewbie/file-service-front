@@ -40,6 +40,9 @@ export interface FileInfo {
    */
   fileType: FileType;
 
+  /** Update time */
+  updateTime: string;
+
   /*
     ---------------------------
 

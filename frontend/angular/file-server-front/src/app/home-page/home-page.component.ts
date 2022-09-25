@@ -71,6 +71,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     "uploadTime",
     "size",
     "userGroup",
+    "updateTime",
     "operation",
   ];
   readonly DESKTOP_FOLDER_COLUMNS = [
@@ -1084,7 +1085,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       },
       complete: () => {
 
-        if (fetchOnComplete) this.fetchFileInfoList();
+        if (fetchOnComplete)
+          setTimeout(() => this.fetchFileInfoList(), 1_000);
 
         let next = this._prepNextUpload();
         if (!next) {
