@@ -42,6 +42,7 @@ import { ActivatedRoute } from "@angular/router";
 import { Resp } from "src/models/resp";
 import { VFolderBrief } from "src/models/folder";
 import { GalleryBrief } from "src/models/gallery";
+import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -264,6 +265,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       // directory
       this.searchParam.parentFileName = params.get("parentDirName");
       this.searchParam.parentFile = params.get("parentDirKey");
+
+      this.fetchFileInfoList();
     });
 
     this.userService.fetchUserInfo();
@@ -603,7 +606,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   /** Display the file */
-  display(u: FileInfo): void {
+  preview(u: FileInfo): void {
     this.fileService.generateFileTempToken(u.id).subscribe({
       next: (resp) => {
         const token = resp.data;
@@ -611,13 +614,20 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           "/file/token/download?token=" + token,
           environment.fileServicePath
         );
-        let navType = this._isPdf(u.name)
-          ? NavType.PDF_VIEWER
-          : NavType.IMAGE_VIEWER;
-
-        this.nav.navigateTo(navType, [
-          { name: u.name, url: url, uuid: u.uuid },
-        ]);
+        const isPdf = this._isPdf(u.name);
+        if (isPdf) {
+          this.nav.navigateTo(NavType.PDF_VIEWER, [
+            { name: u.name, url: url, uuid: u.uuid },
+          ]);
+        } else {
+          const dialogRef: MatDialogRef<ImageViewerComponent, void> =
+            this.dialog.open(ImageViewerComponent, {
+              data: {
+                name: u.name,
+                url: url
+              },
+            });
+        }
       },
     });
   }

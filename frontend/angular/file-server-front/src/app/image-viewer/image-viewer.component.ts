@@ -1,5 +1,10 @@
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute, ParamMap } from "@angular/router";
+import { Component, Inject, OnInit } from "@angular/core";
+import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+
+export interface DialogData {
+  name: string;
+  url: string;
+}
 
 @Component({
   selector: "app-image-viewer",
@@ -7,25 +12,12 @@ import { ActivatedRoute, ParamMap } from "@angular/router";
   styleUrls: ["./image-viewer.component.css"],
 })
 export class ImageViewerComponent implements OnInit {
-  name: string;
-  url: string;
-  imgHeight: number = 600;
-  readonly delta = 150;
-
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    public dialogRef: MatDialogRef<ImageViewerComponent, DialogData>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData
+  ) { }
 
   ngOnInit() {
-    this.route.paramMap.subscribe((params: ParamMap) => {
-      this.name = params.get("name");
-      this.url = params.get("url");
-    });
   }
 
-  makeImageLarger() {
-    this.imgHeight += this.delta;
-  }
-
-  makeImageSmaller() {
-    if (this.imgHeight > this.delta) this.imgHeight -= this.delta;
-  }
 }

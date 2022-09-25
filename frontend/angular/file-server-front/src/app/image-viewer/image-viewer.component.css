@@ -1,0 +1,11 @@
+img {
+    height: 100%;
+    display: block;
+    margin: auto;
+}
+
+
+.imgdiv {
+    width: 1000px;
+    height: 1200px;
+}
