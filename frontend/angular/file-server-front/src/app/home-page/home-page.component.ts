@@ -43,6 +43,7 @@ import { Resp } from "src/models/resp";
 import { VFolderBrief } from "src/models/folder";
 import { GalleryBrief } from "src/models/gallery";
 import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
+import { NullTemplateVisitor } from "@angular/compiler";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -829,6 +830,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   transferToGallery() {
     const addToGalleryNo = this._extractToGalleryNo()
+    if (!addToGalleryNo) return;
+
     let selected = this.fileInfoList
       .map((v) => {
         if (v._selected && v.isOwner) {
@@ -1205,7 +1208,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     });
   }
 
-  private _extractToGalleryNo() {
+  private _extractToGalleryNo(): string {
     const gname = this.addToGalleryName;
     if (!gname) {
       this.notifi.toast("Please enter Fantahsea gallery name first");
@@ -1215,11 +1218,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     let matched: GalleryBrief[] = this.galleryBriefs.filter(v => v.name === gname)
     if (!matched || matched.length < 1) {
       this.notifi.toast("Gallery not found, please check and try again")
-      return
+      return null;
     }
     if (matched.length > 1) {
       this.notifi.toast("Found multiple galleries with the same name, please try again")
-      return
+      return null;
     }
     return matched[0].galleryNo
   }

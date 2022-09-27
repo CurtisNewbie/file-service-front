@@ -1,11 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { animateElementExpanding } from "src/animate/animate-util";
 import { environment } from "src/environments/environment";
 import { Gallery, ListGalleriesResp } from "src/models/gallery";
 import { PagingController } from "src/models/paging";
 import { Resp } from "src/models/resp";
+import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
@@ -43,7 +45,8 @@ export class GalleryComponent implements OnInit {
     private httpClient: HttpClient,
     private userService: UserService,
     private notification: NotificationService,
-    private navigation: NavigationService
+    private navigation: NavigationService,
+    private dialog: MatDialog,
   ) {
     this.pagingController = new PagingController();
     this.pagingController.onPageChanged = () => this.fetchGalleries();
@@ -115,19 +118,34 @@ export class GalleryComponent implements OnInit {
   // todo (impl this later)
   shareGallery(g: Gallery) { }
 
-  deleteGallery(galleryNo: string) {
+  deleteGallery(galleryNo: string, galleryName: string) {
     if (!galleryNo) return;
-    this.httpClient
-      .post<Resp<any>>(
-        buildApiPath("/gallery/delete", environment.fantahseaPath),
-        {
-          galleryNo: galleryNo,
+
+    const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
+      this.dialog.open(ConfirmDialogComponent, {
+        width: "500px",
+        data: {
+          msg: [`You sure you want to delete '${galleryName}'`],
+          isNoBtnDisplayed: true,
         },
-        buildOptions()
-      )
-      .subscribe({
-        complete: () => this.fetchGalleries(),
       });
+
+    dialogRef.afterClosed().subscribe((confirm) => {
+      console.log(confirm);
+      if (confirm) {
+        this.httpClient
+          .post<Resp<any>>(
+            buildApiPath("/gallery/delete", environment.fantahseaPath),
+            {
+              galleryNo: galleryNo,
+            },
+            buildOptions()
+          )
+          .subscribe({
+            complete: () => this.fetchGalleries(),
+          });
+      }
+    });
   }
 
   browse(galleryNo: string) {
