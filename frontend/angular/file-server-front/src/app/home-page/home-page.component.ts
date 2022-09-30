@@ -43,7 +43,7 @@ import { Resp } from "src/models/resp";
 import { VFolderBrief } from "src/models/folder";
 import { GalleryBrief } from "src/models/gallery";
 import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
-import { NullTemplateVisitor } from "@angular/compiler";
+import { translate } from "src/models/translate";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -128,6 +128,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** currently displayed columns */
   displayedColumns: string[] = this._selectColumns();
+
+  t = translate;
 
   /*
   -----------------------
@@ -1151,7 +1153,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   private _getListTitle() {
     if (this.inFolderNo) return "Files In Virtual Folder"
     if (this.inDirFileName) return "Under Directory"
-    return "File List"
+    return this.t("fileList")
   }
 
   // fetch dir brief list
