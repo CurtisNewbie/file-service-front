@@ -12,9 +12,12 @@ body {
 }
 
 @media only screen and (min-width: 801px) {
-  html {
-    font-size: 11px;
+
+  html,
+  .mat-option {
+    font-size: 12px;
   }
+
 }
 
 @media only screen and (max-width: 800px) {
@@ -22,7 +25,7 @@ body {
     font-size: 9px;
   }
 
-
+  .mat-option,
   .mat-raised-button,
   mat-form-field,
   mat-label,

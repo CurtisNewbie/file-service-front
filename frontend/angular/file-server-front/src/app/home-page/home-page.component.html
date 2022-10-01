@@ -82,10 +82,11 @@
             </div>
         </div>
     </div>
-    <small class="mt-2" style="color: grey;" [matTooltip]="fileExtToolTip()">{{supportedFileExtLabel}}:
+    <span class="mt-2 supportedFileExtLabel" style="color: grey;"
+        [matTooltip]="fileExtToolTip()">{{supportedFileExtLabel}}:
         <span>
             {{ subSetToStr(this.fileExtSet, 20)}} ... </span>
-    </small>
+    </span>
 </div>
 
 
