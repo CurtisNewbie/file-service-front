@@ -29,7 +29,7 @@
     <table mat-table [dataSource]="galleries" class="mat-elevation-z8 mb-4" style="width: 100%;" multiTemplateDataRows>
         <ng-container matColumnDef="galleryNo">
             <th mat-header-cell *matHeaderCellDef> Gallery No </th>
-            <td mat-cell *matCellDef="let f"> <span class="pl-1 pr-1" (click)="$event.stopPropagation()">{{f.galleryNo}}
+            <td mat-cell *matCellDef="let f"> <span class="pl-1 pr-1">{{f.galleryNo}}
                 </span></td>
         </ng-container>
 
@@ -90,8 +90,5 @@
 
     </table>
 
-
-    <mat-paginator #paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
-        [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" aria-label="Select page" [showFirstLastButtons]="true">
-    </mat-paginator>
+    <app-controlled-paginator (controllerReady)="onPagingControllerReady($event)"></app-controlled-paginator>
 </div>

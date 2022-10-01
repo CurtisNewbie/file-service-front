@@ -8,7 +8,6 @@ import {
   ViewChild,
 } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatPaginator } from "@angular/material/paginator";
 import { Observable, Subscription, timer } from "rxjs";
 
 import {
@@ -31,7 +30,7 @@ import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.compone
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { animateElementExpanding } from "../../animate/animate-util";
-import { buildApiPath, buildOptions, HClient } from "../util/api-util";
+import { buildApiPath, HClient } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
@@ -56,6 +55,7 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   animations: [animateElementExpanding()],
 })
 export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
+
   readonly fantahseaEnabled: boolean =
     environment.services.find((v) => v.base === "fantahsea") != null;
   readonly OWNERSHIP_ALL_FILES = FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES;
@@ -114,7 +114,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   isGuest: boolean = true;
 
   /** controller for pagination */
-  pagingController: PagingController = new PagingController();
+  pagingController: PagingController;
 
   /** progress string */
   progress: string = null;
@@ -271,9 +271,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
 
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
-
   constructor(
     private userService: UserService,
     private notifi: NotificationService,
@@ -283,8 +280,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     private http: HClient,
     private route: ActivatedRoute
   ) {
-    this.pagingController = new PagingController();
-    this.pagingController.onPageChanged = () => this.fetchFileInfoList();
     this.userService.roleObservable.subscribe(
       (role) => (this.isGuest = role === "guest")
     );
@@ -354,9 +349,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.searchParam.parentFileName = params.get("parentDirName");
       this.searchParam.parentFile = params.get("parentDirKey");
 
-      this.pagingController.control(this.paginator);
-      this.pagingController.firstPage();
-      this.fetchFileInfoList();
+      if (this.pagingController) {
+        this.pagingController.firstPage();
+        this.fetchFileInfoList();
+      }
+
       this.fileListTitle = this._getListTitle();
       this.userService.fetchUserInfo();
       this._fetchSupportedExtensions();
@@ -925,6 +922,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       });
   }
 
+  onPagingControllerReady(pagingController: PagingController) {
+    this.pagingController = pagingController;
+    this.pagingController.onPageChanged = () => this.fetchFileInfoList();
+    this.fetchFileInfoList();
+  }
+
   transferToGallery() {
     const addToGalleryNo = this._extractToGalleryNo()
     if (!addToGalleryNo) return;
@@ -1328,4 +1331,5 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       { id: id },
     );
   }
+
 }

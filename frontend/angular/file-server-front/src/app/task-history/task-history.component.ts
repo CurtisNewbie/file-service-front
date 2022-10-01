@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { ActivatedRoute } from "@angular/router";
 import { PagingController } from "src/models/paging";
 import { TaskHistory } from "src/models/task";
@@ -28,28 +27,22 @@ export class TaskHistoryComponent implements OnInit {
   jobName: string = null;
   taskId: number = null;
   runBy: string = "";
-  pagingController: PagingController = new PagingController();
+  pagingController: PagingController;
   taskHistoryList: TaskHistory[] = [];
   startDate: Date = null;
   endDate: Date = null;
-
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
 
   constructor(
     private taskService: TaskService,
     private route: ActivatedRoute
   ) {
-    this.pagingController.onPageChanged = () => this.fetchHistoryList();
   }
 
   ngOnInit() {
-    this.pagingController.control(this.paginator);
     this.route.paramMap.subscribe((params) => {
       let ti = params.get("taskId");
       if (ti != null) this.taskId = Number(ti);
 
-      this.fetchHistoryList();
     });
   }
 
@@ -101,5 +94,11 @@ export class TaskHistoryComponent implements OnInit {
     if (event.key === "Enter") {
       this.fetchHistoryList();
     }
+  }
+
+  onPagingControllerReady(pc) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchHistoryList();
+    this.fetchHistoryList();
   }
 }

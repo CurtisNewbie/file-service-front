@@ -1,6 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit, ViewChild } from "@angular/core";
-import { MatPaginator } from "@angular/material/paginator";
+import { Component, OnInit } from "@angular/core";
 import { VFolder, FolderListResp } from "src/models/folder";
 import { Paging, PagingController } from "src/models/paging";
 import { Resp } from "src/models/resp";
@@ -14,33 +13,23 @@ import { buildApiPath, buildOptions } from "../util/api-util";
   styleUrls: ["./folder.component.css"],
 })
 export class FolderComponent implements OnInit {
+  pagingController: PagingController;
   newFolderName: string = "";
   creatingFolder: boolean = false;
   searchParam: { name: string; pagingVo: Paging } = {
     name: "",
     pagingVo: null,
   };
-  pagingController: PagingController;
   folders: VFolder[] = [];
-
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
 
   constructor(
     private http: HttpClient,
     private notification: NotificationService,
     private navi: NavigationService
   ) {
-    this.pagingController = new PagingController();
-    this.pagingController.onPageChanged = () => this.fetchFolders();
-    this.pagingController.PAGE_LIMIT_OPTIONS = [5, 10];
-    this.pagingController.paging.limit =
-      this.pagingController.PAGE_LIMIT_OPTIONS[0];
   }
 
   ngOnInit(): void {
-    this.pagingController.control(this.paginator);
-    this.fetchFolders();
   }
 
   selectFolder(f: VFolder): void {
@@ -90,5 +79,14 @@ export class FolderComponent implements OnInit {
           this.newFolderName = "";
         },
       });
+  }
+
+  onPagingControllerReady(pc: PagingController) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchFolders();
+    this.pagingController.PAGE_LIMIT_OPTIONS = [5, 10];
+    this.pagingController.paging.limit =
+      this.pagingController.PAGE_LIMIT_OPTIONS[0];
+    this.fetchFolders();
   }
 }

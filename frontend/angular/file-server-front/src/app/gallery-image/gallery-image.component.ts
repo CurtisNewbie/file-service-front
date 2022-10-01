@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { HttpClient } from "@angular/common/http";
-import { MatPaginator } from "@angular/material/paginator";
 import { PagingController } from "src/models/paging";
 import { ListGalleryImagesResp } from "src/models/gallery";
 import { buildApiPath, buildOptions } from "../util/api-util";
@@ -17,14 +16,10 @@ import { IAlbum, Lightbox, LightboxConfig } from "ngx-lightbox";
   encapsulation: ViewEncapsulation.None,
 })
 export class GalleryImageComponent implements OnInit {
-
   pagingController: PagingController;
   galleryNo: string = null;
   title = "fantahsea";
   images: IAlbum[] = [];
-
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
 
   constructor(
     private route: ActivatedRoute,
@@ -41,21 +36,12 @@ export class GalleryImageComponent implements OnInit {
     _lbConfig.resizeDuration = 0.2;
     _lbConfig.fadeDuration = 0.2;
     _lbConfig.showRotate = false;
-
-    this.pagingController = new PagingController();
-    this.pagingController.onPageChanged = () => this.fetchImages();
-    this.pagingController.setPageLimit(30);
   }
 
   ngOnInit(): void {
-    this.pagingController.control(this.paginator);
     this.route.paramMap.subscribe((params) => {
       let galleryNo = params.get("galleryNo");
       if (galleryNo) this.galleryNo = galleryNo;
-
-      console.log("GalleryNo", this.galleryNo);
-
-      this.fetchImages();
     });
   }
 
@@ -106,5 +92,12 @@ export class GalleryImageComponent implements OnInit {
   close(): void {
     // close lightbox programmatically
     this._lightbox.close();
+  }
+
+  onPagingControllerReady(pc: any) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchImages();
+    this.pagingController.setPageLimit(30);
+    this.fetchImages();
   }
 }

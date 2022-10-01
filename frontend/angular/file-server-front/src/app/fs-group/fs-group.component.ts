@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { MatPaginator } from "@angular/material/paginator";
 import { environment } from "src/environments/environment";
 import {
   emptyFsGroup,
@@ -9,7 +8,6 @@ import {
 } from "src/models/fs-group";
 import { PagingController } from "src/models/paging";
 import { animateElementExpanding } from "../../animate/animate-util";
-import { FileInfoService } from "../file-info.service";
 import { HClient } from "../util/api-util";
 
 @Component({
@@ -19,6 +17,7 @@ import { HClient } from "../util/api-util";
   animations: [animateElementExpanding()],
 })
 export class FsGroupComponent implements OnInit {
+
   readonly MODE_READ_ONLY: FsGroupMode = FsGroupMode.READ;
   readonly MODE_READ_WRITE: FsGroupMode = FsGroupMode.READ_WRITE;
   readonly COLUMNS_TO_BE_DISPLAYED: string[] = [
@@ -37,17 +36,11 @@ export class FsGroupComponent implements OnInit {
   searchParam: FsGroup = emptyFsGroup();
   pagingController: PagingController;
 
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
-
   constructor(private http: HClient) {
-    this.pagingController = new PagingController();
-    this.pagingController.onPageChanged = () => this.fetchFsGroups();
+
   }
 
   ngOnInit() {
-    this.pagingController.control(this.paginator);
-    this.fetchFsGroups();
   }
 
   fetchFsGroups() {
@@ -109,5 +102,11 @@ export class FsGroupComponent implements OnInit {
       console.log("enter");
       this.fetchFsGroups();
     }
+  }
+
+  onPagingControllerReady(pc: PagingController) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchFsGroups();
+    this.fetchFsGroups();
   }
 }

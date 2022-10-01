@@ -48,6 +48,7 @@ import { MatCardModule } from "@angular/material/card";
 import { FolderComponent } from "./folder/folder.component";
 import { MatListModule } from "@angular/material/list";
 import { HClient as HttpWrapper } from "./util/api-util";
+import { ControlledPaginatorComponent } from './controlled-paginator/controlled-paginator.component';
 
 @NgModule({
   exports: [],
@@ -68,6 +69,7 @@ import { HClient as HttpWrapper } from "./util/api-util";
     GalleryComponent,
     GalleryImageComponent,
     FolderComponent,
+    ControlledPaginatorComponent,
   ],
   imports: [
     MatTabsModule,

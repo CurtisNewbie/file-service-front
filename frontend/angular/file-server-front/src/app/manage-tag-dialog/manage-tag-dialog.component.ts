@@ -1,10 +1,8 @@
 import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { environment } from "src/environments/environment";
 import { ListTagsForFileResp, Tag } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
-import { FileInfoService } from "../file-info.service";
 import { NotificationService } from "../notification.service";
 import { HClient } from "../util/api-util";
 
@@ -20,6 +18,7 @@ export interface ManageTagDialogData {
   styleUrls: ["./manage-tag-dialog.component.css"],
 })
 export class ManageTagDialogComponent implements OnInit {
+
   readonly COLUMN_TO_BE_DISPLAYED: string[] = [
     "id",
     "tagName",
@@ -31,10 +30,7 @@ export class ManageTagDialogComponent implements OnInit {
   tags: Tag[] = [];
   acTags: string[] = [];
   filtered: string[] = [];
-  pagingController: PagingController = new PagingController();
-
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
+  pagingController: PagingController;
 
   constructor(
     private notifi: NotificationService,
@@ -46,12 +42,11 @@ export class ManageTagDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: ManageTagDialogData
   ) {
     this.acTags = data.autoComplete;
-    this.pagingController.onPageChanged = () => this.fetchTags();
+
   }
 
   ngOnInit() {
-    this.pagingController.control(this.paginator);
-    this.fetchTags();
+
   }
 
   tagFile(): void {
@@ -81,11 +76,6 @@ export class ManageTagDialogComponent implements OnInit {
     });
   }
 
-  handle(e: PageEvent): void {
-    this.pagingController.onPageEvent(e);
-    this.fetchTags();
-  }
-
   untag(tagName: string): void {
     this.http.post<void>(
       environment.fileServicePath, "/file/untag/",
@@ -108,5 +98,11 @@ export class ManageTagDialogComponent implements OnInit {
     return this.acTags.filter((option) =>
       option.toLowerCase().includes(value.toLowerCase())
     );
+  }
+
+  onPagingControllerReady(pc) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchTags();
+    this.fetchTags();
   }
 }

@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
-import { PagingConst, PagingController } from "src/models/paging";
+import { Component, OnInit } from "@angular/core";
+import { PagingController } from "src/models/paging";
 import {
   emptyListTaskByPageReqVo,
   ListTaskByPageReqVo,
@@ -12,7 +12,6 @@ import {
 } from "src/models/task";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { Option } from "src/models/select-util";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { NotificationService } from "../notification.service";
 import { TaskService } from "../task.service";
 import { NavigationService, NavType } from "../navigation.service";
@@ -52,20 +51,16 @@ export class ManageTasksComponent implements OnInit {
   pagingController: PagingController = new PagingController();
   expandedElement: Task;
 
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
-
   constructor(
     private taskService: TaskService,
     private notifi: NotificationService,
     private navi: NavigationService
   ) {
-    this.pagingController.onPageChanged = () => this.fetchTaskList();
+
   }
 
   ngOnInit() {
-    this.pagingController.control(this.paginator);
-    this.fetchTaskList();
+
   }
 
   fetchTaskList(): void {
@@ -122,5 +117,10 @@ export class ManageTasksComponent implements OnInit {
 
   viewHistory(task: Task): void {
     this.navi.navigateTo(NavType.TASK_HISTORY, [{ taskId: task.id }]);
+  }
+  onPagingControllerReady(pc) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchTaskList();
+    this.fetchTaskList();
   }
 }

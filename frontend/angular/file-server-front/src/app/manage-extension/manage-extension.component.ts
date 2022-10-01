@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
+import { Component, OnInit } from "@angular/core";
 import {
   emptySearchFileExtParam,
   FetchFileExtList,
@@ -12,7 +11,6 @@ import {
 import { PagingController } from "src/models/paging";
 import { NotificationService } from "../notification.service";
 import { animateElementExpanding } from "../../animate/animate-util";
-import { FileInfoService } from "../file-info.service";
 import { isMobile } from "../util/env-util";
 import { environment } from "src/environments/environment";
 import { HClient } from "../util/api-util";
@@ -24,6 +22,7 @@ import { HClient } from "../util/api-util";
   animations: [animateElementExpanding()],
 })
 export class ManageExtensionComponent implements OnInit {
+
   readonly FILE_EXT_ENABLED: number = FileExtIsEnabled.ENABLED;
   readonly FILE_EXT_DISABLED: number = FileExtIsEnabled.DISABLED;
   readonly DESKTOP_COLUMNS_TO_BE_DISPLAYED: string[] = [
@@ -50,20 +49,15 @@ export class ManageExtensionComponent implements OnInit {
 
   private isSearchParamChagned: boolean = false;
 
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
-
   constructor(
     private http: HClient,
     private notifi: NotificationService,
   ) {
-    this.pagingController = new PagingController();
-    this.pagingController.onPageChanged = () => this.fetchSupportedExtensionsDetails();
+
   }
 
   ngOnInit() {
-    this.pagingController.control(this.paginator);
-    this.fetchSupportedExtensionsDetails();
+
   }
 
   /** fetch supported file extension */
@@ -148,5 +142,11 @@ export class ManageExtensionComponent implements OnInit {
         this.fetchSupportedExtensionsDetails();
       },
     });
+  }
+
+  onPagingControllerReady(pc) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchSupportedExtensionsDetails();
+    this.fetchSupportedExtensionsDetails();
   }
 }

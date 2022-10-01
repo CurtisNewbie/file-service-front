@@ -1,6 +1,5 @@
 import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { MatPaginator } from "@angular/material/paginator";
 import { environment } from "src/environments/environment";
 import { FileAccessGranted, ListGrantedAccessResp } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
@@ -18,6 +17,7 @@ export interface GrantAccessDialogData {
   styleUrls: ["./grant-access-dialog.component.css"],
 })
 export class GrantAccessDialogComponent implements OnInit {
+
   readonly COLUMN_TO_BE_DISPLAYED: string[] = [
     "userId",
     "username",
@@ -29,9 +29,6 @@ export class GrantAccessDialogComponent implements OnInit {
   grantedAccesses: FileAccessGranted[] = [];
   pagingController: PagingController;
 
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
-
   constructor(
     private http: HClient,
     private notifi: NotificationService,
@@ -41,13 +38,11 @@ export class GrantAccessDialogComponent implements OnInit {
     >,
     @Inject(MAT_DIALOG_DATA) public data: GrantAccessDialogData
   ) {
-    this.pagingController = new PagingController();
-    this.pagingController.onPageChanged = () => this.fetchAccessGranted();
+
   }
 
   ngOnInit() {
-    this.pagingController.control(this.paginator);
-    this.fetchAccessGranted();
+
   }
 
   grantAccess() {
@@ -97,5 +92,11 @@ export class GrantAccessDialogComponent implements OnInit {
         this.fetchAccessGranted();
       },
     });
+  }
+
+  onPagingControllerReady(pc) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchAccessGranted();
+    this.fetchAccessGranted();
   }
 }

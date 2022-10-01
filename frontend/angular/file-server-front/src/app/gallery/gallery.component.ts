@@ -19,6 +19,7 @@ import { isMobile } from "../util/env-util";
   animations: [animateElementExpanding()],
 })
 export class GalleryComponent implements OnInit {
+
   readonly DESKTOP_COLUMNS = [
     "galleryNo",
     "name",
@@ -46,14 +47,10 @@ export class GalleryComponent implements OnInit {
     private navigation: NavigationService,
     private dialog: MatDialog,
   ) {
-    this.pagingController = new PagingController();
-    this.pagingController.onPageChanged = () => this.fetchGalleries();
   }
 
   ngOnInit() {
-    this.pagingController.control(this.paginator);
     this.userService.roleObservable.subscribe((role) => (this.role = role));
-    this.fetchGalleries();
   }
 
   fetchGalleries() {
@@ -79,7 +76,7 @@ export class GalleryComponent implements OnInit {
 
     this.http
       .post<any>(
-        "/gallery/new", environment.fantahseaPath,
+        environment.fantahseaPath, "/gallery/new",
         {
           name: this.newGalleryName,
         }
@@ -158,5 +155,11 @@ export class GalleryComponent implements OnInit {
     if (!f) return null;
     let copy = { ...f };
     return copy;
+  }
+
+  onPagingControllerReady(pc) {
+    this.pagingController = pc;
+    this.pagingController.onPageChanged = () => this.fetchGalleries();
+    this.fetchGalleries();
   }
 }
