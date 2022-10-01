@@ -145,6 +145,7 @@ export class GalleryComponent implements OnInit {
             complete: () => this.fetchGalleries(),
           });
       }
+      this.expandedElement = null;
     });
   }
 
