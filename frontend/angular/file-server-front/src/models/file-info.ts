@@ -121,8 +121,8 @@ export interface FileUserGroupOption {
 }
 
 export const FILE_USER_GROUP_OPTIONS: FileUserGroupOption[] = [
-  { name: "Private Group", value: FileUserGroupEnum.USER_GROUP_PRIVATE },
-  { name: "Public Group", value: FileUserGroupEnum.USER_GROUP_PUBLIC },
+  { name: "privateGroup", value: FileUserGroupEnum.USER_GROUP_PRIVATE },
+  { name: "publicGroup", value: FileUserGroupEnum.USER_GROUP_PUBLIC },
 ];
 
 export interface FileOwnershipOption {
@@ -131,8 +131,8 @@ export interface FileOwnershipOption {
 }
 
 export const FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] = [
-  { name: "All", value: FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES },
-  { name: "My Files", value: FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES },
+  { name: "allFiles", value: FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES },
+  { name: "myFiles", value: FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES },
 ];
 
 /** Brief info for DIR type file */

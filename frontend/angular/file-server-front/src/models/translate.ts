@@ -1,7 +1,22 @@
+import { Observable, Subject } from "rxjs";
 
 export enum LLang {
     CN = "CN",
     EN = "EN"
+}
+
+const onLangChangeSubj = new Subject<LLang>();
+export const onLangChange: Observable<LLang> = onLangChangeSubj.asObservable();
+
+export function setLLang(l: LLang) {
+    localStorage.setItem("lang", l);
+    onLangChangeSubj.next(l);
+}
+
+export function getLLang(): LLang {
+    let l = localStorage.getItem("lang");
+    if (!l) return LLang.EN;
+    return l == LLang.CN ? LLang.CN : LLang.EN;
 }
 
 const ttable = {
@@ -100,11 +115,135 @@ const ttable = {
     t: {
         EN: "",
         CN: ""
-    }
+    },
+    id: {
+        EN: "ID",
+        CN: "ID"
+    },
+    role: {
+        EN: "Role",
+        CN: "角色"
+    },
+    lang: {
+        EN: "Language",
+        CN: "语言"
+    },
+    loginUsername: {
+        EN: "Username",
+        CN: "用户名"
+    },
+    loginPassword: {
+        EN: "Password",
+        CN: "密码"
+    },
+    submit: {
+        EN: "Submit",
+        CN: "提交"
+    },
+    menu: {
+        EN: "Service Menu",
+        CN: "服务菜单"
+    },
+    logout: {
+        EN: "Logout",
+        CN: "退出登陆"
+    },
+    withTags: {
+        EN: "With Tags",
+        CN: "使用标签"
+    },
+    uploadToDirectory: {
+        EN: "Upload To Directory",
+        CN: "上传到目录"
+    },
+    ignoreOnDupName: {
+        EN: "Ignore On Duplicate Name",
+        CN: "忽略重复上传"
+    },
+    supportedFileExt: {
+        EN: "Supported File Extensions",
+        CN: "支持的文件后缀"
+    },
+    multiUploadTip: {
+        EN: "Multiple files are uploaded as a single zip",
+        CN: "上传多个文件且压缩成单个 ZIP"
+    },
+    singleUploadTip: {
+        EN: "Files are uploaded one by one",
+        CN: "逐个文件上传"
+    },
+    compressed: {
+        EN: "Compressed",
+        CN: "是否压缩"
+    },
+    upload: {
+        EN: "Upload",
+        CN: "上传"
+    },
+    cancel: {
+        EN: "Cancel",
+        CN: "取消"
+    },
+    progress: {
+        EN: "Progress",
+        CN: "进度"
+    },
+    file: {
+        EN: "File",
+        CN: "文件"
+    },
+    dir: {
+        EN: "Directory",
+        CN: "目录"
+    },
+    publicGroup: {
+        EN: 'Public',
+        CN: '公共访问'
+    },
+    privateGroup: {
+        EN: 'Private',
+        CN: '私人访问'
+    },
+    allFiles: {
+        EN: "All",
+        CN: "全部文件"
+    },
+    myFiles: {
+        EN: "My Files",
+        CN: "我的文件"
+    },
+    download: {
+        EN: "Download",
+        CN: "下载"
+    },
+    goInto: {
+        EN: "Go Into",
+        CN: "进入"
+    },
+    directory: {
+        EN: 'Directory',
+        CN: '目录'
+    },
+    inFolderTitle: {
+        EN: 'Files In Virtual Folder',
+        CN: '虚拟文件夹中文件'
+    },
+    underDirTitle: {
+        EN: 'Under Directory',
+        CN: '目录中文件'
+    },
 }
 
-export function translate(key: string, lang: LLang = LLang.EN) {
+// let count = 0;
+export function translate(key: string, lang: LLang = null) {
+    if (!lang) lang = getLLang();
+
+    // console.log(`translated, key: ${key}, lang: ${lang}, called: ${++count} times`);
+
     let l = ttable[key]
-    if (!l) return key;
+    if (!l) {
+        console.error(`failed to translate '${key}'`);
+        return key;
+    }
     return l[lang];
 }

@@ -23,7 +23,6 @@ import {
   FILE_OWNERSHIP_OPTIONS,
   FILE_USER_GROUP_OPTIONS,
   SearchFileInfoParam,
-  transFileType,
   UploadFileParam,
 } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
@@ -43,7 +42,7 @@ import { Resp } from "src/models/resp";
 import { VFolderBrief } from "src/models/folder";
 import { GalleryBrief } from "src/models/gallery";
 import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
-import { translate } from "src/models/translate";
+import { onLangChange, translate } from "src/models/translate";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -62,9 +61,17 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   readonly OWNERSHIP_MY_FILES = FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES;
   readonly PRIVATE_GROUP = FileUserGroupEnum.USER_GROUP_PRIVATE;
   readonly PUBLIC_GROUP = FileUserGroupEnum.USER_GROUP_PUBLIC;
-  readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = FILE_USER_GROUP_OPTIONS;
+  readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = FILE_USER_GROUP_OPTIONS.map(v => {
+    let t = { ...v }
+    t.name = translate(t.name);
+    return t;
+  });
   readonly FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] =
-    FILE_OWNERSHIP_OPTIONS;
+    FILE_OWNERSHIP_OPTIONS.map(v => {
+      let t = { ...v }
+      t.name = translate(t.name);
+      return t;
+    });
   readonly DESKTOP_COLUMNS = [
     "selected",
     "fileType",
@@ -128,8 +135,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** currently displayed columns */
   displayedColumns: string[] = this._selectColumns();
-
-  t = translate;
 
   /*
   -----------------------
@@ -215,6 +220,53 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** Ignore upload on duplicate name found*/
   ignoreOnDupName: boolean = true;
 
+  /*
+  ----------------------------------
+
+  Labels 
+
+  ----------------------------------
+  */
+  onLangChangeSub = onLangChange.subscribe(() => this.refreshLabel());
+  filenameLabel: string;
+  withTagsLabel: string;
+  userGroupLabel: string;
+  uploadToDirLabel: string;
+  uploadLabel: string;
+  cancelLabel: string;
+  progressLabel: string;
+  singleUploadTipLabel: string;
+  multiUploadTipLabel: string;
+  compressedLabel: string;
+  ignoreOnDupNameLabel: string;
+  supportedFileExtLabel: string;
+  ownerLabel: string;
+  tagsLabel: string;
+  fantahseaGalleryLabel: string;
+  virtualFolderLabel: string;
+  newDirLabel: string;
+  dirNameLabel: string;
+  hostOnFantahseaLabel: string;
+  addToVFolderLabel: string;
+  uploadPanelLabel: string;
+  mkdirLabel: string;
+  fetchLabel: string;
+  resetLabel: string;
+  selectedLabel: string;
+  nameLabel: string;
+  uploaderLabel: string;
+  uploadTimeLabel: string;
+  fileSizeLabel: string;
+  fileTypeLabel: string;
+  publicGroupLabel: string;
+  privateGroupLabel: string;
+  updateTimeLabel: string;
+  operationLabel: string;
+  downloadLabel: string;
+  goIntoLabel: string;
+  dirLabel: string;
+  submitLabel: string;
+
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
 
@@ -237,17 +289,59 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     );
   }
 
+  refreshLabel(): void {
+    this.filenameLabel = translate("filename");
+    this.withTagsLabel = translate("withTags");
+    this.userGroupLabel = translate("userGroup");
+    this.uploadToDirLabel = translate("uploadToDirectory");
+    this.uploadLabel = translate("upload");
+    this.cancelLabel = translate("cancel");
+    this.progressLabel = translate('progress');
+    this.singleUploadTipLabel = translate('singleUploadTip');
+    this.multiUploadTipLabel = translate('multiUploadTip');
+    this.compressedLabel = translate("compressed");
+    this.ignoreOnDupNameLabel = translate("ignoreOnDupName");
+    this.supportedFileExtLabel = translate("supportedFileExt");
+    this.ownerLabel = translate("owner");
+    this.tagsLabel = translate('tags');
+    this.fantahseaGalleryLabel = translate('fantahseaGallery');
+    this.virtualFolderLabel = translate("virtualFolder");
+    this.newDirLabel = translate('newDir');
+    this.dirNameLabel = translate('dirName');
+    this.hostOnFantahseaLabel = translate('hostOnFantahsea');
+    this.addToVFolderLabel = translate('addToVFolder');
+    this.uploadPanelLabel = translate('uploadPanel');
+    this.mkdirLabel = translate('makeDirectory');
+    this.fetchLabel = translate('fetch');
+    this.resetLabel = translate('reset');
+    this.selectedLabel = translate('selected');
+    this.nameLabel = translate('name');
+    this.uploaderLabel = translate('uploader');
+    this.uploadTimeLabel = translate('uploadTime');
+    this.fileSizeLabel = translate('fileSize');
+    this.fileTypeLabel = translate("type");
+    this.publicGroupLabel = translate('publicGroup');
+    this.privateGroupLabel = translate('privateGroup');
+    this.updateTimeLabel = translate("updateTime");
+    this.operationLabel = translate("operation");
+    this.downloadLabel = translate('download');
+    this.goIntoLabel = translate('goInto');
+    this.dirLabel = translate('directory');
+    this.submitLabel = translate('submit');
+  }
+
   ngDoCheck(): void {
-    this.fileListTitle = this._getListTitle();
     this.displayedColumns = this._selectColumns();
     if (this.isCompressed) this.uploadDirName = null;
   }
 
   ngOnDestroy(): void {
     this.fetchTagTimerSub.unsubscribe();
+    this.onLangChangeSub.unsubscribe();
   }
 
   ngOnInit() {
+    this.refreshLabel();
     this.isMobile = isMobile();
 
     this.route.paramMap.subscribe((params) => {
@@ -261,6 +355,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
       this.paginator.firstPage();
       this.fetchFileInfoList();
+      this.fileListTitle = this._getListTitle();
     });
 
     this.userService.fetchUserInfo();
@@ -359,7 +454,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         next: (resp) => {
           this.fileInfoList = resp.data.payload;
           for (let f of this.fileInfoList) {
-            f.fileTypeLabel = this._translateFileType(f.fileType);
+            if (f.fileType) {
+              f.fileTypeLabel = translate(f.fileType.toLowerCase());
+            }
             f.isFile = f.fileType == FileType.FILE;
             f.isDir = !f.isFile;
             f.sizeLabel = this._resolveSize(f.sizeInBytes);
@@ -549,7 +646,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
       s += e + ", ";
     }
-    return s.substr(0, s.length - ", ".length);
+    return s.substring(0, s.length - ", ".length);
   }
 
   /** Cancel the file uploading */
@@ -890,11 +987,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   // -------------------------- private helper methods ------------------------
 
-  private _translateFileType(ft: FileType): string {
-    if (!ft) return "";
-    return transFileType(ft);
-  }
-
   /** fetch supported file extension */
   private _fetchSupportedExtensions(): void {
     this.fileService.fetchSupportedFileExtensionNames().subscribe({
@@ -1151,9 +1243,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _getListTitle() {
-    if (this.inFolderNo) return "Files In Virtual Folder"
-    if (this.inDirFileName) return "Under Directory"
-    return this.t("fileList")
+    if (this.inFolderName) return translate('inFolderTitle');
+    if (this.inDirFileName) return translate('underDirTitle');
+    return translate("fileList")
   }
 
   // fetch dir brief list

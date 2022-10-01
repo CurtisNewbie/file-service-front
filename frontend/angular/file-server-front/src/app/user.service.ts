@@ -4,7 +4,7 @@ import { Subscription, timer } from "rxjs";
 import { Observable, Subject } from "rxjs";
 import { environment } from "src/environments/environment";
 import { Resp } from "src/models/resp";
-import { ChangePasswordParam, UserInfo } from "src/models/user-info";
+import { UserInfo } from "src/models/user-info";
 import { NavigationService, NavType } from "./navigation.service";
 import { NotificationService } from "./notification.service";
 import {

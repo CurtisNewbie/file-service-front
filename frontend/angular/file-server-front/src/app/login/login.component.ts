@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
     private userService: UserService,
     private nav: NavigationService,
     private notifi: NotificationService
-  ) {}
+  ) { }
 
   ngOnInit() {
     if (getToken()) {

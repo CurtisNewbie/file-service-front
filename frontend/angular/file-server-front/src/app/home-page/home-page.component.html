@@ -1,7 +1,7 @@
 <div *ngIf="!isGuest && !inFolderNo && !inDirFileName && expandUploadPanel">
     <ng-container *ngIf="uploadParam.files != null && uploadParam.files.length > 0">
         <mat-form-field appearance="fill" style="width: 100%;" class="mt-1 mb-1">
-            <mat-label>{{label("filename")}</mat-label>
+            <mat-label>{{filenameLabel}}</mat-label>
             <input matInput type="text" id="filenameInput" [(ngModel)]="displayedUploadName"
                 [disabled]="isFileNameInputDisabled()">
             <button *ngIf="displayedUploadName" matSuffix aria-label="Clear" (click)="displayedUploadName=''"
@@ -19,7 +19,7 @@
         <div class="row row-cols-sm-auto g-3 align-items-center">
             <div class="col-12">
                 <mat-form-field appearance="fill">
-                    <mat-label>With Tags:</mat-label>
+                    <mat-label>{{withTagsLabel}}:</mat-label>
                     <mat-select [(value)]="selectedTags" [disabled]="isUploading" multiple>
                         <mat-option [value]="t" *ngFor="let t of tags">
                             {{t}}
@@ -30,10 +30,8 @@
 
             <div class="col-12">
                 <mat-form-field appearance="fill">
-                    <mat-label>{{t("userGroup")}}</mat-label>
-                    <mat-select [(value)]="uploadParam.userGroup"
-                        matTooltip="Public group files are accessible for anyone. Private group files are only accessible for you"
-                        matTooltipPosition="below" [disabled]="isUploading">
+                    <mat-label>{{userGroupLabel}}</mat-label>
+                    <mat-select [(value)]="uploadParam.userGroup" [disabled]="isUploading">
                         <mat-option [value]="option.value" *ngFor="let option of USER_GROUP_OPTIONS">
                             {{option.name}}
                         </mat-option>
@@ -43,7 +41,7 @@
 
             <div class="col-12">
                 <mat-form-field appearance="fill" class="mb-1">
-                    <mat-label>Directory:</mat-label>
+                    <mat-label>{{uploadToDirLabel}}:</mat-label>
                     <input matInput type="text" [(ngModel)]="uploadDirName" (ngModelChange)="onUploadDirNameChanged()"
                         [matAutocomplete]="auto0" [disabled]="isUploading || isCompressed">
                     <mat-autocomplete #auto0="matAutocomplete">
@@ -57,21 +55,20 @@
             <div class="col-12">
                 <button class="ml-2 mr-2" mat-raised-button (click)="upload()" [disabled]="isUploading"
                     *ngIf="!isUploading">
-                    Upload
+                    {{uploadLabel}}
                 </button>
                 <button class="ml-2 mr-2" *ngIf="isUploading" mat-raised-button (click)="cancelFileUpload()">
-                    Cancel
+                    {{cancelLabel}}
                 </button>
             </div>
             <div class="col-12">
-                <small style="color: cadetblue;" *ngIf="progress != null">Progress: {{progress}}</small>
+                <small style="color: cadetblue;" *ngIf="progress != null">{{progressLabel}}: {{progress}}</small>
             </div>
             <div class="col-12">
                 <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 1"
-                    [matTooltip]="isCompressed ? 'Multiple files are uploaded as a single zip' : 'Files are uploaded one by one'"
-                    matTooltipPosition="below">
+                    [matTooltip]="isCompressed ? multiUploadTipLabel : singleUploadTipLabel" matTooltipPosition="below">
                     <mat-checkbox class="m-1" [disabled]="isUploading" [(ngModel)]="isCompressed"
-                        (ngModelChange)="onIsCompressedChanged()">Compressed
+                        (ngModelChange)="onIsCompressedChanged()">{{compressedLabel}}
                     </mat-checkbox>
                 </section>
             </div>
@@ -79,15 +76,15 @@
                 <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 0 && !isCompressed"
                     [matTooltip]="'Ignore files with duplicate name'" matTooltipPosition="below">
                     <mat-checkbox class="m-1" [disabled]="isUploading" [(ngModel)]="ignoreOnDupName"
-                        (ngModelChange)="onIsCompressedChanged()">Ignore On Duplicate Name
+                        (ngModelChange)="onIsCompressedChanged()">{{ignoreOnDupNameLabel}}
                     </mat-checkbox>
                 </section>
             </div>
         </div>
     </div>
-    <small class="mt-2" style="color: grey;" [matTooltip]="fileExtToolTip()">Supported File Extensions:
+    <small class="mt-2" style="color: grey;" [matTooltip]="fileExtToolTip()">{{supportedFileExtLabel}}:
         <span>
-            {{ subSetToStr(this.fileExtSet, 8)}} ... </span>
+            {{ subSetToStr(this.fileExtSet, 20)}} ... </span>
     </small>
 </div>
 
@@ -100,12 +97,12 @@
         </div>
         <div *ngIf="inDirFileName" class="m-2">
             <mat-card>
-                Directory: '{{inDirFileName}}'
+                {{dirLabel}}: '{{inDirFileName}}'
             </mat-card>
         </div>
         <div *ngIf="!isGuest && !inFolderNo && !makingDir">
             <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-3">
-                <mat-label>{{t("filename")}}</mat-label>
+                <mat-label>{{filenameLabel}}</mat-label>
                 <input matInput type="text" id="searchFilenameInput" [(ngModel)]="searchParam.name"
                     (keyup)="searchNameInputKeyPressed($event)">
                 <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''"
@@ -115,7 +112,7 @@
             <div class="row row-cols-lg-auto g-3 align-items-center">
                 <div class="col-12">
                     <mat-form-field appearance="fill">
-                        <mat-label>{{t("userGroup")}}</mat-label>
+                        <mat-label>{{userGroupLabel}}</mat-label>
                         <mat-select (valueChange)="setSearchUserGroup($event)" [value]="searchParam.userGroup">
                             <mat-option value="">ALL</mat-option>
                             <mat-option [value]="option.value" *ngFor="let option of USER_GROUP_OPTIONS">
@@ -127,9 +124,8 @@
                 <ng-container *ngIf="!inDirFileName">
                     <div class="col-12">
                         <mat-form-field appearance="fill">
-                            <mat-label>{{t("owner")}}</mat-label>
-                            <mat-select (valueChange)="setSearchOwnership($event)" [value]="searchParam.ownership"
-                                matTooltip="Fetch all the files or only the files that you uploaded">
+                            <mat-label>{{ownerLabel}}</mat-label>
+                            <mat-select (valueChange)="setSearchOwnership($event)" [value]="searchParam.ownership">
                                 <mat-option [value]="option.value" *ngFor="let option of FILE_OWNERSHIP_OPTIONS">
                                     {{option.name}}
                                 </mat-option>
@@ -139,9 +135,8 @@
                 </ng-container>
                 <div class="col-12">
                     <mat-form-field appearance="fill">
-                        <mat-label>{{t("tags")}}</mat-label>
-                        <mat-select (valueChange)="setTag($event)" [value]="searchParam.tagName"
-                            matTooltip="Select tag to search files">
+                        <mat-label>{{tagsLabel}}</mat-label>
+                        <mat-select (valueChange)="setTag($event)" [value]="searchParam.tagName">
                             <mat-option [value]="t" *ngFor="let t of tags">
                                 {{t}}
                             </mat-option>
@@ -151,7 +146,7 @@
                 <ng-container *ngIf="fantahseaEnabled">
                     <div class="col-12">
                         <mat-form-field appearance="fill">
-                            <mat-label>{{t("fantahseaGallery")}}</mat-label>
+                            <mat-label>{{fantahseaGalleryLabel}}</mat-label>
                             <input matInput type="text" [(ngModel)]="addToGalleryName"
                                 (ngModelChange)="onAddToGalleryNameChanged()" [matAutocomplete]="auto2">
                             <mat-autocomplete #auto2="matAutocomplete">
@@ -166,7 +161,7 @@
                 <ng-container *ngIf="!inDirFileName">
                     <div class="col-12">
                         <mat-form-field appearance="fill">
-                            <mat-label>{{t("virtualFolder")}}</mat-label>
+                            <mat-label>{{virtualFolderLabel}}</mat-label>
                             <input matInput type="text" [(ngModel)]="addToVFolderName"
                                 (ngModelChange)="onAddToVFolderNameChanged()" [matAutocomplete]="auto1">
                             <mat-autocomplete #auto1="matAutocomplete">
@@ -181,46 +176,46 @@
         </div>
 
         <div class="container bootstrap p-3 mt-3 mb-5 shadow" *ngIf="makingDir">
-            <h4 class="mt-2 mb-2">{{t("newDir")}}</h4>
+            <h4 class="mt-2 mb-2">{{newDirLabel}}</h4>
 
             <mat-form-field appearance="fill" style="width: 100%;">
-                <mat-label>{{t("dirName")}}</mat-label>
+                <mat-label>{{dirNameLabel}}</mat-label>
                 <input matInput type="text" [(ngModel)]="newDirName">
                 <button *ngIf="newDirName" class="btn-close" matSuffix aria-label="Clear" (click)="newDirName=''">
                 </button>
             </mat-form-field>
 
             <div class="justify-content-md-end d-md-flex">
-                <button mat-raised-button class="mt-2" (click)="mkdir()">Submit</button>
+                <button mat-raised-button class="mt-2" (click)="mkdir()">{{submitLabel}}</button>
             </div>
         </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
             <ng-container *ngIf="addToGalleryName">
-                <button mat-raised-button class="m-2" (click)="transferToGallery()">{{t("hostOnFantahsea")}}</button>
+                <button mat-raised-button class="m-2" (click)="transferToGallery()">{{hostOnFantahseaLabel}}</button>
                 <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName"
                     (click)="transferDirToGallery()">Host
                     All Images On Fantahsea</button>
             </ng-container>
             <ng-container *ngIf="!inDirFileName">
                 <button mat-raised-button class="m-2" *ngIf="addToVFolderName"
-                    (click)="addToVirtualFolder()">{{t("addToVFolder")}}</button>
+                    (click)="addToVirtualFolder()">{{addToVFolderLabel}}</button>
                 <ng-container *ngIf="!isGuest && !inFolderNo">
                     <button mat-raised-button class="m-2"
-                        (click)="expandUploadPanel=!expandUploadPanel">{{t("uploadPanel")}}</button>
-                    <button mat-raised-button class="m-2" (click)="makingDir=!makingDir">{{t("makeDirectory")}}</button>
+                        (click)="expandUploadPanel=!expandUploadPanel">{{uploadPanelLabel}}</button>
+                    <button mat-raised-button class="m-2" (click)="makingDir=!makingDir">{{mkdirLabel}}</button>
                 </ng-container>
             </ng-container>
             <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName" (click)="leaveDir()">Go
                 Back</button>
-            <button mat-raised-button class="m-2" id="reloadBtn" (click)="fetchFileInfoList()">{{t("fetch")}}</button>
-            <button mat-raised-button class="m-2" id="resetBtn" (click)="resetSearchParam()">{{t("reset")}}</button>
+            <button mat-raised-button class="m-2" id="reloadBtn" (click)="fetchFileInfoList()">{{fetchLabel}}</button>
+            <button mat-raised-button class="m-2" id="resetBtn" (click)="resetSearchParam()">{{resetLabel}}</button>
         </div>
 
         <table mat-table [dataSource]="fileInfoList" class="mat-elevation-z8 mb-4" style="width: 100%;"
             multiTemplateDataRows>
             <ng-container matColumnDef="selected">
-                <th mat-header-cell *matHeaderCellDef> <span (click)="selectAllFiles()">{{t("selected")}}</span> </th>
+                <th mat-header-cell *matHeaderCellDef> <span (click)="selectAllFiles()">{{selectedLabel}}</span> </th>
                 <td mat-cell *matCellDef="let f">
                     <mat-checkbox [checked]="f._selected" (change)="selectFile($event, f)"
                         (click)="$event.stopPropagation();" [disabled]="!f.isOwner || !f.isFile"></mat-checkbox>
@@ -228,53 +223,53 @@
             </ng-container>
 
             <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef> {{t("name")}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{nameLabel}} </th>
                 <td mat-cell *matCellDef="let f"> <span class="pl-1 pr-1">{{f.name}}
                     </span></td>
             </ng-container>
 
             <ng-container matColumnDef="uploader">
-                <th mat-header-cell *matHeaderCellDef> {{t("uploader")}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{uploaderLabel}} </th>
                 <td mat-cell *matCellDef="let f"> {{f.uploaderName}} </td>
             </ng-container>
 
             <ng-container matColumnDef="uploadTime">
-                <th mat-header-cell *matHeaderCellDef> {{t("uploadTime")}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{uploadTimeLabel}} </th>
                 <td mat-cell *matCellDef="let f"> {{f.uploadTime}} </td>
             </ng-container>
 
             <ng-container matColumnDef="size">
-                <th mat-header-cell *matHeaderCellDef> {{t("fileSize")}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{fileSizeLabel}} </th>
                 <td mat-cell *matCellDef="let f"> {{f.sizeLabel}} </td>
             </ng-container>
 
             <ng-container matColumnDef="fileType">
-                <th mat-header-cell *matHeaderCellDef> {{t("type")}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{fileTypeLabel}} </th>
                 <td mat-cell *matCellDef="let f"> {{f.fileTypeLabel}} </td>
             </ng-container>
 
             <ng-container matColumnDef="userGroup">
-                <th mat-header-cell *matHeaderCellDef> {{t("userGroup")}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{userGroupLabel}} </th>
                 <td mat-cell *matCellDef="let f">
-                    <span *ngIf="f.userGroup === PUBLIC_GROUP" class="status-green">public</span>
-                    <span *ngIf="f.userGroup === PRIVATE_GROUP" class="status-blue">private</span>
+                    <span *ngIf="f.userGroup === PUBLIC_GROUP" class="status-green">{{publicGroupLabel}}</span>
+                    <span *ngIf="f.userGroup === PRIVATE_GROUP" class="status-blue">{{privateGroupLabel}}</span>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="updateTime">
-                <th mat-header-cell *matHeaderCellDef> {{t("updateTime")}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{updateTimeLabel}} </th>
                 <td mat-cell *matCellDef="let f"> {{f.updateTime}} </td>
             </ng-container>
 
 
             <ng-container matColumnDef="operation">
-                <th mat-header-cell *matHeaderCellDef> {{t("operation")}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{operationLabel}} </th>
                 <td mat-cell *matCellDef="let f">
                     <ng-container *ngIf="f.isFile">
-                        <a (click)="jumpToDownloadUrl(f.id, $event)"><small>Download</small></a>
+                        <a (click)="jumpToDownloadUrl(f.id, $event)"><small>{{downloadLabel}}</small></a>
                     </ng-container>
                     <ng-container *ngIf="f.isDir">
-                        <a (click)="goIntoDir(f, $event)"><small>Go Into</small></a>
+                        <a (click)="goIntoDir(f, $event)"><small>{{goIntoLabel}}</small></a>
                     </ng-container>
                 </td>
             </ng-container>
