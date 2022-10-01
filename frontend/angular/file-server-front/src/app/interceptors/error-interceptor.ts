@@ -29,7 +29,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(httpRequest).pipe(
       catchError((e) => {
         if (e instanceof HttpErrorResponse) {
-          console.log("Http error response: ", e);
+          // console.log("Http error response: ", e);
 
           if (e.status === 401) {
             this.notifi.toast("Please login first");
