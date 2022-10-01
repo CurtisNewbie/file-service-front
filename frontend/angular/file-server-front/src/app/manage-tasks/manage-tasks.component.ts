@@ -10,7 +10,7 @@ import {
   TASK_ENABLED_OPTIONS,
   UpdateTaskReqVo,
 } from "src/models/task";
-import { animateElementExpanding } from "../../animate/animate-util";
+import { animateElementExpanding, getExpanded, isIdEqual } from "../../animate/animate-util";
 import { Option } from "src/models/select-util";
 import { NotificationService } from "../notification.service";
 import { TaskService } from "../task.service";
@@ -51,6 +51,9 @@ export class ManageTasksComponent implements OnInit {
   pagingController: PagingController = new PagingController();
   expandedElement: Task;
 
+  idEquals = isIdEqual;
+  getExpandedEle = (row) => getExpanded(row, this.expandedElement);
+
   constructor(
     private taskService: TaskService,
     private notifi: NotificationService,
@@ -71,24 +74,6 @@ export class ManageTasksComponent implements OnInit {
         this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });
-  }
-
-  copy(task: Task): Task {
-    if (task == null) return null;
-    return { ...task };
-  }
-
-  idEquals(tl: Task, tr: Task): boolean {
-    if (tl == null || tr == null) return false;
-    return tl.id === tr.id;
-  }
-
-  setExpandedElement(row: Task) {
-    if (this.idEquals(row, this.expandedElement)) {
-      this.expandedElement = null;
-      return;
-    }
-    this.expandedElement = this.copy(row);
   }
 
   update(task: Task): void {

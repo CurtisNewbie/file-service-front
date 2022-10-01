@@ -29,7 +29,7 @@ import { PagingController } from "src/models/paging";
 import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.component";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
-import { animateElementExpanding } from "../../animate/animate-util";
+import { animateElementExpanding, getExpanded, isIdEqual } from "../../animate/animate-util";
 import { buildApiPath, HClient } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
@@ -136,6 +136,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** currently displayed columns */
   displayedColumns: string[] = this._selectColumns();
+
+  idEquals = isIdEqual;
+  getExpandedEle = (row) => getExpanded(row, this.expandedElement, this.isMobile);
 
   /*
   -----------------------
@@ -775,27 +778,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.expandedElement = null;
       this.addToGalleryName = null;
     });
-  }
-
-  /**
-   * Two non-null FileInfo are considered equals, when the id are equals, if any one of them is null, they are not equals
-   */
-  idEquals(fl: FileInfo, fr: FileInfo): boolean {
-    if (fl == null || fr == null) return false;
-
-    return fl.id === fr.id;
-  }
-
-  /**
-   * Look at the row, determine whether we should expand this row (return this row)
-   *
-   * @param row null value if we shouldn't expand this element, else a copy of this row
-   * @returns expandedElement
-   */
-  determineExpandedElement(row: FileInfo): FileInfo {
-    if (this.isMobile) return null; // mobile should never expand 
-
-    return this.idEquals(this.expandedElement, row) ? null : this._copy(row);
   }
 
   /**

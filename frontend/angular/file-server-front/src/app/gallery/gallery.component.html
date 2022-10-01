@@ -93,8 +93,7 @@
 
         <tr mat-header-row *matHeaderRowDef="isMobile ? MOBILE_COLUMNS : DESKTOP_COLUMNS"></tr>
         <tr mat-row *matRowDef="let row; columns: (isMobile ? MOBILE_COLUMNS: DESKTOP_COLUMNS);" class="element-row"
-            [class.expanded-row]="idEquals(row, expandedElement)"
-            (click)="expandedElement = determineExpandedElement(row)"
+            [class.expanded-row]="idEquals(row, expandedElement)" (click)="expandedElement = getExpandedEle(row)"
             [matTooltip]="row.isOwner ? 'Click to expand' : ''">
         </tr>
         <tr mat-row *matRowDef="let element; columns: ['expandedElement'];" class="detail-row">

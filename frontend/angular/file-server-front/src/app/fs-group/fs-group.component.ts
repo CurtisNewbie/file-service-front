@@ -7,7 +7,7 @@ import {
   FS_GROUP_MODE_OPTIONS,
 } from "src/models/fs-group";
 import { PagingController } from "src/models/paging";
-import { animateElementExpanding } from "../../animate/animate-util";
+import { animateElementExpanding, getExpanded, isIdEqual } from "../../animate/animate-util";
 import { HClient } from "../util/api-util";
 
 @Component({
@@ -36,6 +36,9 @@ export class FsGroupComponent implements OnInit {
   searchParam: FsGroup = emptyFsGroup();
   pagingController: PagingController;
 
+  idEquals = isIdEqual;
+  getExpandedEle = (row) => getExpanded(row, this.expandedElement);
+
   constructor(private http: HClient) {
 
   }
@@ -56,29 +59,6 @@ export class FsGroupComponent implements OnInit {
         this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });
-  }
-
-  /**
-   * Look at the row, determine whether we should expand this row (return this row)
-   *
-   * @param row null value if we shouldn't expand this element, else a copy of this row
-   * @returns expandedElement
-   */
-  determineExpandedElement(row: FsGroup): FsGroup {
-    return this.idEquals(row, this.expandedElement) ? null : this.copy(row);
-  }
-
-  copy(f: FsGroup): FsGroup {
-    if (!f) return null;
-    return { ...f };
-  }
-
-  /**
-   * Check if the two fs_group's id are equals
-   */
-  idEquals(fsl: FsGroup, fsr: FsGroup): boolean {
-    if (fsl == null || fsr == null) return false;
-    return fsl.id === fsr.id;
   }
 
   /** Update fs_group's mode */

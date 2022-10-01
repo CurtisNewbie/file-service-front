@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
-import { animateElementExpanding } from "src/animate/animate-util";
+import { animateElementExpanding, getExpanded, isIdEqual } from "src/animate/animate-util";
 import { environment } from "src/environments/environment";
 import { Gallery, ListGalleriesResp } from "src/models/gallery";
 import { PagingController } from "src/models/paging";
@@ -39,6 +39,9 @@ export class GalleryComponent implements OnInit {
   role: string = "";
   newGalleryName: string = "";
   showCreateGalleryDiv: boolean = false;
+
+  idEquals = isIdEqual;
+  getExpandedEle = (row) => getExpanded(row, this.expandedElement);
 
   constructor(
     private http: HClient,
@@ -93,25 +96,6 @@ export class GalleryComponent implements OnInit {
       });
   }
 
-  /**
-   * Two non-null Gallery are considered equals, when the id are equals, if any one of them is null, they are not equals
-   */
-  idEquals(fl: Gallery, fr: Gallery): boolean {
-    if (fl == null || fr == null) return false;
-
-    return fl.id === fr.id;
-  }
-
-  /**
-   * Look at the row, determine whether we should expand this row (return this row)
-   *
-   * @param row null value if we shouldn't expand this element, else a copy of this row
-   * @returns expandedElement
-   */
-  determineExpandedElement(row: Gallery): Gallery {
-    return this.idEquals(this.expandedElement, row) ? null : this._copy(row);
-  }
-
   // todo (impl this later)
   shareGallery(g: Gallery) { }
 
@@ -149,12 +133,6 @@ export class GalleryComponent implements OnInit {
     this.navigation.navigateTo(NavType.GALLERY_IMAGE, [
       { galleryNo: galleryNo },
     ]);
-  }
-
-  private _copy(f: Gallery): Gallery {
-    if (!f) return null;
-    let copy = { ...f };
-    return copy;
   }
 
   onPagingControllerReady(pc) {

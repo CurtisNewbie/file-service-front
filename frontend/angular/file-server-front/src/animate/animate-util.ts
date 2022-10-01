@@ -17,3 +17,19 @@ export function animateElementExpanding(): AnimationTriggerMetadata {
     ),
   ]);
 }
+
+export function copy<T>(t: T): T {
+  if (t == null) return null;
+  return { ...t }
+}
+
+export function isIdEqual(t, v): boolean {
+  if (t == null || v == null) return false;
+  return t.id === v.id;
+}
+
+export function getExpanded(row, currExpanded, closeForMobile: boolean = false) {
+  if (closeForMobile) return null;
+  // null means row is the expanded one, so we return null to make it collapsed
+  return isIdEqual(row, currExpanded) ? null : copy(row);
+}
