@@ -354,20 +354,20 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.searchParam.parentFileName = params.get("parentDirName");
       this.searchParam.parentFile = params.get("parentDirKey");
 
-      this.paginator.firstPage();
+      this.pagingController.control(this.paginator);
+      this.pagingController.firstPage();
       this.fetchFileInfoList();
       this.fileListTitle = this._getListTitle();
+      this.userService.fetchUserInfo();
+      this._fetchSupportedExtensions();
+      this._fetchTags();
+      this._fetchDirBriefList();
+      this._fetchOwnedVFolderBrief();
+
+      if (this.fantahseaEnabled) {
+        this._fetchOwnedGalleryBrief();
+      }
     });
-
-    this.userService.fetchUserInfo();
-    this._fetchSupportedExtensions();
-    this._fetchTags();
-    this._fetchDirBriefList();
-    this._fetchOwnedVFolderBrief();
-
-    if (this.fantahseaEnabled) {
-      this._fetchOwnedGalleryBrief();
-    }
   }
 
   // make dir
@@ -452,7 +452,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       }
     ).subscribe({
       next: (resp) => {
-        console.log(resp);
         this.fileInfoList = resp.data.payload;
         for (let f of this.fileInfoList) {
           if (f.fileType) {
@@ -463,10 +462,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           f.sizeLabel = this._resolveSize(f.sizeInBytes);
         }
 
-        let total = resp.data.pagingVo.total;
-        if (total != null) {
-          this.pagingController.updatePages(total);
-        }
+        this.pagingController.onTotalChanged(resp.data.pagingVo);
         this.inDirFileName = this.searchParam.parentFileName;
       },
       error: (err) => console.log(err),
@@ -578,7 +574,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     if (this.fantahseaEnabled) this.addToGalleryName = null;
     this.inFolderNo = null;
     this.addToVFolderName = null;
-    this.paginator.firstPage();
+    this.pagingController.firstPage();
     this.fetchFileInfoList();
   }
 
@@ -1101,7 +1097,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.uploadIndex = -1;
     this.displayedUploadName = null;
     this.progress = null;
-    this.paginator.firstPage();
+    this.pagingController.firstPage();
   }
 
   private _prepNextUpload(): UploadFileParam {

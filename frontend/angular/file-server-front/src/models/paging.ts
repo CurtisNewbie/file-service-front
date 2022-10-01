@@ -1,4 +1,4 @@
-import { PageEvent } from "@angular/material/paginator";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
 
 /** Pagination info */
 export interface Paging {
@@ -24,6 +24,7 @@ export class PagingConst {
  * Controller for pagination, internal properties are non-private, thus can be directly bound with directive
  */
 export class PagingController {
+
   PAGE_LIMIT_OPTIONS: number[] = PagingConst.getPagingLimitOptions();
   paging: Paging = {
     page: 1,
@@ -32,11 +33,36 @@ export class PagingController {
   };
   pages: number[] = [1];
 
+  private paginator: MatPaginator = null;
+
   /** callback invoked when current page is changed */
   onPageChanged: () => void = null;
 
-  /** Update the list of pages that it can select */
-  public updatePages(total: number): void {
+  /** go to last page */
+  public lastPage() {
+    this.paginator.lastPage();
+  }
+
+  /** go to first page */
+  public firstPage() {
+    this.paginator.firstPage();
+  }
+
+  /** set the paginator controlled by this controller */
+  public control(paginator: MatPaginator) {
+    this.paginator = paginator;
+    if (paginator) {
+      paginator.page.subscribe((e) => this.onPageEvent(e));
+    }
+  }
+
+  /** update the list of pages that it can select based on total */
+  public onTotalChanged(p: Paging): void {
+    this._updatePages(p.total);
+  }
+
+  /** update the list of pages that it can select based on total */
+  private _updatePages(total: number): void {
     this.pages = [];
     this.paging.total = total;
     let maxPage = Math.ceil(total / this.paging.limit);
@@ -48,40 +74,13 @@ export class PagingController {
     }
   }
 
-  /** Set page number */
-  public setPage(page: number): void {
-    this.paging.page = page;
-  }
-
-  /** Set Page limit */
+  /** set page limit */
   public setPageLimit(limit: number): void {
     this.paging.limit = limit;
   }
 
-  /** Whether it can go to the next page */
-  public canGoToNextPage(): boolean {
-    return this.paging.page < this.pages[this.pages.length - 1];
-  }
-
-  public nextPage(): void {
-    ++this.paging.page;
-  }
-
-  public prevPage(): void {
-    --this.paging.page;
-  }
-
-  /** Whether it can go to the prevous page */
-  public canGoToPrevPage(): boolean {
-    return this.paging.page > 1;
-  }
-
-  public resetCurrentPage(): void {
-    this.paging.page = 1;
-  }
-
   public onPageEvent(e: PageEvent): void {
-    console.log(e);
+    // console.log(e);
     this.paging.page = e.pageIndex + 1;
     this.paging.limit = e.pageSize;
     if (this.onPageChanged) this.onPageChanged();

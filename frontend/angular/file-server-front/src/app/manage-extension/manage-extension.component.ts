@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { PageEvent } from "@angular/material/paginator";
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import {
   emptySearchFileExtParam,
   FetchFileExtList,
@@ -39,7 +39,7 @@ export class ManageExtensionComponent implements OnInit {
   readonly FILE_EXT_IS_ENABLED_OPTIONS: FileExtIsEnabledOption[] =
     FILE_EXT_IS_ENABLED_OPTIONS;
 
-  pagingController: PagingController = new PagingController();
+  pagingController: PagingController;
   fileExt: FileExt[] = [];
   updateExt: FileExt;
   searchParam: SearchFileExtParam = emptySearchFileExtParam();
@@ -50,13 +50,19 @@ export class ManageExtensionComponent implements OnInit {
 
   private isSearchParamChagned: boolean = false;
 
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
+
   constructor(
     private http: HClient,
     private notifi: NotificationService,
-    private fileService: FileInfoService
-  ) { }
+  ) {
+    this.pagingController = new PagingController();
+    this.pagingController.onPageChanged = () => this.fetchSupportedExtensionsDetails();
+  }
 
   ngOnInit() {
+    this.pagingController.control(this.paginator);
     this.fetchSupportedExtensionsDetails();
   }
 
@@ -64,7 +70,7 @@ export class ManageExtensionComponent implements OnInit {
   fetchSupportedExtensionsDetails(): void {
     if (this.isSearchParamChagned) {
       this.isSearchParamChagned = false;
-      this.pagingController.resetCurrentPage();
+      this.pagingController.firstPage();
     }
     this.searchParam.pagingVo = this.pagingController.paging;
 
@@ -74,7 +80,7 @@ export class ManageExtensionComponent implements OnInit {
     ).subscribe({
       next: (resp) => {
         this.fileExt = resp.data.payload;
-        this.pagingController.updatePages(resp.data.pagingVo.total);
+        this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });
   }
@@ -114,11 +120,6 @@ export class ManageExtensionComponent implements OnInit {
     if (event.key === "Enter") {
       this.fetchSupportedExtensionsDetails();
     }
-  }
-
-  handle(e: PageEvent): void {
-    this.pagingController.onPageEvent(e);
-    this.fetchSupportedExtensionsDetails();
   }
 
   addFileExt(): void {

@@ -51,6 +51,7 @@ export class GalleryComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.pagingController.control(this.paginator);
     this.userService.roleObservable.subscribe((role) => (this.role = role));
     this.fetchGalleries();
   }
@@ -63,7 +64,7 @@ export class GalleryComponent implements OnInit {
       )
       .subscribe({
         next: (resp) => {
-          this.pagingController.updatePages(resp.data.pagingVo.total);
+          this.pagingController.onTotalChanged(resp.data.pagingVo);
           this.galleries = resp.data.galleries;
           this.expandedElement = null;
         },

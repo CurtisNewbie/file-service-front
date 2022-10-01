@@ -17,14 +17,14 @@ import { IAlbum, Lightbox, LightboxConfig } from "ngx-lightbox";
   encapsulation: ViewEncapsulation.None,
 })
 export class GalleryImageComponent implements OnInit {
-  @ViewChild("paginator", { static: true })
-  paginator: MatPaginator;
 
   pagingController: PagingController;
-
   galleryNo: string = null;
   title = "fantahsea";
   images: IAlbum[] = [];
+
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
 
   constructor(
     private route: ActivatedRoute,
@@ -48,6 +48,7 @@ export class GalleryImageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.pagingController.control(this.paginator);
     this.route.paramMap.subscribe((params) => {
       let galleryNo = params.get("galleryNo");
       if (galleryNo) this.galleryNo = galleryNo;
@@ -69,7 +70,7 @@ export class GalleryImageComponent implements OnInit {
       )
       .subscribe({
         next: (resp) => {
-          this.pagingController.updatePages(resp.data.pagingVo.total);
+          this.pagingController.onTotalChanged(resp.data.pagingVo);
 
           this.images = [];
           if (resp.data.imageNos) {

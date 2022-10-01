@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { PagingConst, PagingController } from "src/models/paging";
 import {
   emptyListTaskByPageReqVo,
@@ -12,7 +12,7 @@ import {
 } from "src/models/task";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { Option } from "src/models/select-util";
-import { PageEvent } from "@angular/material/paginator";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { NotificationService } from "../notification.service";
 import { TaskService } from "../task.service";
 import { NavigationService, NavType } from "../navigation.service";
@@ -52,13 +52,19 @@ export class ManageTasksComponent implements OnInit {
   pagingController: PagingController = new PagingController();
   expandedElement: Task;
 
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
+
   constructor(
     private taskService: TaskService,
     private notifi: NotificationService,
     private navi: NavigationService
-  ) { }
+  ) {
+    this.pagingController.onPageChanged = () => this.fetchTaskList();
+  }
 
   ngOnInit() {
+    this.pagingController.control(this.paginator);
     this.fetchTaskList();
   }
 
@@ -67,7 +73,7 @@ export class ManageTasksComponent implements OnInit {
     this.taskService.fetchTaskList(this.searchParam).subscribe({
       next: (resp) => {
         this.tasks = resp.data.list;
-        this.pagingController.updatePages(resp.data.pagingVo.total);
+        this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });
   }
@@ -75,11 +81,6 @@ export class ManageTasksComponent implements OnInit {
   copy(task: Task): Task {
     if (task == null) return null;
     return { ...task };
-  }
-
-  handle(e: PageEvent): void {
-    this.pagingController.onPageEvent(e);
-    this.fetchTaskList();
   }
 
   idEquals(tl: Task, tr: Task): boolean {

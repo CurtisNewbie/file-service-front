@@ -114,7 +114,7 @@
 
     </div>
 
-    <mat-paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
-        [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page">
+    <mat-paginator #paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
+        [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" aria-label="Select page">
     </mat-paginator>
 </div>

@@ -1,5 +1,4 @@
 import { Component } from "@angular/core";
-import { Router } from "@angular/router";
 import { NLink, selectLinks } from "src/models/link";
 import { UserInfo } from "src/models/user-info";
 import { NavigationService } from "./navigation.service";

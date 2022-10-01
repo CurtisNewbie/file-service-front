@@ -1,4 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { MatPaginator } from "@angular/material/paginator";
 import { environment } from "src/environments/environment";
 import {
   emptyFsGroup,
@@ -36,13 +37,16 @@ export class FsGroupComponent implements OnInit {
   searchParam: FsGroup = emptyFsGroup();
   pagingController: PagingController;
 
-  constructor(private fileService: FileInfoService,
-    private http: HClient) {
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
+
+  constructor(private http: HClient) {
     this.pagingController = new PagingController();
     this.pagingController.onPageChanged = () => this.fetchFsGroups();
   }
 
   ngOnInit() {
+    this.pagingController.control(this.paginator);
     this.fetchFsGroups();
   }
 
@@ -56,7 +60,7 @@ export class FsGroupComponent implements OnInit {
     ).subscribe({
       next: (resp) => {
         this.fsGroups = resp.data.payload;
-        this.pagingController.updatePages(resp.data.pagingVo.total);
+        this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });
   }

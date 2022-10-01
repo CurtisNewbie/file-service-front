@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { PageEvent } from "@angular/material/paginator";
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { ActivatedRoute } from "@angular/router";
 import { PagingController } from "src/models/paging";
 import { TaskHistory } from "src/models/task";
@@ -15,6 +15,7 @@ export interface TaskHistoryData {
   styleUrls: ["./task-history.component.css"],
 })
 export class TaskHistoryComponent implements OnInit {
+
   readonly COLUMNS_TO_BE_DISPLAYED: string[] = [
     "taskId",
     "jobName",
@@ -32,12 +33,18 @@ export class TaskHistoryComponent implements OnInit {
   startDate: Date = null;
   endDate: Date = null;
 
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
+
   constructor(
     private taskService: TaskService,
     private route: ActivatedRoute
-  ) {}
+  ) {
+    this.pagingController.onPageChanged = () => this.fetchHistoryList();
+  }
 
   ngOnInit() {
+    this.pagingController.control(this.paginator);
     this.route.paramMap.subscribe((params) => {
       let ti = params.get("taskId");
       if (ti != null) this.taskId = Number(ti);
@@ -69,14 +76,9 @@ export class TaskHistoryComponent implements OnInit {
       .subscribe({
         next: (resp) => {
           this.taskHistoryList = resp.data.list;
-          this.pagingController.updatePages(resp.data.pagingVo.total);
+          this.pagingController.onTotalChanged(resp.data.pagingVo);
         },
       });
-  }
-
-  handle(e: PageEvent): void {
-    this.pagingController.onPageEvent(e);
-    this.fetchHistoryList();
   }
 
   onDatePickerChanged(): void {

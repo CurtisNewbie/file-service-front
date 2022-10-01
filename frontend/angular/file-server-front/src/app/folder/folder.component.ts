@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { MatPaginator } from "@angular/material/paginator";
 import { VFolder, FolderListResp } from "src/models/folder";
 import { Paging, PagingController } from "src/models/paging";
 import { Resp } from "src/models/resp";
@@ -20,8 +21,10 @@ export class FolderComponent implements OnInit {
     pagingVo: null,
   };
   pagingController: PagingController;
-
   folders: VFolder[] = [];
+
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
 
   constructor(
     private http: HttpClient,
@@ -36,6 +39,7 @@ export class FolderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.pagingController.control(this.paginator);
     this.fetchFolders();
   }
 
@@ -56,7 +60,7 @@ export class FolderComponent implements OnInit {
       .subscribe({
         next: (resp) => {
           this.folders = resp.data.payload;
-          this.pagingController.updatePages(resp.data.pagingVo.total);
+          this.pagingController.onTotalChanged(resp.data.pagingVo);
         },
       });
   }

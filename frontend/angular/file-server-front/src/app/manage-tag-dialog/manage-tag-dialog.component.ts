@@ -1,6 +1,6 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { PageEvent } from "@angular/material/paginator";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { environment } from "src/environments/environment";
 import { ListTagsForFileResp, Tag } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
@@ -33,8 +33,10 @@ export class ManageTagDialogComponent implements OnInit {
   filtered: string[] = [];
   pagingController: PagingController = new PagingController();
 
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
+
   constructor(
-    private fileService: FileInfoService,
     private notifi: NotificationService,
     private http: HClient,
     public dialogRef: MatDialogRef<
@@ -44,10 +46,11 @@ export class ManageTagDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: ManageTagDialogData
   ) {
     this.acTags = data.autoComplete;
-    console.log(`Autocomplete: ${this.acTags}`);
+    this.pagingController.onPageChanged = () => this.fetchTags();
   }
 
   ngOnInit() {
+    this.pagingController.control(this.paginator);
     this.fetchTags();
   }
 
@@ -73,7 +76,7 @@ export class ManageTagDialogComponent implements OnInit {
     ).subscribe({
       next: (resp) => {
         this.tags = resp.data.payload;
-        this.pagingController.updatePages(resp.data.pagingVo.total);
+        this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });
   }

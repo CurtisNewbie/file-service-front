@@ -1,5 +1,6 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MatPaginator } from "@angular/material/paginator";
 import { environment } from "src/environments/environment";
 import { FileAccessGranted, ListGrantedAccessResp } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
@@ -28,6 +29,9 @@ export class GrantAccessDialogComponent implements OnInit {
   grantedAccesses: FileAccessGranted[] = [];
   pagingController: PagingController;
 
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
+
   constructor(
     private http: HClient,
     private notifi: NotificationService,
@@ -42,6 +46,7 @@ export class GrantAccessDialogComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.pagingController.control(this.paginator);
     this.fetchAccessGranted();
   }
 
@@ -75,7 +80,7 @@ export class GrantAccessDialogComponent implements OnInit {
     ).subscribe({
       next: (resp) => {
         this.grantedAccesses = resp.data.list;
-        this.pagingController.updatePages(resp.data.pagingVo.total);
+        this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });
   }
