@@ -1,4 +1,4 @@
-import { HttpClient, HttpEventType } from "@angular/common/http";
+import { HttpEventType } from "@angular/common/http";
 import {
   Component,
   DoCheck,
@@ -9,11 +9,12 @@ import {
 } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
-import { Subscription, timer } from "rxjs";
+import { Observable, Subscription, timer } from "rxjs";
 
 import {
   DirBrief,
   emptyUploadFileParam,
+  FetchFileInfoList,
   FileInfo,
   FileOwnershipEnum,
   FileOwnershipOption,
@@ -30,7 +31,7 @@ import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.compone
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { animateElementExpanding } from "../../animate/animate-util";
-import { buildApiPath, buildOptions } from "../util/api-util";
+import { buildApiPath, buildOptions, HClient } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
@@ -279,7 +280,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     private dialog: MatDialog,
     private fileService: FileInfoService,
     private nav: NavigationService,
-    private http: HttpClient,
+    private http: HClient,
     private route: ActivatedRoute
   ) {
     this.pagingController = new PagingController();
@@ -379,12 +380,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     this.newDirName = null;
     this.http.post(
-      buildApiPath("/file/make-dir"),
+      environment.fileServicePath, "/file/make-dir",
       {
         name: dirName,
         userGroup: FileUserGroupEnum.USER_GROUP_PRIVATE
       },
-      buildOptions()
     ).subscribe({
       next: () => {
         this.fetchFileInfoList();
@@ -427,12 +427,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
 
     this.http.post(
-      buildApiPath("/file/move-to-dir"),
+      environment.fileServicePath, "/file/move-to-dir",
       {
         uuid: uuid,
         parentFileUuid: parentFileUuid,
       },
-      buildOptions()
     ).subscribe({
       complete: () => this.fetchFileInfoList()
     });
@@ -440,8 +439,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** fetch file info list */
   fetchFileInfoList() {
-    this.fileService
-      .fetchFileInfoList({
+    this.http.post<FetchFileInfoList>(
+      environment.fileServicePath, "/file/list",
+      {
         pagingVo: this.pagingController.paging,
         filename: this.searchParam.name,
         userGroup: this.searchParam.userGroup,
@@ -449,30 +449,31 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         tagName: this.searchParam.tagName,
         folderNo: this.inFolderNo,
         parentFile: this.searchParam.parentFile
-      })
-      .subscribe({
-        next: (resp) => {
-          this.fileInfoList = resp.data.payload;
-          for (let f of this.fileInfoList) {
-            if (f.fileType) {
-              f.fileTypeLabel = translate(f.fileType.toLowerCase());
-            }
-            f.isFile = f.fileType == FileType.FILE;
-            f.isDir = !f.isFile;
-            f.sizeLabel = this._resolveSize(f.sizeInBytes);
+      }
+    ).subscribe({
+      next: (resp) => {
+        console.log(resp);
+        this.fileInfoList = resp.data.payload;
+        for (let f of this.fileInfoList) {
+          if (f.fileType) {
+            f.fileTypeLabel = translate(f.fileType.toLowerCase());
           }
+          f.isFile = f.fileType == FileType.FILE;
+          f.isDir = !f.isFile;
+          f.sizeLabel = this._resolveSize(f.sizeInBytes);
+        }
 
-          let total = resp.data.pagingVo.total;
-          if (total != null) {
-            this.pagingController.updatePages(total);
-          }
-          this.inDirFileName = this.searchParam.parentFileName;
-        },
-        error: (err) => console.log(err),
-        complete: () => {
-          this.isAllSelected = false;
-        },
-      });
+        let total = resp.data.pagingVo.total;
+        if (total != null) {
+          this.pagingController.updatePages(total);
+        }
+        this.inDirFileName = this.searchParam.parentFileName;
+      },
+      error: (err) => console.log(err),
+      complete: () => {
+        this.isAllSelected = false;
+      },
+    });
   }
 
   /** Upload file */
@@ -602,12 +603,13 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     dialogRef.afterClosed().subscribe((confirm) => {
       console.log(confirm);
       if (confirm) {
-        this.fileService
-          .deleteFile(uuid)
-          .subscribe((resp) => {
-            this.fetchFileInfoList()
-            this._fetchDirBriefList();
-          });
+        this.http.post<any>(
+          environment.fileServicePath, "/file/delete",
+          { uuid: uuid },
+        ).subscribe((resp) => {
+          this.fetchFileInfoList()
+          this._fetchDirBriefList();
+        });
       }
     });
   }
@@ -666,19 +668,21 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** Update file's info */
   update(u: FileInfo): void {
     if (!u) return;
-    this.fileService
-      .updateFile({
+
+    this.http.post<any>(
+      environment.fileServicePath, "/file/info/update",
+      {
         id: u.id,
         userGroup: u.userGroup,
         name: u.name,
-      })
-      .subscribe({
-        complete: () => {
-          this.fetchFileInfoList();
-          this.expandedElement = null;
-          this.addToGalleryName = null;
-        },
-      });
+      },
+    ).subscribe({
+      complete: () => {
+        this.fetchFileInfoList();
+        this.expandedElement = null;
+        this.addToGalleryName = null;
+      },
+    });
   }
 
   /** Guess whether the file is displayable by its name */
@@ -697,7 +701,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** Display the file */
   preview(u: FileInfo): void {
-    this.fileService.generateFileTempToken(u.id).subscribe({
+    this.generateFileTempToken(u.id).subscribe({
       next: (resp) => {
         const token = resp.data;
         const url = buildApiPath(
@@ -728,7 +732,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   generateTempToken(u: FileInfo): void {
     if (!u) return;
 
-    this.fileService.generateFileTempToken(u.id).subscribe({
+    this.generateFileTempToken(u.id).subscribe({
       next: (resp) => {
         const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
           this.dialog.open(ConfirmDialogComponent, {
@@ -807,7 +811,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
    */
   jumpToDownloadUrl(fileId: number, event: any): void {
     event.stopPropagation();
-    this.fileService.generateFileTempToken(fileId).subscribe({
+    this.generateFileTempToken(fileId).subscribe({
       next: (resp) => {
         const token = resp.data;
         const url = buildApiPath(
@@ -884,12 +888,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     this.http
       .post(
-        buildApiPath("/vfolder/file/add"),
+        environment.fileServicePath, "/vfolder/file/add",
         {
           folderNo: addToFolderNo,
           fileKeys: fileKeys,
         },
-        buildOptions()
       )
       .subscribe({
         complete: () => {
@@ -912,12 +915,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     this.http
       .post(
-        buildApiPath("/gallery/image/dir/transfer", environment.fantahseaPath),
+        environment.fantahseaPath, "/gallery/image/dir/transfer",
         {
           fileKey: inDirFileKey,
           galleryNo: addToGalleryNo
         },
-        buildOptions()
       )
       .subscribe({
         complete: () => {
@@ -955,11 +957,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     this.http
       .post(
-        buildApiPath("/gallery/image/transfer", environment.fantahseaPath),
+        environment.fantahseaPath, "/gallery/image/transfer",
         {
           images: selected,
         },
-        buildOptions()
       )
       .subscribe({
         complete: () => {
@@ -989,7 +990,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** fetch supported file extension */
   private _fetchSupportedExtensions(): void {
-    this.fileService.fetchSupportedFileExtensionNames().subscribe({
+    this.http.get<string[]>(
+      environment.fileServicePath, "/file/extension/name",
+    ).subscribe({
       next: (resp) => {
         this.fileExtSet.clear();
         for (let e of resp.data) {
@@ -1001,7 +1004,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _fetchTags(): void {
-    this.fileService.fetchTags().subscribe({
+    this.http.get<string[]>(
+      environment.fileServicePath, "/file/tag/list/all",
+    ).subscribe({
       next: (resp) => {
         this.tags = resp.data;
         this.selectedTags = [];
@@ -1250,9 +1255,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   // fetch dir brief list
   private _fetchDirBriefList() {
-    this.http.get<Resp<DirBrief[]>>(
-      buildApiPath("/file/dir/list"),
-      buildOptions()
+    this.http.get<DirBrief[]>(
+      environment.fileServicePath, "/file/dir/list",
     ).subscribe({
       next: (resp) => {
         this.dirBriefList = resp.data;
@@ -1279,9 +1283,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _fetchOwnedVFolderBrief() {
-    this.http.get<Resp<VFolderBrief[]>>(
-      buildApiPath("/vfolder/brief/owned"),
-      buildOptions()
+    this.http.get<VFolderBrief[]>(
+      environment.fileServicePath, "/vfolder/brief/owned",
     ).subscribe({
       next: (resp) => {
         this.vfolderBrief = resp.data;
@@ -1291,9 +1294,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _fetchOwnedGalleryBrief() {
-    this.http.get<Resp<GalleryBrief[]>>(
-      buildApiPath("/gallery/brief/owned", environment.fantahseaPath),
-      buildOptions()
+    this.http.get<GalleryBrief[]>(
+      environment.fantahseaPath, "/gallery/brief/owned",
     ).subscribe({
       next: (resp) => {
         this.galleryBriefs = resp.data;
@@ -1319,5 +1321,15 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return null;
     }
     return matched[0].galleryNo
+  }
+
+  /**
+   * Generate file temporary token
+   */
+  private generateFileTempToken(id: number): Observable<Resp<string>> {
+    return this.http.post<string>(
+      environment.fileServicePath, "/file/token/generate",
+      { id: id },
+    );
   }
 }

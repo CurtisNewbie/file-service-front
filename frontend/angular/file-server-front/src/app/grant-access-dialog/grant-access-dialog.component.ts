@@ -1,10 +1,10 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { PageEvent } from "@angular/material/paginator";
-import { FileAccessGranted } from "src/models/file-info";
-import { Paging, PagingController } from "src/models/paging";
-import { FileInfoService } from "../file-info.service";
+import { environment } from "src/environments/environment";
+import { FileAccessGranted, ListGrantedAccessResp } from "src/models/file-info";
+import { PagingController } from "src/models/paging";
 import { NotificationService } from "../notification.service";
+import { HClient } from "../util/api-util";
 
 export interface GrantAccessDialogData {
   fileId: number;
@@ -29,7 +29,7 @@ export class GrantAccessDialogComponent implements OnInit {
   pagingController: PagingController;
 
   constructor(
-    private fileService: FileInfoService,
+    private http: HClient,
     private notifi: NotificationService,
     public dialogRef: MatDialogRef<
       GrantAccessDialogComponent,
@@ -51,43 +51,46 @@ export class GrantAccessDialogComponent implements OnInit {
       return;
     }
 
-    this.fileService
-      .grantFileAccess({
+    this.http.post<void>(
+      environment.fileServicePath, "/file/grant-access",
+      {
         fileId: this.data.fileId,
         grantedTo: this.grantedTo,
-      })
-      .subscribe({
-        next: () => {
-          this.notifi.toast("Access granted");
-          this.fetchAccessGranted();
-        },
-      });
+      },
+    ).subscribe({
+      next: () => {
+        this.notifi.toast("Access granted");
+        this.fetchAccessGranted();
+      },
+    });
   }
 
   fetchAccessGranted() {
-    this.fileService
-      .listGrantedAccess({
+    this.http.post<ListGrantedAccessResp>(
+      environment.fileServicePath, "/file/list-granted-access",
+      {
         fileId: this.data.fileId,
         pagingVo: this.pagingController.paging,
-      })
-      .subscribe({
-        next: (resp) => {
-          this.grantedAccesses = resp.data.list;
-          this.pagingController.updatePages(resp.data.pagingVo.total);
-        },
-      });
+      },
+    ).subscribe({
+      next: (resp) => {
+        this.grantedAccesses = resp.data.list;
+        this.pagingController.updatePages(resp.data.pagingVo.total);
+      },
+    });
   }
 
   removeAccess(userId: number): void {
-    this.fileService
-      .removeGrantedAccess({
+    this.http.post<void>(
+      environment.fileServicePath, "/file/remove-granted-access",
+      {
         userId: userId,
         fileId: this.data.fileId,
-      })
-      .subscribe({
-        next: () => {
-          this.fetchAccessGranted();
-        },
-      });
+      },
+    ).subscribe({
+      next: () => {
+        this.fetchAccessGranted();
+      },
+    });
   }
 }

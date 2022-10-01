@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
 import {
   emptySearchFileExtParam,
+  FetchFileExtList,
   FileExt,
   FileExtIsEnabled,
   FileExtIsEnabledOption,
@@ -13,6 +14,8 @@ import { NotificationService } from "../notification.service";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { FileInfoService } from "../file-info.service";
 import { isMobile } from "../util/env-util";
+import { environment } from "src/environments/environment";
+import { HClient } from "../util/api-util";
 
 @Component({
   selector: "app-manage-extension",
@@ -48,9 +51,10 @@ export class ManageExtensionComponent implements OnInit {
   private isSearchParamChagned: boolean = false;
 
   constructor(
+    private http: HClient,
     private notifi: NotificationService,
     private fileService: FileInfoService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.fetchSupportedExtensionsDetails();
@@ -63,19 +67,24 @@ export class ManageExtensionComponent implements OnInit {
       this.pagingController.resetCurrentPage();
     }
     this.searchParam.pagingVo = this.pagingController.paging;
-    this.fileService
-      .fetchSupportedFileExtensionDetails(this.searchParam)
-      .subscribe({
-        next: (resp) => {
-          this.fileExt = resp.data.payload;
-          this.pagingController.updatePages(resp.data.pagingVo.total);
-        },
-      });
+
+    this.http.post<FetchFileExtList>(
+      environment.fileServicePath, "/file/extension/list",
+      this.searchParam,
+    ).subscribe({
+      next: (resp) => {
+        this.fileExt = resp.data.payload;
+        this.pagingController.updatePages(resp.data.pagingVo.total);
+      },
+    });
   }
 
   /** Update file extension */
   updateFileExt(): void {
-    this.fileService.updateFileExtension(this.updateExt).subscribe({
+    this.http.post<FileExt[]>(
+      environment.fileServicePath, "/file/extension/update",
+      this.updateExt,
+    ).subscribe({
       next: (resp) => {
         this.updateExt = null;
         this.fetchSupportedExtensionsDetails();
@@ -125,7 +134,11 @@ export class ManageExtensionComponent implements OnInit {
       );
       return;
     }
-    this.fileService.addFileExtension(ext).subscribe({
+
+    this.http.post<void>(
+      environment.fileServicePath, "/file/extension/add",
+      { name: ext },
+    ).subscribe({
       next: (resp) => {
         this.notifi.toast(`File extension '${ext}' added`);
       },

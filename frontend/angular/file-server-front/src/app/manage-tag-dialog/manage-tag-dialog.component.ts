@@ -1,10 +1,12 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { PageEvent } from "@angular/material/paginator";
-import { Tag } from "src/models/file-info";
+import { environment } from "src/environments/environment";
+import { ListTagsForFileResp, Tag } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
 import { FileInfoService } from "../file-info.service";
 import { NotificationService } from "../notification.service";
+import { HClient } from "../util/api-util";
 
 export interface ManageTagDialogData {
   fileId: number;
@@ -34,6 +36,7 @@ export class ManageTagDialogComponent implements OnInit {
   constructor(
     private fileService: FileInfoService,
     private notifi: NotificationService,
+    private http: HClient,
     public dialogRef: MatDialogRef<
       ManageTagDialogComponent,
       ManageTagDialogData
@@ -54,25 +57,25 @@ export class ManageTagDialogComponent implements OnInit {
       return;
     }
 
-    this.fileService
-      .tagFile({ fileId: this.data.fileId, tagName: this.tagName })
-      .subscribe({
-        next: (resp) => {
-          this.fetchTags();
-        },
-        complete: () => (this.tagName = null),
-      });
+    this.http.post<void>(
+      environment.fileServicePath, "/file/tag/",
+      { fileId: this.data.fileId, tagName: this.tagName },
+    ).subscribe({
+      next: (resp) => this.fetchTags(),
+      complete: () => (this.tagName = null),
+    });
   }
 
   fetchTags(): void {
-    this.fileService
-      .fetchTagsForFile(this.data.fileId, this.pagingController.paging)
-      .subscribe({
-        next: (resp) => {
-          this.tags = resp.data.payload;
-          this.pagingController.updatePages(resp.data.pagingVo.total);
-        },
-      });
+    this.http.post<ListTagsForFileResp>(
+      environment.fileServicePath, "/file/tag/list-for-file",
+      { fileId: this.data.fileId, pagingVo: this.pagingController.paging },
+    ).subscribe({
+      next: (resp) => {
+        this.tags = resp.data.payload;
+        this.pagingController.updatePages(resp.data.pagingVo.total);
+      },
+    });
   }
 
   handle(e: PageEvent): void {
@@ -81,13 +84,14 @@ export class ManageTagDialogComponent implements OnInit {
   }
 
   untag(tagName: string): void {
-    this.fileService
-      .untagFile({ fileId: this.data.fileId, tagName: tagName })
-      .subscribe({
-        next: (resp) => {
-          this.fetchTags();
-        },
-      });
+    this.http.post<void>(
+      environment.fileServicePath, "/file/untag/",
+      { fileId: this.data.fileId, tagName: tagName },
+    ).subscribe({
+      next: (resp) => {
+        this.fetchTags();
+      },
+    });
   }
 
   onTagNameChanged() {

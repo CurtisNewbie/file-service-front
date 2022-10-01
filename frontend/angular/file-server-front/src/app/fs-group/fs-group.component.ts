@@ -1,12 +1,5 @@
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from "@angular/animations";
 import { Component, OnInit } from "@angular/core";
-import { PageEvent } from "@angular/material/paginator";
+import { environment } from "src/environments/environment";
 import {
   emptyFsGroup,
   FsGroup,
@@ -16,6 +9,7 @@ import {
 import { PagingController } from "src/models/paging";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { FileInfoService } from "../file-info.service";
+import { HClient } from "../util/api-util";
 
 @Component({
   selector: "app-fs-group",
@@ -42,7 +36,8 @@ export class FsGroupComponent implements OnInit {
   searchParam: FsGroup = emptyFsGroup();
   pagingController: PagingController;
 
-  constructor(private fileService: FileInfoService) {
+  constructor(private fileService: FileInfoService,
+    private http: HClient) {
     this.pagingController = new PagingController();
     this.pagingController.onPageChanged = () => this.fetchFsGroups();
   }
@@ -52,17 +47,18 @@ export class FsGroupComponent implements OnInit {
   }
 
   fetchFsGroups() {
-    this.fileService
-      .fetchFsGroups({
+    this.http.post<any>(
+      environment.fileServicePath, "/fsgroup/list",
+      {
         fsGroup: this.searchParam,
         pagingVo: this.pagingController.paging,
-      })
-      .subscribe({
-        next: (resp) => {
-          this.fsGroups = resp.data.payload;
-          this.pagingController.updatePages(resp.data.pagingVo.total);
-        },
-      });
+      },
+    ).subscribe({
+      next: (resp) => {
+        this.fsGroups = resp.data.payload;
+        this.pagingController.updatePages(resp.data.pagingVo.total);
+      },
+    });
   }
 
   /**
@@ -90,17 +86,18 @@ export class FsGroupComponent implements OnInit {
 
   /** Update fs_group's mode */
   updateMode(fs: FsGroup): void {
-    this.fileService
-      .updateFsGroupMode({
+    this.http.post<any>(
+      environment.fileServicePath, "/fsgroup/mode/update",
+      {
         id: fs.id,
         mode: fs.mode,
-      })
-      .subscribe({
-        next: (r) => {
-          this.expandedElement = null;
-          this.fetchFsGroups();
-        },
-      });
+      },
+    ).subscribe({
+      next: (r) => {
+        this.expandedElement = null;
+        this.fetchFsGroups();
+      },
+    });
   }
 
   searchNameInputKeyPressed(event: any): void {

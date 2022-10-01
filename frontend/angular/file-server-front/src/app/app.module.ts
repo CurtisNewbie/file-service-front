@@ -47,6 +47,7 @@ import { GalleryImageComponent } from "./gallery-image/gallery-image.component";
 import { MatCardModule } from "@angular/material/card";
 import { FolderComponent } from "./folder/folder.component";
 import { MatListModule } from "@angular/material/list";
+import { HClient as HttpWrapper } from "./util/api-util";
 
 @NgModule({
   exports: [],
@@ -105,7 +106,8 @@ import { MatListModule } from "@angular/material/list";
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: RespInterceptor, multi: true },
+    HttpWrapper
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

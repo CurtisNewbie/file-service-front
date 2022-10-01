@@ -1,17 +1,15 @@
-import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
+import { MatPaginator } from "@angular/material/paginator";
 import { animateElementExpanding } from "src/animate/animate-util";
 import { environment } from "src/environments/environment";
 import { Gallery, ListGalleriesResp } from "src/models/gallery";
 import { PagingController } from "src/models/paging";
-import { Resp } from "src/models/resp";
 import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
-import { buildApiPath, buildOptions } from "../util/api-util";
+import { HClient } from "../util/api-util";
 import { isMobile } from "../util/env-util";
 
 @Component({
@@ -42,7 +40,7 @@ export class GalleryComponent implements OnInit {
   showCreateGalleryDiv: boolean = false;
 
   constructor(
-    private httpClient: HttpClient,
+    private http: HClient,
     private userService: UserService,
     private notification: NotificationService,
     private navigation: NavigationService,
@@ -58,11 +56,10 @@ export class GalleryComponent implements OnInit {
   }
 
   fetchGalleries() {
-    this.httpClient
-      .post<Resp<ListGalleriesResp>>(
-        buildApiPath("/gallery/list", environment.fantahseaPath),
+    this.http
+      .post<ListGalleriesResp>(
+        environment.fantahseaPath, "/gallery/list",
         { pagingVo: this.pagingController.paging },
-        buildOptions()
       )
       .subscribe({
         next: (resp) => {
@@ -79,15 +76,17 @@ export class GalleryComponent implements OnInit {
       return;
     }
 
-    this.httpClient
-      .post<Resp<any>>(
-        buildApiPath("/gallery/new", environment.fantahseaPath),
+    this.http
+      .post<any>(
+        "/gallery/new", environment.fantahseaPath,
         {
           name: this.newGalleryName,
-        },
-        buildOptions()
+        }
       )
       .subscribe({
+        next: (resp) => {
+          this.newGalleryName = null;
+        },
         complete: () => {
           this.fetchGalleries();
           this.expandedElement = null;
@@ -133,13 +132,12 @@ export class GalleryComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirm) => {
       console.log(confirm);
       if (confirm) {
-        this.httpClient
-          .post<Resp<any>>(
-            buildApiPath("/gallery/delete", environment.fantahseaPath),
+        this.http
+          .post<any>(
+            environment.fantahseaPath, "/gallery/delete",
             {
               galleryNo: galleryNo,
             },
-            buildOptions()
           )
           .subscribe({
             complete: () => this.fetchGalleries(),

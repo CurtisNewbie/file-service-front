@@ -1,5 +1,8 @@
-import { HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
+import { Resp } from "src/models/resp";
 
 // for development
 const isThroughGateway = true;
@@ -48,4 +51,29 @@ export function getToken() {
     emptyTokenCallback();
   }
   return tkn;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class HClient {
+
+  constructor(private httpClient: HttpClient) { }
+
+  /** Do POST request */
+  post<T>(serviceBase: string, url: string, payload: any): Observable<Resp<T>> {
+    return this.httpClient.post<Resp<T>>(
+      buildApiPath(url, serviceBase), payload,
+      buildOptions()
+    );
+  }
+
+  /** Do GET request */
+  get<T>(serviceBase: string, url: string): Observable<Resp<T>> {
+    return this.httpClient.get<Resp<T>>(
+      buildApiPath(url, serviceBase),
+      buildOptions()
+    );
+  }
+
 }
