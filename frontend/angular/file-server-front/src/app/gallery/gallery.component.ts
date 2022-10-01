@@ -162,4 +162,18 @@ export class GalleryComponent implements OnInit {
     this.pagingController.onPageChanged = () => this.fetchGalleries();
     this.fetchGalleries();
   }
+
+  updateGallery(galleryNo: string, name: string) {
+    if (!galleryNo || !name) return;
+
+    this.http.post(environment.fantahseaPath, "/gallery/update", {
+      galleryNo: galleryNo,
+      name: name
+    }).subscribe({
+      complete: () => {
+        this.expandedElement = null;
+        this.fetchGalleries();
+      }
+    });
+  }
 }
