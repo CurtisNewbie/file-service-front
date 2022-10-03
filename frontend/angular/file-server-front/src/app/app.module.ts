@@ -33,8 +33,6 @@ import { MatSelectModule } from "@angular/material/select";
 import { MatDialogModule } from "@angular/material/dialog";
 import { ConfirmDialogComponent } from "./dialog/confirm/confirm-dialog.component";
 import { FsGroupComponent } from "./fs-group/fs-group.component";
-import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
-import { TaskHistoryComponent } from "./task-history/task-history.component";
 import { MatMenuModule } from "@angular/material/menu";
 import { GrantAccessDialogComponent } from "./grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.component";
@@ -61,8 +59,6 @@ import { ControlledPaginatorComponent } from './controlled-paginator/controlled-
     ManageExtensionComponent,
     ConfirmDialogComponent,
     FsGroupComponent,
-    ManageTasksComponent,
-    TaskHistoryComponent,
     GrantAccessDialogComponent,
     ManageTagDialogComponent,
     ImageViewerComponent,

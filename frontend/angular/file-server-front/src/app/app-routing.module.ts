@@ -8,9 +8,7 @@ import { HomePageComponent } from "./home-page/home-page.component";
 import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
-import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
 import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
-import { TaskHistoryComponent } from "./task-history/task-history.component";
 
 const routes: Routes = [
   {
@@ -28,14 +26,6 @@ const routes: Routes = [
   {
     path: "manage-fsgroup",
     component: FsGroupComponent,
-  },
-  {
-    path: "manage-tasks",
-    component: ManageTasksComponent,
-  },
-  {
-    path: "task-history",
-    component: TaskHistoryComponent,
   },
   {
     path: "pdf-viewer",
@@ -65,4 +55,4 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes, { relativeLinkResolution: "legacy" })],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }
