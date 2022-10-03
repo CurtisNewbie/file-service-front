@@ -209,8 +209,9 @@
             </ng-container>
             <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName" (click)="leaveDir()">Go
                 Back</button>
-            <button mat-raised-button class="m-2" id="reloadBtn" (click)="fetchFileInfoList()">{{fetchLabel}}</button>
-            <button mat-raised-button class="m-2" id="resetBtn" (click)="resetSearchParam()">{{resetLabel}}</button>
+            <button mat-raised-button class="m-2" (click)="exportAsZip()">{{exportAsZipLabel}}</button>
+            <button mat-raised-button class="m-2" (click)="fetchFileInfoList()">{{fetchLabel}}</button>
+            <button mat-raised-button class="m-2" (click)="resetSearchParam()">{{resetLabel}}</button>
         </div>
 
         <table mat-table [dataSource]="fileInfoList" class="mat-elevation-z8 mb-4" style="width: 100%;"
@@ -219,7 +220,7 @@
                 <th mat-header-cell *matHeaderCellDef> <span (click)="selectAllFiles()">{{selectedLabel}}</span> </th>
                 <td mat-cell *matCellDef="let f">
                     <mat-checkbox [checked]="f._selected" (change)="selectFile($event, f)"
-                        (click)="$event.stopPropagation();" [disabled]="!f.isOwner || !f.isFile"></mat-checkbox>
+                        (click)="$event.stopPropagation();" [disabled]="!f.isFile"></mat-checkbox>
                 </td>
             </ng-container>
 

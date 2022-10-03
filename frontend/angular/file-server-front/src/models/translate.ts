@@ -232,6 +232,10 @@ const ttable = {
         EN: 'Under Directory',
         CN: '目录中文件'
     },
+    exportAsZip: {
+        EN: 'Export Selected As Zip',
+        CN: '批量导出选择的文件'
+    }
 }
 
 // let count = 0;

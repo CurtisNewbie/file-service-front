@@ -270,6 +270,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   goIntoLabel: string;
   dirLabel: string;
   submitLabel: string;
+  exportAsZipLabel: string;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
@@ -327,6 +328,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.goIntoLabel = translate('goInto');
     this.dirLabel = translate('directory');
     this.submitLabel = translate('submit');
+    this.exportAsZipLabel = translate('exportAsZip');
   }
 
   ngDoCheck(): void {
@@ -914,14 +916,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     const addToGalleryNo = this._extractToGalleryNo()
     if (!addToGalleryNo) return;
 
-    let selected = this.fileInfoList
-      .map((v) => {
-        if (v._selected && v.isOwner) {
-          return v;
-        }
-
-        return null;
-      })
+    let selected = this.filterSelected()
       .filter((v) => this._isImage(v))
       .map((f) => {
         return {
@@ -967,6 +962,22 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     });
   }
 
+  exportAsZip() {
+    let selected = this.filterSelected();
+    if (!selected) {
+      this.notifi.toast("Please select files first")
+      return;
+    }
+
+    let fileIds = selected.map(f => f.id);
+    this.http.post<void>(environment.fileServicePath, '/file/export-as-zip', {
+      fileIds: fileIds
+    }).subscribe({
+      next: (r) => {
+        this.notifi.toast("Exporting, this may take a while");
+      }
+    });
+  }
   // -------------------------- private helper methods ------------------------
 
   /** fetch supported file extension */
@@ -1312,6 +1323,16 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       environment.fileServicePath, "/file/token/generate",
       { id: id },
     );
+  }
+
+  private filterSelected(ownerRequired: boolean = true): FileInfo[] {
+    return this.fileInfoList
+      .map((v) => {
+        if (!v._selected) return null;
+        if (ownerRequired && !v.isOwner) return null;
+        return v;
+      })
+      .filter(v => v != null);
   }
 
 }
