@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { environment } from "src/environments/environment";
 import {
-  emptyFsGroup,
   FsGroup,
   FsGroupMode,
   FS_GROUP_MODE_OPTIONS,
@@ -9,6 +8,7 @@ import {
 import { PagingController } from "src/models/paging";
 import { animateElementExpanding, getExpanded, isIdEqual } from "../../animate/animate-util";
 import { HClient } from "../util/api-util";
+import { resolveSize } from "../util/file";
 
 @Component({
   selector: "app-fs-group",
@@ -26,6 +26,8 @@ export class FsGroupComponent implements OnInit {
     "baseFolder",
     "mode",
     "type",
+    "size",
+    "scanTime",
     "updateBy",
     "updateTime",
   ];
@@ -33,7 +35,7 @@ export class FsGroupComponent implements OnInit {
 
   expandedElement: FsGroup = null;
   fsGroups: FsGroup[] = [];
-  searchParam: FsGroup = emptyFsGroup();
+  searchParam: FsGroup = {};
   pagingController: PagingController;
 
   idEquals = isIdEqual;
@@ -55,7 +57,10 @@ export class FsGroupComponent implements OnInit {
       },
     ).subscribe({
       next: (resp) => {
-        this.fsGroups = resp.data.payload;
+        this.fsGroups = resp.data.payload.map(f => {
+          f.sizeLabel = resolveSize(f.size);
+          return f;
+        });
         this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });

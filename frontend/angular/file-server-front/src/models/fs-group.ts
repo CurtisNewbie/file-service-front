@@ -1,13 +1,18 @@
 import { Paging } from "./paging";
 
 export interface FsGroup {
-  id: number;
-  name: string;
-  baseFolder: string;
-  mode: number;
-  type: string;
-  updateTime: string;
-  updateBy: string;
+  id?: number;
+  name?: string;
+  baseFolder?: string;
+  mode?: number;
+  type?: string;
+  size?: number;
+  scanTime?: string;
+  updateTime?: string;
+  updateBy?: string;
+
+  // used by frontend only
+  sizeLabel?: string;
 }
 
 export enum FsGroupMode {
@@ -26,18 +31,6 @@ export const FS_GROUP_MODE_OPTIONS: FsGroupModeOption[] = [
 export interface FsGroupModeOption {
   name: string;
   value: FsGroupMode;
-}
-
-export function emptyFsGroup(): FsGroup {
-  return {
-    id: null,
-    name: "",
-    baseFolder: "",
-    mode: null,
-    type: null,
-    updateBy: null,
-    updateTime: null,
-  };
 }
 
 export interface ListAllFsGroupReqVo {

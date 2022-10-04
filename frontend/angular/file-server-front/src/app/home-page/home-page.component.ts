@@ -43,10 +43,7 @@ import { VFolderBrief } from "src/models/folder";
 import { GalleryBrief } from "src/models/gallery";
 import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 import { onLangChange, translate } from "src/models/translate";
-
-const KB_UNIT: number = 1024;
-const MB_UNIT: number = 1024 * 1024;
-const GB_UNIT: number = 1024 * 1024 * 1024;
+import { resolveSize } from "../util/file";
 
 @Component({
   selector: "app-home-page",
@@ -461,7 +458,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           }
           f.isFile = f.fileType == FileType.FILE;
           f.isDir = !f.isFile;
-          f.sizeLabel = this._resolveSize(f.sizeInBytes);
+          f.sizeLabel = resolveSize(f.sizeInBytes);
         }
 
         this.pagingController.onTotalChanged(resp.data.pagingVo);
@@ -1219,10 +1216,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return this._isMultipleUpload() && !this.isCompressed;
   }
 
-  private _divideUnit(size: number, unit: number): string {
-    return (size / unit).toFixed(1);
-  }
-
   private _isSingleUpload() {
     return !this._isMultipleUpload();
   }
@@ -1261,17 +1254,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   private _selectColumns() {
     if (isMobile()) return this.MOBILE_COLUMNS;
     return this.inFolderNo ? this.DESKTOP_FOLDER_COLUMNS : this.DESKTOP_COLUMNS;
-  }
-
-  /** Convert number of bytes to appropriate unit */
-  private _resolveSize(sizeInBytes: number): string {
-    if (sizeInBytes > GB_UNIT) {
-      return this._divideUnit(sizeInBytes, GB_UNIT) + " gb";
-    }
-    if (sizeInBytes > MB_UNIT) {
-      return this._divideUnit(sizeInBytes, MB_UNIT) + " mb";
-    }
-    return this._divideUnit(sizeInBytes, KB_UNIT) + " kb";
   }
 
   private _fetchOwnedVFolderBrief() {
