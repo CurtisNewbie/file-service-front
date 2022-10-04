@@ -32,16 +32,6 @@ const fileServicesLinks: NLink[] = [
     name: "Manage FsGroup",
     permitRoles: adminOnly,
   },
-  {
-    route: "/manage-tasks",
-    name: "Manage Task",
-    permitRoles: adminOnly,
-  },
-  {
-    route: "/task-history",
-    name: "Task History",
-    permitRoles: adminOnly,
-  },
 ];
 
 const fantahseaLinks: NLink[] = [
