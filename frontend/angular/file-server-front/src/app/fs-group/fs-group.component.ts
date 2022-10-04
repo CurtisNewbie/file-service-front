@@ -4,9 +4,12 @@ import {
   FsGroup,
   FsGroupMode,
   FS_GROUP_MODE_OPTIONS,
+  FS_GROUP_TYPE_OPTIONS,
+  NewFsGroup,
 } from "src/models/fs-group";
 import { PagingController } from "src/models/paging";
 import { animateElementExpanding, getExpanded, isIdEqual } from "../../animate/animate-util";
+import { NotificationService } from "../notification.service";
 import { HClient } from "../util/api-util";
 import { resolveSize } from "../util/file";
 
@@ -32,20 +35,56 @@ export class FsGroupComponent implements OnInit {
     "updateTime",
   ];
   readonly FS_GROUP_MODE_SELECT_OPTIONS = FS_GROUP_MODE_OPTIONS;
+  readonly FS_GROUP_TYPE_SELECT_OPTIONS = FS_GROUP_TYPE_OPTIONS;
 
   expandedElement: FsGroup = null;
   fsGroups: FsGroup[] = [];
   searchParam: FsGroup = {};
   pagingController: PagingController;
+  newFsGroup: NewFsGroup = {};
+  addingFsGroup: boolean = false;
 
   idEquals = isIdEqual;
   getExpandedEle = (row) => getExpanded(row, this.expandedElement);
 
-  constructor(private http: HClient) {
+  constructor(private http: HClient, private toaster: NotificationService) {
 
   }
 
   ngOnInit() {
+  }
+
+  addFsGroup() {
+    if (!this.newFsGroup) {
+      this.newFsGroup = {};
+      return;
+    }
+    if (!this.newFsGroup.name) {
+      this.toaster.toast("Please enter new FsGroup name")
+      return;
+    }
+
+    if (this.newFsGroup.baseFolder) this.newFsGroup.baseFolder = this.newFsGroup.baseFolder.trim();
+    if (!this.newFsGroup.baseFolder) {
+      this.toaster.toast("Please enter new FsGroup folder")
+      return;
+    }
+
+    if (!this.newFsGroup.type) {
+      this.toaster.toast("Please select new FsGroup type")
+      return;
+    }
+
+    this.http.post<void>(
+      environment.fileServicePath, "fsgroup/add", this.newFsGroup
+    ).subscribe({
+      next: (resp) => {
+        this.toaster.toast("FsGroup created");
+        this.newFsGroup = {};
+        this.addingFsGroup = !this.addingFsGroup;
+        this.fetchFsGroups();
+      }
+    });
   }
 
   fetchFsGroups() {

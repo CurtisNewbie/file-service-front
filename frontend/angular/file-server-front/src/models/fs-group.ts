@@ -1,4 +1,11 @@
 import { Paging } from "./paging";
+import { Option } from "./select-util";
+
+export interface NewFsGroup {
+  name?: string;
+  baseFolder?: string;
+  type?: string;
+}
 
 export interface FsGroup {
   id?: number;
@@ -14,6 +21,16 @@ export interface FsGroup {
   // used by frontend only
   sizeLabel?: string;
 }
+
+export enum FsGroupType {
+  APP = "APP",
+  USER = "USER"
+}
+
+export const FS_GROUP_TYPE_OPTIONS: Option<FsGroupType>[] = [
+  { name: "App", value: FsGroupType.APP },
+  { name: "User", value: FsGroupType.USER },
+]
 
 export enum FsGroupMode {
   /** 1 read-only */

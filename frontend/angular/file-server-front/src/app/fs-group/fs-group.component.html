@@ -1,3 +1,30 @@
+<div class="container bootstrap p-3 mt-3 mb-5 shadow" *ngIf="addingFsGroup">
+    <h4 class="mt-2 mb-2">New FsGroup</h4>
+
+    <mat-form-field appearance="fill" style="width: 100%;">
+        <mat-label>Name</mat-label>
+        <input matInput type="text" [(ngModel)]="newFsGroup.name">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" style="width: 100%;">
+        <mat-label>Base Folder</mat-label>
+        <input matInput type="text" [(ngModel)]="newFsGroup.baseFolder">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+        <mat-label>Type</mat-label>
+        <mat-select [(value)]="newFsGroup.type">
+            <mat-option [value]="option.value" *ngFor="let option of FS_GROUP_TYPE_SELECT_OPTIONS">
+                {{option.name}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <div class="justify-content-md-end d-md-flex">
+        <button mat-raised-button class="mt-2" (click)="addFsGroup()">Add</button>
+    </div>
+</div>
+
 <div class="mt-3 mb-5">
     <!-- searching parameters -->
     <div>
@@ -24,6 +51,7 @@
         </div>
     </div>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+        <button mat-raised-button class="m-2" (click)="addingFsGroup=!addingFsGroup">Add FsGroup</button>
         <button mat-raised-button class="m-2" (click)="fetchFsGroups()">Fetch</button>
     </div>
 
