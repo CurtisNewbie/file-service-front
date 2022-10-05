@@ -90,7 +90,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     "operation",
   ];
   readonly MOBILE_COLUMNS = ["fileType", "name", "operation"];
-  readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp"]);
+  readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp", "webp", "apng", "avif"]);
   readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) =>
     this._fetchTags()
   );
