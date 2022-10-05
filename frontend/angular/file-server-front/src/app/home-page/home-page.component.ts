@@ -44,6 +44,7 @@ import { GalleryBrief } from "src/models/gallery";
 import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 import { onLangChange, translate } from "src/models/translate";
 import { resolveSize } from "../util/file";
+import { off } from "process";
 
 @Component({
   selector: "app-home-page",
@@ -97,40 +98,32 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** expanded fileInfo */
   expandedElement: FileInfo;
-
   /** file extension name set */
   fileExtSet: Set<string> = new Set();
-
   /** list of files fetched */
   fileInfoList: FileInfo[] = [];
-
   /** searching param */
   searchParam: SearchFileInfoParam = {}
-
   /** whether current user is a guest */
   isGuest: boolean = true;
-
   /** controller for pagination */
   pagingController: PagingController;
-
   /** progress string */
   progress: string = null;
-
   /** all accessible tags */
   tags: string[];
-
   /** tags selected for the uploaded files */
   selectedTags: string[] = [];
-
   /** whether current user is using mobile device */
   isMobile: boolean = false;
-
   /** check if all files are selected */
   isAllSelected: boolean = false;
-
+  /** selected file count */
+  selectedCount: number = 0;
+  /** is any file selected */
+  anySelected: boolean = false;
   /** title of the list section */
   fileListTitle: string = null;
-
   /** currently displayed columns */
   displayedColumns: string[] = this._selectColumns();
 
@@ -268,6 +261,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   dirLabel: string;
   submitLabel: string;
   exportAsZipLabel: string;
+  moveIntoDirLabel: string;
+  moveOutOfDirLabel: string;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
@@ -326,9 +321,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.dirLabel = translate('directory');
     this.submitLabel = translate('submit');
     this.exportAsZipLabel = translate('exportAsZip');
+    this.moveIntoDirLabel = translate('moveIntoDir');
+    this.moveOutOfDirLabel = translate('moveOutOfDir');
   }
 
   ngDoCheck(): void {
+    this.anySelected = this.selectedCount > 0;
     this.displayedColumns = this._selectColumns();
     if (this.isCompressed) this.uploadDirName = null;
   }
@@ -402,6 +400,90 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     ]);
   }
 
+  // Move selected to dir
+  moveSelectedToDir(into: boolean = true) {
+    const moveIntoDirName = this.moveIntoDirName;
+    let key;
+    if (into) {
+      if (!moveIntoDirName) {
+        this.notifi.toast('Please enter directory name first');
+        return;
+      }
+      key = this.findMoveIntoDirFileKey(moveIntoDirName);
+      if (!key) return;
+    } else {
+      key = "";
+    }
+
+    const selected = this.filterSelected(true, false);
+    if (!selected || selected.length < 1) {
+      this.notifi.toast("Please select files first");
+      return;
+    }
+
+    let msgs = [];
+    let first = into ? `You sure you want to move these files to '${moveIntoDirName}'?` :
+      `You sure you want to move these files out of current directory?`
+    msgs.push(first);
+    msgs.push("");
+
+    let c = 0;
+    for (let f of selected) {
+      msgs.push(` ${++c}. ${f.name}`);
+    }
+
+    const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
+      this.dialog.open(ConfirmDialogComponent, {
+        width: "500px",
+        data: {
+          title: "Move Files",
+          msg: msgs,
+          isNoBtnDisplayed: true,
+        },
+      });
+
+    dialogRef.afterClosed().subscribe((confirm) => {
+      console.log(confirm);
+      if (confirm) {
+        // move each of them recursively
+        this._moveEachToDir(selected, key, 0);
+      }
+    });
+  }
+
+  private _moveEachToDir(selected: FileInfo[], dirFileKey: string, offset: number) {
+    if (offset >= selected.length) {
+      this.fetchFileInfoList();
+      return;
+    }
+
+    let curr = selected[offset];
+    this.http.post(
+      environment.fileServicePath, "/file/move-to-dir",
+      {
+        uuid: curr.uuid,
+        parentFileUuid: dirFileKey,
+      },
+    ).subscribe({
+      next: (resp) => {
+        this._moveEachToDir(selected, dirFileKey, offset + 1);
+      }
+    });
+  }
+
+  findMoveIntoDirFileKey(dirName: string) {
+    let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === dirName)
+    if (!matched || matched.length < 1) {
+      this.notifi.toast("Directory not found, please check and try again")
+      return
+    }
+    if (matched.length > 1) {
+      this.notifi.toast("Found multiple directories with the same name, please update their names and try again")
+      return
+    }
+    return matched[0].uuid;
+  }
+
   // Move (into/out of) dir
   doMoveToDir(uuid: string, dirName: string, into: boolean = true) {
     if (!uuid) {
@@ -411,16 +493,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     let parentFileUuid;
     if (into) {
-      let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === dirName)
-      if (!matched || matched.length < 1) {
-        this.notifi.toast("Directory not found, please check and try again")
-        return
-      }
-      if (matched.length > 1) {
-        this.notifi.toast("Found multiple directories with the same name, please update their names and try again")
-        return
-      }
-      parentFileUuid = matched[0].uuid;
+      let key = this.findMoveIntoDirFileKey(dirName);
+      if (!key) return;
+      parentFileUuid = key;
     } else {
       parentFileUuid = "";
     }
@@ -463,11 +538,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
         this.pagingController.onTotalChanged(resp.data.pagingVo);
         this.inDirFileName = this.searchParam.parentFileName;
+        this.isAllSelected = false;
+        this.selectedCount = 0;
       },
       error: (err) => console.log(err),
-      complete: () => {
-        this.isAllSelected = false;
-      },
     });
   }
 
@@ -573,6 +647,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     if (this.fantahseaEnabled) this.addToGalleryName = null;
     this.inFolderNo = null;
     this.addToVFolderName = null;
+    this.moveIntoDirName = null;
     this.pagingController.firstPage();
     this.fetchFileInfoList();
   }
@@ -590,6 +665,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.dialog.open(ConfirmDialogComponent, {
         width: "500px",
         data: {
+          title: 'Delete File',
           msg: [`You sure you want to delete '${name}'`],
           isNoBtnDisplayed: true,
         },
@@ -733,10 +809,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           this.dialog.open(ConfirmDialogComponent, {
             width: "700px",
             data: {
+              title: 'Share File',
               msg: [
-                `Link to download this file: ${this._concatTempFileDownloadUrl(
+                'Link to download this file:',
+                this._concatTempFileDownloadUrl(
                   resp.data
-                )}`,
+                )
               ],
               isNoBtnDisplayed: false,
             },
@@ -913,8 +991,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     const addToGalleryNo = this._extractToGalleryNo()
     if (!addToGalleryNo) return;
 
-    let selected = this.filterSelected()
-      .filter((v) => this._isImage(v))
+    let selected = this.filterSelected(true, true)
       .map((f) => {
         return {
           name: f.name,
@@ -945,22 +1022,30 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   selectFile(event: any, f: FileInfo) {
-    //  console.log(event);
-
-    if (f.isOwner) {
-      f._selected = event.checked;
+    if (f.isFile) {
+      const isChecked = event.checked;
+      f._selected = isChecked;
+      let delta = isChecked ? 1 : -1;
+      this.selectedCount += delta;
     }
   }
 
   selectAllFiles() {
     this.isAllSelected = !this.isAllSelected;
+    let total = 0;
+
     this.fileInfoList.forEach((v) => {
-      if (v.isOwner && v.isFile) v._selected = this.isAllSelected;
+      if (v.isFile) {
+        v._selected = this.isAllSelected;
+        total += 1;
+      }
     });
+
+    this.selectedCount = this.isAllSelected ? total : 0;
   }
 
   exportAsZip() {
-    let selected = this.filterSelected();
+    let selected = this.filterSelected(true, false);
     if (!selected) {
       this.notifi.toast("Please select files first")
       return;
@@ -1307,11 +1392,13 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     );
   }
 
-  private filterSelected(ownerRequired: boolean = true): FileInfo[] {
+  /** Filter selected files */
+  private filterSelected(ownerRequired: boolean, imageRequired: boolean): FileInfo[] {
     return this.fileInfoList
       .map((v) => {
         if (!v._selected) return null;
         if (ownerRequired && !v.isOwner) return null;
+        if (imageRequired && !this._isImage(v)) return null;
         return v;
       })
       .filter(v => v != null);

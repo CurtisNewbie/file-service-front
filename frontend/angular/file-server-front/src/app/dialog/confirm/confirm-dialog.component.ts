@@ -3,6 +3,7 @@ import { MatDialogRef } from "@angular/material/dialog";
 import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 
 export interface ConfirmDialogData {
+  title: string;
   msg: string[];
   isNoBtnDisplayed: boolean;
 }
@@ -15,5 +16,5 @@ export class ConfirmDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfirmDialogComponent, ConfirmDialogData>,
     @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
-  ) {}
+  ) { }
 }

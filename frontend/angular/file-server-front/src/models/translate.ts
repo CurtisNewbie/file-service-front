@@ -37,16 +37,16 @@ const ttable = {
         CN: "标签"
     },
     fantahseaGallery: {
-        EN: "Fantahsea Gallery",
-        CN: "Fantahsea 相册"
+        EN: "Add To Fantahsea Gallery",
+        CN: "添加到 Fantahsea 相册"
     },
     fileList: {
         EN: "File List",
         CN: "文件列表"
     },
     virtualFolder: {
-        EN: "Virtual Folder",
-        CN: "虚拟文件夹"
+        EN: "Add To Virtual Folder",
+        CN: "添加到虚拟文件夹"
     },
     uploadPanel: {
         EN: "Upload Panel",
@@ -235,6 +235,14 @@ const ttable = {
     exportAsZip: {
         EN: 'Export Selected As Zip',
         CN: '批量导出选择的文件'
+    },
+    moveIntoDir: {
+        EN: 'Move Into Directory',
+        CN: '移动到目录中'
+    },
+    moveOutOfDir: {
+        EN: 'Move Out Of Directory',
+        CN: '移出目录'
     }
 }
 

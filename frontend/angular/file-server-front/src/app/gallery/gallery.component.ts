@@ -106,6 +106,7 @@ export class GalleryComponent implements OnInit {
       this.dialog.open(ConfirmDialogComponent, {
         width: "500px",
         data: {
+          title: 'Delete Gallery',
           msg: [`You sure you want to delete '${galleryName}'`],
           isNoBtnDisplayed: true,
         },

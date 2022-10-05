@@ -173,6 +173,19 @@
                         </mat-form-field>
                     </div>
                 </ng-container>
+
+                <div class="col-12">
+                    <mat-form-field appearance="fill" style="width: 100%;" class="mb-1" *ngIf="!isMobile">
+                        <mat-label>{{moveIntoDirLabel}}:</mat-label>
+                        <input matInput type="text" [(ngModel)]="moveIntoDirName"
+                            (ngModelChange)="onMoveIntoDirNameChanged()" [matAutocomplete]="auto1">
+                        <mat-autocomplete #auto1="matAutocomplete">
+                            <mat-option *ngFor="let option of autoCompMoveIntoDirs" [value]="option">
+                                {{option}}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                </div>
             </div>
         </div>
 
@@ -192,24 +205,44 @@
         </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+
             <ng-container *ngIf="addToGalleryName">
-                <button mat-raised-button class="m-2" (click)="transferToGallery()">{{hostOnFantahseaLabel}}</button>
-                <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName"
-                    (click)="transferDirToGallery()">Host
+                <!-- transfer selected to fantahsea -->
+                <button mat-raised-button class="m-2" *ngIf="anySelected"
+                    (click)="transferToGallery()">{{hostOnFantahseaLabel}}</button>
+
+                <!-- transfer dir to fantahsea -->
+                <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="transferDirToGallery()">Host
                     All Images On Fantahsea</button>
             </ng-container>
-            <ng-container *ngIf="!inDirFileName">
-                <button mat-raised-button class="m-2" *ngIf="addToVFolderName"
-                    (click)="addToVirtualFolder()">{{addToVFolderLabel}}</button>
-                <ng-container *ngIf="!isGuest && !inFolderNo">
-                    <button mat-raised-button class="m-2"
-                        (click)="expandUploadPanel=!expandUploadPanel">{{uploadPanelLabel}}</button>
-                    <button mat-raised-button class="m-2" (click)="makingDir=!makingDir">{{mkdirLabel}}</button>
-                </ng-container>
+
+            <!-- add to vfolder -->
+            <button mat-raised-button class="m-2" *ngIf="!inFolderName && anySelected && addToVFolderName"
+                (click)="addToVirtualFolder()">{{addToVFolderLabel}}</button>
+
+            <!-- move into dir -->
+            <button mat-raised-button class="m-2" *ngIf="!inFolderName && moveIntoDirName && anySelected"
+                (click)="moveSelectedToDir(true)">{{moveIntoDirLabel}}</button>
+
+            <!-- move out of dir -->
+            <button mat-raised-button class="m-2" *ngIf="!inFolderName && inDirFileName && anySelected"
+                (click)="moveSelectedToDir(false)">{{moveOutOfDirLabel}}</button>
+
+            <!-- make directory -->
+            <ng-container *ngIf="!inDirFileName && !isGuest && !inFolderNo">
+                <button mat-raised-button class="m-2"
+                    (click)="expandUploadPanel=!expandUploadPanel">{{uploadPanelLabel}}</button>
+                <button mat-raised-button class="m-2" (click)="makingDir=!makingDir">{{mkdirLabel}}</button>
             </ng-container>
-            <button mat-raised-button class="m-2" *ngIf="!isGuest && inDirFileName" (click)="leaveDir()">Go
+
+            <!-- export as zip -->
+            <button mat-raised-button class="m-2" *ngIf="!isGuest && selectedCount > 1"
+                (click)="exportAsZip()">{{exportAsZipLabel}}</button>
+
+            <!-- go back -->
+            <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="leaveDir()">Go
                 Back</button>
-            <button mat-raised-button class="m-2" (click)="exportAsZip()">{{exportAsZipLabel}}</button>
+
             <button mat-raised-button class="m-2" (click)="fetchFileInfoList()">{{fetchLabel}}</button>
             <button mat-raised-button class="m-2" (click)="resetSearchParam()">{{resetLabel}}</button>
         </div>
@@ -368,14 +401,14 @@
                                                 <div class="col-12">
                                                     <button mat-raised-button
                                                         (click)="doMoveToDir(u.uuid, moveIntoDirName, true)">
-                                                        Move Into Directory
+                                                        {{moveIntoDirLabel}}
                                                     </button>
                                                 </div>
                                             </ng-container>
                                             <ng-container *ngIf="inDirFileName">
                                                 <div class="col-12">
                                                     <button mat-raised-button (click)="doMoveToDir(u.uuid, '', false)">
-                                                        Move Out Of Directory
+                                                        {{moveOutOfDirLabel}}
                                                     </button>
                                                 </div>
                                             </ng-container>
