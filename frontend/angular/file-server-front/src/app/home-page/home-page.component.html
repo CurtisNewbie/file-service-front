@@ -1,4 +1,4 @@
-<div *ngIf="!isGuest && !inFolderNo && !inDirFileName && expandUploadPanel">
+<div *ngIf="!isGuest && !inFolderNo && expandUploadPanel">
     <ng-container *ngIf="uploadParam.files != null && uploadParam.files.length > 0">
         <mat-form-field appearance="fill" style="width: 100%;" class="mt-1 mb-1">
             <mat-label>{{filenameLabel}}</mat-label>
@@ -159,20 +159,18 @@
                     </div>
                 </ng-container>
 
-                <ng-container *ngIf="!inDirFileName">
-                    <div class="col-12">
-                        <mat-form-field appearance="fill">
-                            <mat-label>{{virtualFolderLabel}}</mat-label>
-                            <input matInput type="text" [(ngModel)]="addToVFolderName"
-                                (ngModelChange)="onAddToVFolderNameChanged()" [matAutocomplete]="auto1">
-                            <mat-autocomplete #auto1="matAutocomplete">
-                                <mat-option *ngFor="let option of autoCompAddToVFolderName" [value]="option">
-                                    {{option}}
-                                </mat-option>
-                            </mat-autocomplete>
-                        </mat-form-field>
-                    </div>
-                </ng-container>
+                <div class="col-12">
+                    <mat-form-field appearance="fill">
+                        <mat-label>{{virtualFolderLabel}}</mat-label>
+                        <input matInput type="text" [(ngModel)]="addToVFolderName"
+                            (ngModelChange)="onAddToVFolderNameChanged()" [matAutocomplete]="auto1">
+                        <mat-autocomplete #auto1="matAutocomplete">
+                            <mat-option *ngFor="let option of autoCompAddToVFolderName" [value]="option">
+                                {{option}}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                </div>
 
                 <div class="col-12">
                     <mat-form-field appearance="fill" style="width: 100%;" class="mb-1" *ngIf="!isMobile">
@@ -217,23 +215,27 @@
             </ng-container>
 
             <!-- add to vfolder -->
-            <button mat-raised-button class="m-2" *ngIf="!inFolderName && anySelected && addToVFolderName"
+            <button mat-raised-button class="m-2" *ngIf="!inFolderName && anySelected"
                 (click)="addToVirtualFolder()">{{addToVFolderLabel}}</button>
 
             <!-- move into dir -->
-            <button mat-raised-button class="m-2" *ngIf="!inFolderName && moveIntoDirName && anySelected"
+            <button mat-raised-button class="m-2" *ngIf="!inFolderName && anySelected"
                 (click)="moveSelectedToDir(true)">{{moveIntoDirLabel}}</button>
 
             <!-- move out of dir -->
             <button mat-raised-button class="m-2" *ngIf="!inFolderName && inDirFileName && anySelected"
                 (click)="moveSelectedToDir(false)">{{moveOutOfDirLabel}}</button>
 
+            <!-- toggale upload panel -->
+            <ng-container *ngIf="!isGuest && !inFolderNo">
+                <button mat-raised-button class="m-2" (click)="doExpandUploadPanel()">{{uploadPanelLabel}}</button>
+            </ng-container>
+
             <!-- make directory -->
-            <ng-container *ngIf="!inDirFileName && !isGuest && !inFolderNo">
-                <button mat-raised-button class="m-2"
-                    (click)="expandUploadPanel=!expandUploadPanel">{{uploadPanelLabel}}</button>
+            <ng-container *ngIf="!isGuest && !inFolderNo && !inDirFileName">
                 <button mat-raised-button class="m-2" (click)="makingDir=!makingDir">{{mkdirLabel}}</button>
             </ng-container>
+
 
             <!-- export as zip -->
             <button mat-raised-button class="m-2" *ngIf="!isGuest && selectedCount > 1"

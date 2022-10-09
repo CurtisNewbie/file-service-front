@@ -45,6 +45,7 @@ import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 import { onLangChange, translate } from "src/models/translate";
 import { resolveSize } from "../util/file";
 import { off } from "process";
+import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
 
 @Component({
   selector: "app-home-page",
@@ -628,6 +629,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   leaveDir() {
+    this._resetFileUploadParam();
+    this.resetSearchParam();
     this.nav.navigateTo(NavType.HOME_PAGE, [
     ]);
   }
@@ -1060,6 +1063,19 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       }
     });
   }
+
+  doExpandUploadPanel() {
+    this.expandUploadPanel = !this.expandUploadPanel;
+
+    // if we are already in a directory, by default we upload to current directory
+    if (this.expandUploadPanel && !this.uploadParam.parentFile && this.inDirFileName) {
+      this.uploadDirName = this.inDirFileName;
+      this.onUploadDirNameChanged();
+    }
+  }
+
+
+
   // -------------------------- private helper methods ------------------------
 
   /** fetch supported file extension */
@@ -1171,10 +1187,14 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.selectedTags = [];
     this.isCompressed = false;
     this.uploadParam = emptyUploadFileParam();
-    this.uploadFileInput.nativeElement.value = null;
+    if (this.uploadFileInput) {
+      this.uploadFileInput.nativeElement.value = null;
+    }
     this.uploadIndex = -1;
     this.displayedUploadName = null;
     this.progress = null;
+    this.uploadDirName = null;
+    this.onUploadDirNameChanged();
     this.pagingController.firstPage();
   }
 
