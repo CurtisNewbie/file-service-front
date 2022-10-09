@@ -1,4 +1,4 @@
-# file-service-front v1.1.14
+# file-service-front v1.1.15
 
 Angular frontend for file-service and fantahsea.
 
