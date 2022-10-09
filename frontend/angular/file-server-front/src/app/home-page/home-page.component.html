@@ -43,7 +43,7 @@
                 <mat-form-field appearance="fill" class="mb-1">
                     <mat-label>{{uploadToDirLabel}}:</mat-label>
                     <input matInput type="text" [(ngModel)]="uploadDirName" (ngModelChange)="onUploadDirNameChanged()"
-                        [matAutocomplete]="auto0" [disabled]="isUploading || isCompressed">
+                        [matAutocomplete]="auto0" [disabled]="isUploading || isCompressed || inDirFileName">
                     <mat-autocomplete #auto0="matAutocomplete">
                         <mat-option *ngFor="let option of autoCompUploadDirs" [value]="option">
                             {{option}}

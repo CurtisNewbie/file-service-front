@@ -348,7 +348,13 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
       // directory
       this.searchParam.parentFileName = params.get("parentDirName");
+      this.inDirFileName = this.searchParam.parentFileName;
       this.searchParam.parentFile = params.get("parentDirKey");
+
+      // if we are already in a directory, by default we upload to current directory
+      if (this.expandUploadPanel && this.inDirFileName) {
+        this.uploadDirName = this.inDirFileName;
+      }
 
       if (this.pagingController) {
         this.pagingController.firstPage();
@@ -1070,7 +1076,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     // if we are already in a directory, by default we upload to current directory
     if (this.expandUploadPanel && !this.uploadParam.parentFile && this.inDirFileName) {
       this.uploadDirName = this.inDirFileName;
-      this.onUploadDirNameChanged();
     }
   }
 
