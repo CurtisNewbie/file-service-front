@@ -1255,6 +1255,30 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return true;
   }
 
+  private _updateUploadProgress(filename: string, loaded: number, total: number) {
+    // how many files left
+    let remaining;
+    let index = this.uploadIndex;
+    if (index == -1) remaining = "";
+    else {
+      let files = this.uploadParam.files;
+      if (!files) remaining = "";
+      else {
+        let len = files.length;
+        if (index >= len) remaining = "";
+        else remaining = `${len - this.uploadIndex - 1} file remaining`;
+      }
+    }
+
+    // upload progress
+    let p = Math.round((100 * loaded) / total).toFixed(2);
+    let ps;
+    if (p == "100.00")
+      ps = `Processing '${filename}' ... ${remaining}`;
+    else ps = `Uploading ${filename} ${p}% ${remaining}`;
+    this.progress = ps;
+  }
+
   private _doUpload(uploadParam: UploadFileParam, fetchOnComplete: boolean = true) {
     if (this.uploadDirName) {
       let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === this.uploadDirName)
@@ -1292,27 +1316,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.uploadSub = this.fileService.postFile(uploadParam).subscribe({
         next: (event) => {
           if (event.type === HttpEventType.UploadProgress) {
-            // how many files left
-            let remaining;
-            let index = this.uploadIndex;
-            if (index == -1) remaining = "";
-            else {
-              let files = this.uploadParam.files;
-              if (!files) remaining = "";
-              else {
-                let len = files.length;
-                if (index >= len) remaining = "";
-                else remaining = `${len - this.uploadIndex - 1} file remaining`;
-              }
-            }
-
-            // upload progress
-            let p = Math.round((100 * event.loaded) / event.total).toFixed(2);
-            let ps;
-            if (p == "100.00")
-              ps = `Processing '${uploadParam.fileName}' ... ${remaining}`;
-            else ps = `Uploading ${uploadParam.fileName} ${p}% ${remaining}`;
-            this.progress = ps;
+            this._updateUploadProgress(uploadParam.fileName, event.loaded, event.total);
           }
         },
         complete: () => onComplete(),
@@ -1336,6 +1340,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
             if (!isDuplicate) {
               uploadFileCallback();
             } else {
+              this._updateUploadProgress(uploadParam.fileName, 100, 100);
+
               // skip this file, it exists already
               onComplete();
             }
