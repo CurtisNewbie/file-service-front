@@ -41,7 +41,7 @@ export class FileInfoService {
     }
 
     return this.http.post<HttpEvent<any>>(
-      buildApiPath("/file/upload"),
+      buildApiPath("/file/upload", environment.fileServicePath),
       formData,
       {
         observe: "events",
@@ -70,7 +70,7 @@ export class FileInfoService {
     console.log("headers", headers);
 
     return this.http.post<HttpEvent<any>>(
-      buildApiPath("/file/upload/stream"),
+      buildApiPath("/file/upload/stream", environment.fileServicePath),
       uploadParam.files[0],
       {
         observe: "events",

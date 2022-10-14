@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
+import { environment } from "src/environments/environment";
 import { VFolder, FolderListResp } from "src/models/folder";
 import { Paging, PagingController } from "src/models/paging";
 import { Resp } from "src/models/resp";
@@ -42,7 +43,7 @@ export class FolderComponent implements OnInit {
     this.searchParam.pagingVo = this.pagingController.paging;
     this.http
       .post<Resp<FolderListResp>>(
-        buildApiPath("/vfolder/list"),
+        buildApiPath("/vfolder/list", environment.fileServicePath),
         this.searchParam,
         buildOptions()
       )
@@ -68,7 +69,7 @@ export class FolderComponent implements OnInit {
     this.creatingFolder = false;
     this.http
       .post<Resp<void>>(
-        buildApiPath("/vfolder/create"),
+        buildApiPath("/vfolder/create", environment.fileServicePath),
         { name: this.newFolderName },
         buildOptions()
       )

@@ -44,8 +44,6 @@ import { GalleryBrief } from "src/models/gallery";
 import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 import { onLangChange, translate } from "src/models/translate";
 import { resolveSize } from "../util/file";
-import { off } from "process";
-import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
 
 @Component({
   selector: "app-home-page",
@@ -1192,13 +1190,19 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.selectedTags = [];
     this.isCompressed = false;
     this.uploadParam = emptyUploadFileParam();
+
     if (this.uploadFileInput) {
       this.uploadFileInput.nativeElement.value = null;
     }
+
     this.uploadIndex = -1;
     this.displayedUploadName = null;
     this.progress = null;
-    this.uploadDirName = null;
+
+    if (!this.inDirFileName) {
+      this.uploadDirName = null;
+    }
+
     this.onUploadDirNameChanged();
     this.pagingController.firstPage();
   }
@@ -1267,55 +1271,77 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       uploadParam.parentFile = null;
     }
 
-    const name = uploadParam.fileName;
-    this.uploadSub = this.fileService.postFile(uploadParam).subscribe({
-      next: (event) => {
-        if (event.type === HttpEventType.UploadProgress) {
-          // how many files left
-          let remaining;
-          let index = this.uploadIndex;
-          if (index == -1) remaining = "";
-          else {
-            let files = this.uploadParam.files;
-            if (!files) remaining = "";
-            else {
-              let len = files.length;
-              if (index >= len) remaining = "";
-              else remaining = `${len - this.uploadIndex - 1} file remaining`;
-            }
-          }
+    const onComplete = () => {
+      if (fetchOnComplete)
+        setTimeout(() => this.fetchFileInfoList(), 1_000);
 
-          // upload progress
-          let p = Math.round((100 * event.loaded) / event.total).toFixed(2);
-          let ps;
-          if (p == "100.00")
-            ps = `Processing '${uploadParam.fileName}' ... ${remaining}`;
-          else ps = `Uploading ${uploadParam.fileName} ${p}% ${remaining}`;
-          this.progress = ps;
-        }
-      },
-      complete: () => {
-
-        if (fetchOnComplete)
-          setTimeout(() => this.fetchFileInfoList(), 1_000);
-
-        let next = this._prepNextUpload();
-        if (!next) {
-          this.progress = null;
-          this.isUploading = false;
-          this._resetFileUploadParam();
-          this.fetchFileInfoList()
-        } else {
-          this._doUpload(next, false); // upload next file
-        }
-      },
-      error: () => {
+      let next = this._prepNextUpload();
+      if (!next) {
         this.progress = null;
         this.isUploading = false;
-        this.notifi.toast(`Failed to upload file ${name}`);
         this._resetFileUploadParam();
-      },
-    });
+        this.fetchFileInfoList()
+      } else {
+        this._doUpload(next, false); // upload next file
+      }
+    }
+
+    const name = uploadParam.fileName;
+
+    const uploadFileCallback = () => {
+      this.uploadSub = this.fileService.postFile(uploadParam).subscribe({
+        next: (event) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            // how many files left
+            let remaining;
+            let index = this.uploadIndex;
+            if (index == -1) remaining = "";
+            else {
+              let files = this.uploadParam.files;
+              if (!files) remaining = "";
+              else {
+                let len = files.length;
+                if (index >= len) remaining = "";
+                else remaining = `${len - this.uploadIndex - 1} file remaining`;
+              }
+            }
+
+            // upload progress
+            let p = Math.round((100 * event.loaded) / event.total).toFixed(2);
+            let ps;
+            if (p == "100.00")
+              ps = `Processing '${uploadParam.fileName}' ... ${remaining}`;
+            else ps = `Uploading ${uploadParam.fileName} ${p}% ${remaining}`;
+            this.progress = ps;
+          }
+        },
+        complete: () => onComplete(),
+        error: () => {
+          this.progress = null;
+          this.isUploading = false;
+          this.notifi.toast(`Failed to upload file ${name}`);
+          this._resetFileUploadParam();
+        },
+      });
+    }
+
+    if (!uploadParam.ignoreOnDupName) {
+      uploadFileCallback();
+    } else {
+      // preflight check whether the filename exists already
+      this.http.get<boolean>(environment.fileServicePath, `/file/upload/duplication/preflight?fileName=${name}`)
+        .subscribe({
+          next: (resp) => {
+            let isDuplicate = resp.data;
+            if (!isDuplicate) {
+              uploadFileCallback();
+            } else {
+              // skip this file, it exists already
+              onComplete();
+            }
+          }
+        })
+    }
   }
 
   private _isZipCompressed() {

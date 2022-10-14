@@ -1,28 +1,27 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { environment } from "src/environments/environment";
 import { Resp } from "src/models/resp";
-
-// for development
-const isThroughGateway = true;
 
 const BASE_API = "/open/api";
 const TOKEN = "token";
 let emptyTokenCallback;
 
+/** callback for empty token, token is stored in internalStorage */
 export function onEmptyToken(callback) {
   emptyTokenCallback = callback;
 }
 
+/** build api bath */
 export function buildApiPath(
-  subPath: string,
-  service = environment.fileServicePath
+  relPath: string,
+  serviceBashPath: string
 ): string {
-  subPath = subPath.startsWith("/", 0) ? subPath : "/" + subPath;
-  return (isThroughGateway ? service : "") + BASE_API + subPath;
+  relPath = relPath.startsWith("/", 0) ? relPath : "/" + relPath;
+  return serviceBashPath + BASE_API + relPath;
 }
 
+/** build options for http requests */
 export function buildOptions() {
   let token = getToken();
   if (!token) {
@@ -37,6 +36,7 @@ export function buildOptions() {
   };
 }
 
+/** save token to internalStorage */
 export function setToken(token: string) {
   if (token === null) localStorage.removeItem(TOKEN);
   else {
@@ -44,6 +44,7 @@ export function setToken(token: string) {
   }
 }
 
+/** get token from internalStorage */
 export function getToken() {
   let tkn = localStorage.getItem(TOKEN);
   if (!tkn && emptyTokenCallback) {
@@ -53,6 +54,9 @@ export function getToken() {
   return tkn;
 }
 
+/**
+ * Wrapper of HttpClient
+ */
 @Injectable({
   providedIn: 'root'
 })
