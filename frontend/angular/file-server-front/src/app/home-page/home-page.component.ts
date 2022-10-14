@@ -1329,7 +1329,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       uploadFileCallback();
     } else {
       // preflight check whether the filename exists already
-      this.http.get<boolean>(environment.fileServicePath, `/file/upload/duplication/preflight?fileName=${name}`)
+      this.http.get<boolean>(environment.fileServicePath, `/file/upload/duplication/preflight?fileName=${encodeURIComponent(name)}`)
         .subscribe({
           next: (resp) => {
             let isDuplicate = resp.data;
