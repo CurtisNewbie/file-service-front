@@ -1134,20 +1134,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     if (i < 0 || i == filename.length - 1) return false;
 
     let suffix = filename.slice(i + 1);
-
-    return this.IMAGE_SUFFIX.has(suffix);
+    return this.IMAGE_SUFFIX.has(suffix.toLowerCase());
   }
 
   private _isImage(f: FileInfo): boolean {
     if (f == null || !f.isFile) return false;
-
-    const filename = f.name;
-    let i = filename.lastIndexOf(".");
-    if (i < 0 || i == filename.length - 1) return false;
-
-    let suffix = filename.slice(i + 1);
-
-    return this.IMAGE_SUFFIX.has(suffix.toLowerCase());
+    return this._isImageByName(f.name);
   }
 
   /**
