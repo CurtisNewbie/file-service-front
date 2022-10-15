@@ -8,6 +8,7 @@ import { HomePageComponent } from "./home-page/home-page.component";
 import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
+import { MediaStreamerComponent } from "./media-streamer/media-streamer.component";
 import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
 
 const routes: Routes = [
@@ -47,7 +48,10 @@ const routes: Routes = [
     path: "folders",
     component: FolderComponent,
   },
-
+  {
+    path: "media",
+    component: MediaStreamerComponent,
+  },
   { path: "**", redirectTo: "/login-page" },
 ];
 

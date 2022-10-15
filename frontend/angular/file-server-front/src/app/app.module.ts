@@ -47,6 +47,7 @@ import { FolderComponent } from "./folder/folder.component";
 import { MatListModule } from "@angular/material/list";
 import { HClient as HttpWrapper } from "./util/api-util";
 import { ControlledPaginatorComponent } from './controlled-paginator/controlled-paginator.component';
+import { MediaStreamerComponent } from './media-streamer/media-streamer.component';
 
 @NgModule({
   exports: [],
@@ -66,6 +67,7 @@ import { ControlledPaginatorComponent } from './controlled-paginator/controlled-
     GalleryImageComponent,
     FolderComponent,
     ControlledPaginatorComponent,
+    MediaStreamerComponent,
   ],
   imports: [
     MatTabsModule,

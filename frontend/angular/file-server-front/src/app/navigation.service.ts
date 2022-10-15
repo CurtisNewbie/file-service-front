@@ -5,7 +5,7 @@ import { Router } from "@angular/router";
   providedIn: "root",
 })
 export class NavigationService {
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   /** Navigate to using Router*/
   public navigateTo(nt: NavType, extra?: any[]): void {
@@ -32,4 +32,5 @@ export enum NavType {
   IMAGE_VIEWER = "image-viewer",
   GALLERY = "gallery",
   GALLERY_IMAGE = "gallery-image",
+  MEDIA_STREAMER = "media",
 }

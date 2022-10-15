@@ -44,6 +44,12 @@ import { GalleryBrief } from "src/models/gallery";
 import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 import { onLangChange, translate } from "src/models/translate";
 import { resolveSize } from "../util/file";
+import { Token } from "@angular/compiler";
+
+export enum TokenType {
+  DOWNLOAD = "DOWNLOAD",
+  STREAMING = "STREAMING"
+}
 
 @Component({
   selector: "app-home-page",
@@ -770,38 +776,46 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     const filename: string = f.name;
     if (!filename) return false;
 
-    if (this._isPdf(filename) || this._isImageByName(filename)) return true;
-
-    // videos are not supported for now, these can be downloaded and then played right? :D
-
-    return false;
+    return this._isPdf(filename) || this._isImageByName(filename) || this._isStreamableVideo(filename);
   }
 
   /** Display the file */
   preview(u: FileInfo): void {
-    this.generateFileTempToken(u.id).subscribe({
-      next: (resp) => {
-        const token = resp.data;
-        const url = buildApiPath(
-          "/file/token/download?token=" + token,
-          environment.fileServicePath
-        );
-        const isPdf = this._isPdf(u.name);
-        if (isPdf) {
-          this.nav.navigateTo(NavType.PDF_VIEWER, [
-            { name: u.name, url: url, uuid: u.uuid },
-          ]);
-        } else {
-          const dialogRef: MatDialogRef<ImageViewerComponent, void> =
-            this.dialog.open(ImageViewerComponent, {
-              data: {
-                name: u.name,
-                url: url
-              },
-            });
-        }
-      },
-    });
+    const isStreaming = this._isStreamableVideo(u.name);
+    this.generateFileTempToken(u.id, isStreaming ? TokenType.STREAMING : TokenType.DOWNLOAD)
+      .subscribe({
+        next: (resp) => {
+          const token = resp.data;
+
+          const getDownloadUrl = () => buildApiPath(
+            "/file/token/download?token=" + token,
+            environment.fileServicePath
+          );
+
+          const getStreamingUrl = () => buildApiPath(
+            "/file/token/media/streaming?token=" + token,
+            environment.fileServicePath
+          );
+
+          if (isStreaming) {
+            this.nav.navigateTo(NavType.MEDIA_STREAMER, [
+              { name: u.name, url: getStreamingUrl(), uuid: u.uuid, token: token },
+            ]);
+          } else if (this._isPdf(u.name)) {
+            this.nav.navigateTo(NavType.PDF_VIEWER, [
+              { name: u.name, url: getDownloadUrl(), uuid: u.uuid },
+            ]);
+          } else {
+            const dialogRef: MatDialogRef<ImageViewerComponent, void> =
+              this.dialog.open(ImageViewerComponent, {
+                data: {
+                  name: u.name,
+                  url: getDownloadUrl()
+                },
+              });
+          }
+        },
+      });
   }
 
   /**
@@ -1126,7 +1140,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _isPdf(filename: string): boolean {
-    return filename.indexOf(".pdf") != -1;
+    return filename.toLowerCase().indexOf(".pdf") != -1;
+  }
+
+  private _isStreamableVideo(filename: string): boolean {
+    return filename.toLowerCase().indexOf(".mp4") != -1;
   }
 
   private _isImageByName(filename: string): boolean {
@@ -1434,10 +1452,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /**
    * Generate file temporary token
    */
-  private generateFileTempToken(id: number): Observable<Resp<string>> {
+  private generateFileTempToken(id: number, tokenType: TokenType = TokenType.DOWNLOAD): Observable<Resp<string>> {
     return this.http.post<string>(
       environment.fileServicePath, "/file/token/generate",
-      { id: id },
+      { id: id, tokenType: tokenType },
     );
   }
 
