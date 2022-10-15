@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { ActivatedRoute, ParamMap, Params } from "@angular/router";
+import { ActivatedRoute, ParamMap } from "@angular/router";
 import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
 
 @Component({
@@ -15,7 +15,7 @@ export class PdfViewerComponent implements OnInit {
   @ViewChild("pdfViewer", { static: true })
   pdfViewer: PdfJsViewerComponent;
 
-  constructor(private route: ActivatedRoute, private httpClient: HttpClient) {}
+  constructor(private route: ActivatedRoute, private httpClient: HttpClient) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe((params: ParamMap) => {

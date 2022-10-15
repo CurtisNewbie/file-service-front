@@ -44,7 +44,7 @@ import { GalleryBrief } from "src/models/gallery";
 import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 import { onLangChange, translate } from "src/models/translate";
 import { resolveSize } from "../util/file";
-import { Token } from "@angular/compiler";
+import { MediaStreamerComponent } from "../media-streamer/media-streamer.component";
 
 export enum TokenType {
   DOWNLOAD = "DOWNLOAD",
@@ -798,21 +798,24 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           );
 
           if (isStreaming) {
-            this.nav.navigateTo(NavType.MEDIA_STREAMER, [
-              { name: u.name, url: getStreamingUrl(), uuid: u.uuid, token: token },
-            ]);
+            this.dialog.open(MediaStreamerComponent, {
+              data: {
+                name: u.name,
+                url: getStreamingUrl(),
+                token: token
+              },
+            });
           } else if (this._isPdf(u.name)) {
             this.nav.navigateTo(NavType.PDF_VIEWER, [
               { name: u.name, url: getDownloadUrl(), uuid: u.uuid },
             ]);
           } else {
-            const dialogRef: MatDialogRef<ImageViewerComponent, void> =
-              this.dialog.open(ImageViewerComponent, {
-                data: {
-                  name: u.name,
-                  url: getDownloadUrl()
-                },
-              });
+            this.dialog.open(ImageViewerComponent, {
+              data: {
+                name: u.name,
+                url: getDownloadUrl()
+              },
+            });
           }
         },
       });

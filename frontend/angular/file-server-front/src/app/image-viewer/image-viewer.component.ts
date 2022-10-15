@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 
-export interface DialogData {
+export interface ImgViewerDialogData {
   name: string;
   url: string;
 }
@@ -13,8 +13,8 @@ export interface DialogData {
 })
 export class ImageViewerComponent implements OnInit {
   constructor(
-    public dialogRef: MatDialogRef<ImageViewerComponent, DialogData>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    public dialogRef: MatDialogRef<ImageViewerComponent, ImgViewerDialogData>,
+    @Inject(MAT_DIALOG_DATA) public data: ImgViewerDialogData
   ) { }
 
   ngOnInit() {
