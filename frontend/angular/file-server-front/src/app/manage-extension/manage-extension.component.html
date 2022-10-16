@@ -37,7 +37,8 @@
             </mat-form-field>
 
             <div class="d-md-flex justify-content-end mb-2">
-                <button mat-raised-button class="m-1" (click)="addExtPanelDisplayed=!addExtPanelDisplayed">Add
+                <button mat-raised-button class="m-1" [class.status-green]="addExtPanelDisplayed"
+                    (click)="addExtPanelDisplayed=!addExtPanelDisplayed">Add
                     File
                     Extension</button>
                 <button mat-raised-button class="m-1" id="reloadBtn"

@@ -51,7 +51,8 @@
         </div>
     </div>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-        <button mat-raised-button class="m-2" (click)="addingFsGroup=!addingFsGroup">Add FsGroup</button>
+        <button mat-raised-button class="m-2" [class.status-green]="addingFsGroup"
+            (click)="addingFsGroup=!addingFsGroup">Add FsGroup</button>
         <button mat-raised-button class="m-2" (click)="fetchFsGroups()">Fetch</button>
     </div>
 
