@@ -1,4 +1,5 @@
 import { Paging } from "./paging";
+import { Option } from "./select-util";
 
 export interface FileInfo {
   /**
@@ -120,20 +121,22 @@ export interface FileUserGroupOption {
   value: FileUserGroupEnum | number;
 }
 
-export const FILE_USER_GROUP_OPTIONS: FileUserGroupOption[] = [
+export const FILE_USER_GROUP_OPTIONS: Option<FileUserGroupEnum>[] = [
+  { name: "All", value: null },
   { name: "privateGroup", value: FileUserGroupEnum.USER_GROUP_PRIVATE },
   { name: "publicGroup", value: FileUserGroupEnum.USER_GROUP_PUBLIC },
 ];
 
-export interface FileOwnershipOption {
-  name: string;
-  value: FileOwnershipEnum | number;
-}
-
-export const FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] = [
+export const FILE_OWNERSHIP_OPTIONS: Option<FileOwnershipEnum>[] = [
   { name: "allFiles", value: FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES },
   { name: "myFiles", value: FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES },
 ];
+
+export const FILE_TYPE_OPTIONS: Option<FileType>[] = [
+  { name: "All", value: null },
+  { name: "file", value: FileType.FILE },
+  { name: "dir", value: FileType.DIR }
+]
 
 /** Brief info for DIR type file */
 export interface DirBrief {
@@ -156,8 +159,11 @@ export interface SearchFileInfoParam {
   folderNo?: string;
   /** parent file UUID */
   parentFile?: string;
+  /** fileType */
+  fileType?: FileType;
+
   /** parent file name (not used by backend) */
-  parentFileName?: string;
+  _parentFileName?: string;
 }
 
 /** Parameters for uploading a file */

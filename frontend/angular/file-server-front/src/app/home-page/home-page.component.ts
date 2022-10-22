@@ -16,11 +16,10 @@ import {
   FetchFileInfoList,
   FileInfo,
   FileOwnershipEnum,
-  FileOwnershipOption,
   FileType,
   FileUserGroupEnum,
-  FileUserGroupOption,
   FILE_OWNERSHIP_OPTIONS,
+  FILE_TYPE_OPTIONS,
   FILE_USER_GROUP_OPTIONS,
   SearchFileInfoParam,
   UploadFileParam,
@@ -36,7 +35,7 @@ import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
-import { environment } from "src/environments/environment";
+import { environment, isServiceEnabled } from "src/environments/environment";
 import { ActivatedRoute } from "@angular/router";
 import { Resp } from "src/models/resp";
 import { VFolderBrief } from "src/models/folder";
@@ -45,6 +44,7 @@ import { ImageViewerComponent } from "../image-viewer/image-viewer.component";
 import { onLangChange, translate } from "src/models/translate";
 import { resolveSize } from "../util/file";
 import { MediaStreamerComponent } from "../media-streamer/media-streamer.component";
+import { Option } from "src/models/select-util";
 
 export enum TokenType {
   DOWNLOAD = "DOWNLOAD",
@@ -59,23 +59,11 @@ export enum TokenType {
 })
 export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
-  readonly fantahseaEnabled: boolean =
-    environment.services.find((v) => v.base === "fantahsea") != null;
+  readonly fantahseaEnabled: boolean = isServiceEnabled("fantahsea");
   readonly OWNERSHIP_ALL_FILES = FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES;
   readonly OWNERSHIP_MY_FILES = FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES;
   readonly PRIVATE_GROUP = FileUserGroupEnum.USER_GROUP_PRIVATE;
   readonly PUBLIC_GROUP = FileUserGroupEnum.USER_GROUP_PUBLIC;
-  readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = FILE_USER_GROUP_OPTIONS.map(v => {
-    let t = { ...v }
-    t.name = translate(t.name);
-    return t;
-  });
-  readonly FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] =
-    FILE_OWNERSHIP_OPTIONS.map(v => {
-      let t = { ...v }
-      t.name = translate(t.name);
-      return t;
-    });
   readonly DESKTOP_COLUMNS = [
     "selected",
     "fileType",
@@ -97,9 +85,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   ];
   readonly MOBILE_COLUMNS = ["fileType", "name", "operation"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp", "webp", "apng", "avif"]);
-  readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) =>
-    this._fetchTags()
-  );
+  readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) => this._fetchTags());
+
+  USER_GROUP_OPTIONS: Option<FileUserGroupEnum>[] = [];
+  FILE_OWNERSHIP_OPTIONS: Option<FileOwnershipEnum>[] = [];
+  FILE_TYPE_OPTIONS: Option<FileType>[] = [];
 
   /** expanded fileInfo */
   expandedElement: FileInfo;
@@ -137,9 +127,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /*
   -----------------------
-
+  
   Fantahsea gallery 
-
+  
   -----------------------
   */
 
@@ -152,9 +142,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /*
   -----------------------
-
+  
   Virtual Folders 
-
+  
   -----------------------
   */
 
@@ -171,9 +161,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /*
   -----------------------
-
+  
   Directory
-
+  
   -----------------------
   */
 
@@ -193,9 +183,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /*
   -----------------------
-
+  
   Uploading 
-
+  
   -----------------------
   */
   /** whther the upload panel is expanded */
@@ -221,12 +211,15 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /*
   ----------------------------------
-
+  
   Labels 
-
+  
   ----------------------------------
   */
-  onLangChangeSub = onLangChange.subscribe(() => this.refreshLabel());
+  onLangChangeSub = onLangChange.subscribe(() => {
+    this.refreshLabel();
+    this.fetchFileInfoList();
+  });
   filenameLabel: string;
   withTagsLabel: string;
   userGroupLabel: string;
@@ -272,21 +265,45 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
 
+  setSearchOwnership = (ownership) => this.searchParam.ownership = ownership;
+  setSearchFileType = (fileType) => this.searchParam.fileType = fileType;
+  setSearchUserGroup = (userGroup) => this.searchParam.userGroup = userGroup;
+  setTag = (tag) => this.searchParam.tagName = tag;
+  onAddToGalleryNameChanged = () => this.autoCompAddToGalleryName = this.filterAlike(this.galleryBriefs.map(v => v.name), this.addToGalleryName);
+  onAddToVFolderNameChanged = () => this.autoCompAddToVFolderName = this.filterAlike(this.vfolderBrief.map(v => v.name), this.addToVFolderName);
+  onMoveIntoDirNameChanged = () => this.autoCompMoveIntoDirs = this.filterAlike(this.dirBriefList.map(v => v.name), this.moveIntoDirName);
+  onUploadDirNameChanged = () => this.autoCompUploadDirs = this.filterAlike(this.dirBriefList.map(v => v.name), this.uploadDirName);
+  onIsCompressedChanged = () => this._setDisplayedFileName();
+
   constructor(
     private userService: UserService,
     private notifi: NotificationService,
     private dialog: MatDialog,
     private fileService: FileInfoService,
     private nav: NavigationService,
-    private http: HClient,
+    private hclient: HClient,
     private route: ActivatedRoute
   ) {
-    this.userService.roleObservable.subscribe(
-      (role) => (this.isGuest = role === "guest")
-    );
+    this.userService.roleObservable.subscribe((role) => (this.isGuest = role === "guest"));
   }
 
   refreshLabel(): void {
+    this.USER_GROUP_OPTIONS = FILE_USER_GROUP_OPTIONS.map(v => {
+      let t = { ...v };
+      t.name = translate(t.name);
+      return t;
+    })
+    this.FILE_OWNERSHIP_OPTIONS = FILE_OWNERSHIP_OPTIONS.map(v => {
+      let t = { ...v };
+      t.name = translate(t.name);
+      return t;
+    });
+    this.FILE_TYPE_OPTIONS = FILE_TYPE_OPTIONS.map(v => {
+      let t = { ...v };
+      t.name = translate(t.name);
+      return t;
+    })
+
     this.filenameLabel = translate("filename");
     this.withTagsLabel = translate("withTags");
     this.userGroupLabel = translate("userGroup");
@@ -351,8 +368,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.inFolderName = params.get("folderName");
 
       // directory
-      this.searchParam.parentFileName = params.get("parentDirName");
-      this.inDirFileName = this.searchParam.parentFileName;
+      this.searchParam._parentFileName = params.get("parentDirName");
+      this.inDirFileName = this.searchParam._parentFileName;
       this.searchParam.parentFile = params.get("parentDirKey");
 
       // if we are already in a directory, by default we upload to current directory
@@ -387,7 +404,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
 
     this.newDirName = null;
-    this.http.post(
+    this.hclient.post(
       environment.fileServicePath, "/file/make-dir",
       {
         name: dirName,
@@ -469,7 +486,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
 
     let curr = selected[offset];
-    this.http.post(
+    this.hclient.post(
       environment.fileServicePath, "/file/move-to-dir",
       {
         uuid: curr.uuid,
@@ -511,7 +528,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       parentFileUuid = "";
     }
 
-    this.http.post(
+    this.hclient.post(
       environment.fileServicePath, "/file/move-to-dir",
       {
         uuid: uuid,
@@ -524,7 +541,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** fetch file info list */
   fetchFileInfoList() {
-    this.http.post<FetchFileInfoList>(
+    this.hclient.post<FetchFileInfoList>(
       environment.fileServicePath, "/file/list",
       {
         pagingVo: this.pagingController.paging,
@@ -533,7 +550,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         ownership: this.searchParam.ownership,
         tagName: this.searchParam.tagName,
         folderNo: this.inFolderNo,
-        parentFile: this.searchParam.parentFile
+        parentFile: this.searchParam.parentFile,
+        fileType: this.searchParam.fileType
       }
     ).subscribe({
       next: (resp) => {
@@ -548,7 +566,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         }
 
         this.pagingController.onTotalChanged(resp.data.pagingVo);
-        this.inDirFileName = this.searchParam.parentFileName;
+        this.inDirFileName = this.searchParam._parentFileName;
         this.isAllSelected = false;
         this.selectedCount = 0;
       },
@@ -621,11 +639,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
-  onIsCompressedChanged() {
-    if (!this.uploadParam || !this.uploadParam.files) return;
-    this._setDisplayedFileName();
-  }
-
   /**
    * Convert userGroup in number to the corresponding name
    */
@@ -649,12 +662,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   resetSearchParam(resetParentFile: boolean = false): void {
 
     let prevParentFile = this.searchParam.parentFile
-    let prevParentFileName = this.searchParam.parentFileName
+    let prevParentFileName = this.searchParam._parentFileName
     this.searchParam = {};
 
     if (!resetParentFile) {
       this.searchParam.parentFile = prevParentFile;
-      this.searchParam.parentFileName = prevParentFileName
+      this.searchParam._parentFileName = prevParentFileName
     }
 
     if (this.fantahseaEnabled) this.addToGalleryName = null;
@@ -663,11 +676,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.moveIntoDirName = null;
     this.pagingController.firstPage();
     this.fetchFileInfoList();
-  }
-
-  /** Set userGroup to the searching param */
-  setSearchUserGroup(userGroup: number): void {
-    this.searchParam.userGroup = userGroup;
   }
 
   /**
@@ -687,7 +695,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     dialogRef.afterClosed().subscribe((confirm) => {
       console.log(confirm);
       if (confirm) {
-        this.http.post<any>(
+        this.hclient.post<any>(
           environment.fileServicePath, "/file/delete",
           { uuid: uuid },
         ).subscribe((resp) => {
@@ -696,21 +704,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         });
       }
     });
-  }
-
-  /**
-   * Set ownership of files to the searching param
-   * @param ownership
-   */
-  setSearchOwnership(ownership: number): void {
-    this.searchParam.ownership = ownership;
-  }
-
-  /**
-   * Set tag to the searching param
-   */
-  setTag(tag: string): void {
-    this.searchParam.tagName = tag;
   }
 
   searchNameInputKeyPressed(event: any): void {
@@ -753,7 +746,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   update(u: FileInfo): void {
     if (!u) return;
 
-    this.http.post<any>(
+    this.hclient.post<any>(
       environment.fileServicePath, "/file/info/update",
       {
         id: u.id,
@@ -903,22 +896,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return this.isUploading || this._isBatchUpload();
   }
 
-  onAddToGalleryNameChanged() {
-    this.autoCompAddToGalleryName = this._doAutoCompFilter(this.galleryBriefs.map(v => v.name), this.addToGalleryName);
-  }
-
-  onAddToVFolderNameChanged() {
-    this.autoCompAddToVFolderName = this._doAutoCompFilter(this.vfolderBrief.map(v => v.name), this.addToVFolderName);
-  }
-
-  onMoveIntoDirNameChanged() {
-    this.autoCompMoveIntoDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.moveIntoDirName);
-  }
-
-  onUploadDirNameChanged() {
-    this.autoCompUploadDirs = this._doAutoCompFilter(this.dirBriefList.map(v => v.name), this.uploadDirName);
-  }
-
   addToVirtualFolder() {
 
     const vfolderName = this.addToVFolderName
@@ -962,7 +939,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     if (!fileKeys) return;
 
-    this.http
+    this.hclient
       .post(
         environment.fileServicePath, "/vfolder/file/add",
         {
@@ -1006,7 +983,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     dialogRef.afterClosed().subscribe((confirm) => {
       console.log(confirm);
       if (confirm) {
-        this.http
+        this.hclient
           .post(
             environment.fantahseaPath, "/gallery/image/dir/transfer",
             {
@@ -1048,7 +1025,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return;
     }
 
-    this.http
+    this.hclient
       .post(
         environment.fantahseaPath, "/gallery/image/transfer",
         {
@@ -1095,7 +1072,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
 
     let fileIds = selected.map(f => f.id);
-    this.http.post<void>(environment.fileServicePath, '/file/export-as-zip', {
+    this.hclient.post<void>(environment.fileServicePath, '/file/export-as-zip', {
       fileIds: fileIds
     }).subscribe({
       next: (r) => {
@@ -1119,7 +1096,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** fetch supported file extension */
   private _fetchSupportedExtensions(): void {
-    this.http.get<string[]>(
+    this.hclient.get<string[]>(
       environment.fileServicePath, "/file/extension/name",
     ).subscribe({
       next: (resp) => {
@@ -1133,7 +1110,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _fetchTags(): void {
-    this.http.get<string[]>(
+    this.hclient.get<string[]>(
       environment.fileServicePath, "/file/tag/list/all",
     ).subscribe({
       next: (resp) => {
@@ -1193,8 +1170,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _setDisplayedFileName(): void {
-    const files = this.uploadParam.files;
+    if (this.uploadParam && this.uploadParam.files) return;
 
+    const files = this.uploadParam.files;
     const firstFile: File = files[0];
     if (this._isSingleUpload()) {
       this.displayedUploadName = firstFile.name;
@@ -1359,7 +1337,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       uploadFileCallback();
     } else {
       // preflight check whether the filename exists already
-      this.http.get<boolean>(environment.fileServicePath, `/file/upload/duplication/preflight?fileName=${encodeURIComponent(name)}`)
+      this.hclient.get<boolean>(environment.fileServicePath, `/file/upload/duplication/preflight?fileName=${encodeURIComponent(name)}`)
         .subscribe({
           next: (resp) => {
             let isDuplicate = resp.data;
@@ -1392,7 +1370,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return this.uploadParam.files.length > 1;
   }
 
-  private _doAutoCompFilter(candidates: string[], value: string): string[] {
+  /** filter candidates that contains the value */
+  private filterAlike(candidates: string[], value: string): string[] {
     if (!value) return candidates;
 
     return candidates.filter((option) =>
@@ -1408,7 +1387,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   // fetch dir brief list
   private _fetchDirBriefList() {
-    this.http.get<DirBrief[]>(
+    this.hclient.get<DirBrief[]>(
       environment.fileServicePath, "/file/dir/list",
     ).subscribe({
       next: (resp) => {
@@ -1425,7 +1404,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _fetchOwnedVFolderBrief() {
-    this.http.get<VFolderBrief[]>(
+    this.hclient.get<VFolderBrief[]>(
       environment.fileServicePath, "/vfolder/brief/owned",
     ).subscribe({
       next: (resp) => {
@@ -1436,7 +1415,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _fetchOwnedGalleryBrief() {
-    this.http.get<GalleryBrief[]>(
+    this.hclient.get<GalleryBrief[]>(
       environment.fantahseaPath, "/gallery/brief/owned",
     ).subscribe({
       next: (resp) => {
@@ -1469,7 +1448,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
    * Generate file temporary token
    */
   private generateFileTempToken(id: number, tokenType: TokenType = TokenType.DOWNLOAD): Observable<Resp<string>> {
-    return this.http.post<string>(
+    return this.hclient.post<string>(
       environment.fileServicePath, "/file/token/generate",
       { id: id, tokenType: tokenType },
     );
@@ -1486,5 +1465,4 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       })
       .filter(v => v != null);
   }
-
 }

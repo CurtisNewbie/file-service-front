@@ -97,7 +97,7 @@ const ttable = {
         CN: "文件大小"
     },
     type: {
-        EN: "Type",
+        EN: "File Type",
         CN: "类型"
     },
     selected: {
