@@ -207,7 +207,7 @@
             <ng-container *ngIf="addToGalleryName">
                 <!-- transfer selected to fantahsea -->
                 <button mat-raised-button class="m-2" *ngIf="anySelected"
-                    (click)="transferToGallery()">{{hostOnFantahseaLabel}}</button>
+                    (click)="transferSelectedToGallery()">{{hostOnFantahseaLabel}}</button>
 
                 <!-- transfer dir to fantahsea -->
                 <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="transferDirToGallery()">Host

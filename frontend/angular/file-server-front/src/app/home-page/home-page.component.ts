@@ -989,20 +989,39 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     const addToGalleryNo = this._extractToGalleryNo();
     if (!addToGalleryNo) return;
 
-    this.http
-      .post(
-        environment.fantahseaPath, "/gallery/image/dir/transfer",
-        {
-          fileKey: inDirFileKey,
-          galleryNo: addToGalleryNo
-        },
-      )
-      .subscribe({
-        complete: () => {
-          this.expandedElement = null;
-          this.notifi.toast("Request success! It may take a while.");
+    let msgs = [];
+    msgs.push(`You sure you want to host all images in '${this.inDirFileName}' on gallery '${this.addToGalleryName}'? It may take a while.`);
+    msgs.push("");
+
+    const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
+      this.dialog.open(ConfirmDialogComponent, {
+        width: "500px",
+        data: {
+          title: `Host All Images On Gallery '${this.addToGalleryName}'`,
+          msg: msgs,
+          isNoBtnDisplayed: true,
         },
       });
+
+    dialogRef.afterClosed().subscribe((confirm) => {
+      console.log(confirm);
+      if (confirm) {
+        this.http
+          .post(
+            environment.fantahseaPath, "/gallery/image/dir/transfer",
+            {
+              fileKey: inDirFileKey,
+              galleryNo: addToGalleryNo
+            },
+          )
+          .subscribe({
+            complete: () => {
+              this.expandedElement = null;
+              this.notifi.toast("Request success! It may take a while.");
+            },
+          });
+      }
+    });
   }
 
   onPagingControllerReady(pagingController: PagingController) {
@@ -1011,7 +1030,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.fetchFileInfoList();
   }
 
-  transferToGallery() {
+  transferSelectedToGallery() {
     const addToGalleryNo = this._extractToGalleryNo()
     if (!addToGalleryNo) return;
 
@@ -1122,12 +1141,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         this.selectedTags = [];
       },
     });
-  }
-
-  private _copy(f: FileInfo): FileInfo {
-    if (!f) return null;
-    let copy = { ...f };
-    return copy;
   }
 
   private _concatTempFileDownloadUrl(tempToken: string): string {
