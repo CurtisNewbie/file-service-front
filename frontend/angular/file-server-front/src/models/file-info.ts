@@ -128,7 +128,7 @@ export interface FileUserGroupOption {
 
 export function getFileUserGroupOpts(includesAll: boolean = true): Option<FileUserGroupEnum>[] {
   let l = [];
-  if (includesAll) l.push({ name: "all", value: null });
+  if (includesAll) l.push({ name: translate("all"), value: null });
 
   l.push({ name: translate("privateGroup"), value: FileUserGroupEnum.USER_GROUP_PRIVATE });
   l.push({ name: translate("publicGroup"), value: FileUserGroupEnum.USER_GROUP_PUBLIC });
@@ -144,7 +144,7 @@ export function getFileOwnershipOpts(): Option<FileOwnershipEnum>[] {
 
 export function getFileTypeOpts(includesAll: boolean = true): Option<FileType>[] {
   let l = [];
-  if (includesAll) l.push({ name: "all", value: null });
+  if (includesAll) l.push({ name: translate("all"), value: null });
 
   l.push({ name: translate("file"), value: FileType.FILE });
   l.push({ name: translate("dir"), value: FileType.DIR });
