@@ -1163,7 +1163,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _setDisplayedFileName(): void {
-    if (this.uploadParam && this.uploadParam.files) return;
+    if (!this.uploadParam || !this.uploadParam.files) {
+      return;
+    }
 
     const files = this.uploadParam.files;
     const firstFile: File = files[0];
