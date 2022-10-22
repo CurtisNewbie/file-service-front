@@ -18,11 +18,11 @@ import {
   FileOwnershipEnum,
   FileType,
   FileUserGroupEnum,
-  FILE_OWNERSHIP_OPTIONS,
-  FILE_TYPE_OPTIONS,
-  FILE_USER_GROUP_OPTIONS,
   SearchFileInfoParam,
   UploadFileParam,
+  getFileUserGroupOpts,
+  getFileOwnershipOpts,
+  getFileTypeOpts,
 } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
 import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.component";
@@ -87,12 +87,13 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp", "webp", "apng", "avif"]);
   readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) => this._fetchTags());
 
-  USER_GROUP_OPTIONS: Option<FileUserGroupEnum>[] = [];
-  FILE_OWNERSHIP_OPTIONS: Option<FileOwnershipEnum>[] = [];
-  FILE_TYPE_OPTIONS: Option<FileType>[] = [];
+  userGroupOptsWithAll: Option<FileUserGroupEnum>[] = [];
+  userGroupOpts: Option<FileUserGroupEnum>[] = [];
+  fileOwnershipOpts: Option<FileOwnershipEnum>[] = [];
+  fileTypeOptsWithAll: Option<FileType>[] = [];
 
   /** expanded fileInfo */
-  expandedElement: FileInfo;
+  curr: FileInfo;
   /** file extension name set */
   fileExtSet: Set<string> = new Set();
   /** list of files fetched */
@@ -123,7 +124,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   displayedColumns: string[] = this._selectColumns();
 
   idEquals = isIdEqual;
-  getExpandedEle = (row) => getExpanded(row, this.expandedElement, this.isMobile);
+  getExpandedEle = (row): FileInfo => getExpanded(row, this.curr, this.isMobile);
 
   /*
   -----------------------
@@ -288,21 +289,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   refreshLabel(): void {
-    this.USER_GROUP_OPTIONS = FILE_USER_GROUP_OPTIONS.map(v => {
-      let t = { ...v };
-      t.name = translate(t.name);
-      return t;
-    })
-    this.FILE_OWNERSHIP_OPTIONS = FILE_OWNERSHIP_OPTIONS.map(v => {
-      let t = { ...v };
-      t.name = translate(t.name);
-      return t;
-    });
-    this.FILE_TYPE_OPTIONS = FILE_TYPE_OPTIONS.map(v => {
-      let t = { ...v };
-      t.name = translate(t.name);
-      return t;
-    })
+    this.userGroupOptsWithAll = getFileUserGroupOpts(true);
+    this.userGroupOpts = getFileUserGroupOpts(false);
+    this.fileOwnershipOpts = getFileOwnershipOpts();
+    this.fileTypeOptsWithAll = getFileTypeOpts(true);
 
     this.filenameLabel = translate("filename");
     this.withTagsLabel = translate("withTags");
@@ -422,7 +412,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   // Go into dir, i.e., list files under the directory
   goIntoDir(dir: FileInfo, event: any) {
     event.stopPropagation();
-    this.expandedElement = null;
+    this.curr = null;
     this.nav.navigateTo(NavType.HOME_PAGE, [
       { parentDirName: dir.name, parentDirKey: dir.uuid },
     ]);
@@ -563,6 +553,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           f.isFile = f.fileType == FileType.FILE;
           f.isDir = !f.isFile;
           f.sizeLabel = resolveSize(f.sizeInBytes);
+          f.isFileAndIsOwner = f.isOwner && f.isFile;
+          f.isDirAndIsOwner = f.isOwner && f.isDir;
+          f.isDisplayable = this.isDisplayable(f);
         }
 
         this.pagingController.onTotalChanged(resp.data.pagingVo);
@@ -756,7 +749,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     ).subscribe({
       complete: () => {
         this.fetchFileInfoList();
-        this.expandedElement = null;
+        this.curr = null;
         this.addToGalleryName = null;
       },
     });
@@ -869,7 +862,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     dialogRef.afterClosed().subscribe((confirm) => {
       this._fetchTags();
-      this.expandedElement = null;
+      this.curr = null;
       this.addToGalleryName = null;
     });
   }
@@ -949,7 +942,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       )
       .subscribe({
         complete: () => {
-          this.expandedElement = null;
+          this.curr = null;
           this.fetchFileInfoList();
           this.notifi.toast("Success");
         },
@@ -993,7 +986,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
           )
           .subscribe({
             complete: () => {
-              this.expandedElement = null;
+              this.curr = null;
               this.notifi.toast("Request success! It may take a while.");
             },
           });
@@ -1034,7 +1027,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       )
       .subscribe({
         complete: () => {
-          this.expandedElement = null;
+          this.curr = null;
           this.fetchFileInfoList();
           this.notifi.toast("Request success! It may take a while.");
         },

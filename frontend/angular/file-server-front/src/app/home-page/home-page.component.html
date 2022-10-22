@@ -1,6 +1,8 @@
 <div *ngIf="!isGuest && !inFolderNo && expandUploadPanel">
+
+    <!-- upload param start -->
     <ng-container *ngIf="uploadParam.files != null && uploadParam.files.length > 0">
-        <mat-form-field appearance="fill" style="width: 100%;" class="mt-1 mb-1">
+        <mat-form-field style="width: 100%;" class="mt-1 mb-1">
             <mat-label>{{filenameLabel}}</mat-label>
             <input matInput type="text" id="filenameInput" [(ngModel)]="displayedUploadName"
                 [disabled]="isFileNameInputDisabled()">
@@ -10,15 +12,15 @@
         </mat-form-field>
     </ng-container>
 
-    <div class="input-group input-group-sm mt-1 mb-1">
+    <div class="input-group input-group-lg mt-1 mb-1">
         <input type="file" class="form-control" #uploadFileInput (change)="onFileSelected($event.target.files)"
             aria-describedby="basic-addon1" multiple [disabled]="isUploading">
     </div>
 
     <div class="mt-3 mb-2">
-        <div class="row row-cols-sm-auto g-3 align-items-center">
-            <div class="col-12">
-                <mat-form-field appearance="fill">
+        <div class="row row-cols-lg-auto g-3 align-items-center">
+            <div class="col">
+                <mat-form-field>
                     <mat-label>{{withTagsLabel}}:</mat-label>
                     <mat-select [(value)]="selectedTags" [disabled]="isUploading" multiple>
                         <mat-option [value]="t" *ngFor="let t of tags">
@@ -28,19 +30,19 @@
                 </mat-form-field>
             </div>
 
-            <div class="col-12">
-                <mat-form-field appearance="fill">
+            <div class="col">
+                <mat-form-field>
                     <mat-label>{{userGroupLabel}}</mat-label>
                     <mat-select [(value)]="uploadParam.userGroup" [disabled]="isUploading">
-                        <mat-option [value]="option.value" *ngFor="let option of USER_GROUP_OPTIONS">
+                        <mat-option [value]="option.value" *ngFor="let option of userGroupOpts">
                             {{option.name}}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
 
-            <div class="col-12">
-                <mat-form-field appearance="fill" class="mb-1">
+            <div class="col">
+                <mat-form-field class="mb-1">
                     <mat-label>{{uploadToDirLabel}}:</mat-label>
                     <input matInput type="text" [(ngModel)]="uploadDirName" (ngModelChange)="onUploadDirNameChanged()"
                         [matAutocomplete]="auto0" [disabled]="isUploading || isCompressed || inDirFileName">
@@ -52,7 +54,7 @@
                 </mat-form-field>
             </div>
 
-            <div class="col-12">
+            <div class="col">
                 <button class="ml-2 mr-2" mat-raised-button (click)="upload()" [disabled]="isUploading"
                     *ngIf="!isUploading">
                     {{uploadLabel}}
@@ -61,10 +63,10 @@
                     {{cancelLabel}}
                 </button>
             </div>
-            <div class="col-12">
+            <div class="col">
                 <small style="color: cadetblue;" *ngIf="progress != null">{{progressLabel}}: {{progress}}</small>
             </div>
-            <div class="col-12">
+            <div class="col">
                 <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 1"
                     [matTooltip]="isCompressed ? multiUploadTipLabel : singleUploadTipLabel" matTooltipPosition="below">
                     <mat-checkbox class="m-1" [disabled]="isUploading" [(ngModel)]="isCompressed"
@@ -72,7 +74,7 @@
                     </mat-checkbox>
                 </section>
             </div>
-            <div class="col-12">
+            <div class="col">
                 <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 0 && !isCompressed"
                     [matTooltip]="'Ignore files with duplicate name'" matTooltipPosition="below">
                     <mat-checkbox class="m-1" [disabled]="isUploading" [(ngModel)]="ignoreOnDupName"
@@ -82,6 +84,8 @@
             </div>
         </div>
     </div>
+    <!-- upload param end -->
+
     <span class="mt-2 supportedFileExtLabel" style="color: grey;"
         [matTooltip]="fileExtToolTip()">{{supportedFileExtLabel}}:
         <span>
@@ -92,7 +96,7 @@
 
 <div class="mt-5">
     <h3>{{fileListTitle}}</h3>
-    <div class="mt-3 mb-3 ">
+    <div class="mt-3 mb-3">
         <div *ngIf="inFolderName" class="m-2">
             <mat-card>Folder: '{{inFolderName}}'</mat-card>
         </div>
@@ -102,51 +106,53 @@
             </mat-card>
         </div>
 
-        <!-- search param -->
+        <!-- search param start -->
         <div *ngIf="!isGuest && !inFolderNo && !makingDir">
-            <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-3">
-                <mat-label>{{filenameLabel}}</mat-label>
-                <input matInput type="text" id="searchFilenameInput" [(ngModel)]="searchParam.name"
-                    (keyup)="searchNameInputKeyPressed($event)">
-                <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''"
-                    class="btn-close">
-                </button>
-            </mat-form-field>
             <div class="row row-cols-lg-auto g-3 align-items-center">
-                <div class="col-12">
-                    <mat-form-field appearance="fill">
+                <mat-form-field style="width: 90%;" class="mb-1 mt-3">
+                    <mat-label>{{filenameLabel}}</mat-label>
+                    <input matInput type="text" id="searchFilenameInput" [(ngModel)]="searchParam.name"
+                        (keyup)="searchNameInputKeyPressed($event)">
+                    <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''"
+                        class="btn-close">
+                    </button>
+                </mat-form-field>
+            </div>
+            <div class="row row-cols-lg-auto g-3 align-items-center">
+                <div class="col">
+                    <mat-form-field>
                         <mat-label>{{userGroupLabel}}</mat-label>
                         <mat-select (valueChange)="setSearchUserGroup($event)" [value]="searchParam.userGroup">
-                            <mat-option [value]="option.value" *ngFor="let option of USER_GROUP_OPTIONS">
+                            <mat-option [value]="option.value" *ngFor="let option of userGroupOptsWithAll">
                                 {{option.name}}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
                 </div>
                 <ng-container *ngIf="!inDirFileName">
-                    <div class="col-12">
-                        <mat-form-field appearance="fill">
+                    <div class="col">
+                        <mat-form-field>
                             <mat-label>{{ownerLabel}}</mat-label>
                             <mat-select (valueChange)="setSearchOwnership($event)" [value]="searchParam.ownership">
-                                <mat-option [value]="option.value" *ngFor="let option of FILE_OWNERSHIP_OPTIONS">
+                                <mat-option [value]="option.value" *ngFor="let option of fileOwnershipOpts">
                                     {{option.name}}
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
                     </div>
                 </ng-container>
-                <div class="col-12">
-                    <mat-form-field appearance="fill">
+                <div class="col">
+                    <mat-form-field>
                         <mat-label>{{fileTypeLabel}}</mat-label>
                         <mat-select (valueChange)="setSearchFileType($event)" [value]="searchParam.fileType">
-                            <mat-option [value]="option.value" *ngFor="let option of FILE_TYPE_OPTIONS">
+                            <mat-option [value]="option.value" *ngFor="let option of fileTypeOptsWithAll">
                                 {{option.name}}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <div class="col-12">
-                    <mat-form-field appearance="fill">
+                <div class="col">
+                    <mat-form-field>
                         <mat-label>{{tagsLabel}}</mat-label>
                         <mat-select (valueChange)="setTag($event)" [value]="searchParam.tagName">
                             <mat-option [value]="t" *ngFor="let t of tags">
@@ -156,8 +162,8 @@
                     </mat-form-field>
                 </div>
                 <ng-container *ngIf="fantahseaEnabled">
-                    <div class="col-12">
-                        <mat-form-field appearance="fill">
+                    <div class="col">
+                        <mat-form-field>
                             <mat-label>{{fantahseaGalleryLabel}}</mat-label>
                             <input matInput type="text" [(ngModel)]="addToGalleryName"
                                 (ngModelChange)="onAddToGalleryNameChanged()" [matAutocomplete]="auto2">
@@ -170,8 +176,8 @@
                     </div>
                 </ng-container>
 
-                <div class="col-12">
-                    <mat-form-field appearance="fill">
+                <div class="col">
+                    <mat-form-field>
                         <mat-label>{{virtualFolderLabel}}</mat-label>
                         <input matInput type="text" [(ngModel)]="addToVFolderName"
                             (ngModelChange)="onAddToVFolderNameChanged()" [matAutocomplete]="auto1">
@@ -183,8 +189,8 @@
                     </mat-form-field>
                 </div>
 
-                <div class="col-12">
-                    <mat-form-field appearance="fill" style="width: 100%;" class="mb-1" *ngIf="!isMobile">
+                <div class="col">
+                    <mat-form-field style="width: 100%;" class="mb-1" *ngIf="!isMobile">
                         <mat-label>{{moveIntoDirLabel}}:</mat-label>
                         <input matInput type="text" [(ngModel)]="moveIntoDirName"
                             (ngModelChange)="onMoveIntoDirNameChanged()" [matAutocomplete]="auto1">
@@ -197,11 +203,12 @@
                 </div>
             </div>
         </div>
+        <!-- search param ned -->
 
         <div class="container bootstrap p-3 mt-3 mb-5 shadow" *ngIf="makingDir">
             <h4 class="mt-2 mb-2">{{newDirLabel}}</h4>
 
-            <mat-form-field appearance="fill" style="width: 100%;">
+            <mat-form-field style="width: 100%;">
                 <mat-label>{{dirNameLabel}}</mat-label>
                 <input matInput type="text" [(ngModel)]="newDirName">
                 <button *ngIf="newDirName" class="btn-close" matSuffix aria-label="Clear" (click)="newDirName=''">
@@ -326,110 +333,122 @@
 
             <ng-container matColumnDef="expandedElement">
                 <td mat-cell *matCellDef="let u" [attr.colspan]="displayedColumns.length">
-                    <ng-container *ngIf="expandedElement != null">
-                        <div class="element-detail"
-                            [@detailExpand]="idEquals(u, expandedElement) ? 'expanded' : 'collapsed'">
-                            <div class="container-fluid">
+                    <ng-container *ngIf="curr != null">
+                        <div class="element-detail" [@detailExpand]="idEquals(u, curr) ? 'expanded' : 'collapsed'">
+                            <div class="container-fluid m-2">
+
+                                <!-- first row start -->
                                 <div class="row row-cols-lg-auto g-3 align-items-center">
-                                    <div class="col-12">
-                                        <mat-form-field appearance="fill" style="width: 100%;">
+                                    <div class="col">
+                                        <mat-form-field style="width: 100%;">
                                             <mat-label>Filename</mat-label>
-                                            <input matInput type="text" [(ngModel)]="expandedElement.name"
-                                                [disabled]="!u.isOwner">
+                                            <input matInput type="text" [(ngModel)]="curr.name"
+                                                [disabled]="!curr.isOwner">
                                         </mat-form-field>
                                     </div>
-                                    <ng-container *ngIf="u.isOwner">
-                                        <ng-container *ngIf="u.isFile">
-                                            <div class="col-12">
-                                                <mat-form-field appearance="fill">
-                                                    <mat-label>User Group</mat-label>
-                                                    <mat-select [(value)]="expandedElement.userGroup">
-                                                        <mat-option [value]="option.value"
-                                                            *ngFor="let option of USER_GROUP_OPTIONS">
-                                                            {{option.name}}
-                                                        </mat-option>
-                                                    </mat-select>
-                                                </mat-form-field>
-                                            </div>
-                                            <div class="col-12">
-                                                <button mat-raised-button (click)="update(expandedElement)">
-                                                    Update
-                                                </button>
-                                            </div>
-                                            <div class="col-12">
-                                                <button mat-raised-button (click)="generateTempToken(expandedElement)">
-                                                    Share By Link
-                                                </button>
-                                            </div>
-                                            <div class="col-12">
-                                                <button mat-raised-button (click)="popToGrantAccess(expandedElement)">
-                                                    Grant Access
-                                                </button>
-                                            </div>
-                                        </ng-container>
-                                        <!-- duplicate Update button is just for the ordering positions -->
-                                        <ng-container *ngIf="u.isDir">
-                                            <div class="col-12">
-                                                <button mat-raised-button (click)="update(expandedElement)">
-                                                    Update
-                                                </button>
-                                            </div>
-                                        </ng-container>
-                                        <div class="col-12">
-                                            <button mat-raised-button (click)="deleteFile(u.uuid, u.name)">
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </ng-container>
-                                    <ng-container *ngIf="isDisplayable(expandedElement)">
-                                        <div class="col-12">
-                                            <button mat-raised-button (click)="preview(expandedElement)">
+                                    <ng-container *ngIf="curr.isDisplayable">
+                                        <div class="col">
+                                            <button mat-raised-button (click)="preview(curr)">
                                                 Preview
                                             </button>
                                         </div>
                                     </ng-container>
-                                    <ng-container *ngIf="u.isFile">
-                                        <div class="col-12">
-                                            <button mat-raised-button (click)="popToManageTag(expandedElement)">
+                                    <ng-container *ngIf="curr.isFile">
+                                        <div class="col">
+                                            <button mat-raised-button (click)="popToManageTag(curr)">
                                                 Manage Tags
                                             </button>
                                         </div>
                                     </ng-container>
-                                    <ng-container *ngIf="u.isFile">
-                                        <ng-container *ngIf="u.isOwner">
-                                            <ng-container *ngIf="!inDirFileName">
-                                                <div class="col-12">
-                                                    <mat-form-field appearance="fill" style="width: 100%;" class="mb-1"
-                                                        *ngIf="!isMobile">
-                                                        <mat-label>Move Into Directory:</mat-label>
-                                                        <input matInput type="text" [(ngModel)]="moveIntoDirName"
-                                                            (ngModelChange)="onMoveIntoDirNameChanged()"
-                                                            [matAutocomplete]="auto1">
-                                                        <mat-autocomplete #auto1="matAutocomplete">
-                                                            <mat-option *ngFor="let option of autoCompMoveIntoDirs"
-                                                                [value]="option">
-                                                                {{option}}
-                                                            </mat-option>
-                                                        </mat-autocomplete>
-                                                    </mat-form-field>
-                                                </div>
-                                                <div class="col-12">
-                                                    <button mat-raised-button
-                                                        (click)="doMoveToDir(u.uuid, moveIntoDirName, true)">
-                                                        {{moveIntoDirLabel}}
-                                                    </button>
-                                                </div>
-                                            </ng-container>
-                                            <ng-container *ngIf="inDirFileName">
-                                                <div class="col-12">
-                                                    <button mat-raised-button (click)="doMoveToDir(u.uuid, '', false)">
-                                                        {{moveOutOfDirLabel}}
-                                                    </button>
-                                                </div>
-                                            </ng-container>
-                                        </ng-container>
+
+                                    <!-- duplicate Update button is just for the ordering positions -->
+                                    <ng-container *ngIf="curr.isDirAndIsOwner">
+                                        <div class="col">
+                                            <button mat-raised-button (click)="update(curr)">
+                                                Update
+                                            </button>
+                                        </div>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="curr.isOwner">
+                                        <div class="col">
+                                            <button mat-raised-button (click)="deleteFile(curr.uuid, curr.name)">
+                                                Delete
+                                            </button>
+                                        </div>
                                     </ng-container>
                                 </div>
+                                <!-- first row end -->
+
+                                <!-- second row start -->
+                                <div class="row row-cols-lg-auto g-3 align-items-center">
+                                    <!-- isOwner and isFile start -->
+                                    <ng-container *ngIf="curr.isFileAndIsOwner">
+                                        <div class="col">
+                                            <mat-form-field>
+                                                <mat-label>User Group</mat-label>
+                                                <mat-select [(value)]="curr.userGroup">
+                                                    <mat-option [value]="option.value"
+                                                        *ngFor="let option of userGroupOpts">
+                                                        {{option.name}}
+                                                    </mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                        <div class="col">
+                                            <button mat-raised-button (click)="update(curr)">
+                                                Update
+                                            </button>
+                                        </div>
+                                        <div class="col">
+                                            <button mat-raised-button (click)="generateTempToken(curr)">
+                                                Share By Link
+                                            </button>
+                                        </div>
+                                        <div class="col">
+                                            <button mat-raised-button (click)="popToGrantAccess(curr)">
+                                                Grant Access
+                                            </button>
+                                        </div>
+                                        <ng-container *ngIf="inDirFileName">
+                                            <div class="col">
+                                                <button mat-raised-button (click)="doMoveToDir(curr.uuid, '', false)">
+                                                    {{moveOutOfDirLabel}}
+                                                </button>
+                                            </div>
+                                        </ng-container>
+                                    </ng-container>
+                                    <!-- isOwner and isFile end -->
+                                </div>
+                                <!-- second row end -->
+
+                                <!-- third row start -->
+                                <ng-container *ngIf="curr.isFileAndIsOwner && !inDirFileName">
+                                    <div class="row row-cols-lg-auto g-3 align-items-center">
+                                        <div class="col">
+                                            <mat-form-field style="width: 100%;" class="mb-1" *ngIf="!isMobile">
+                                                <mat-label>Move Into Directory:</mat-label>
+                                                <input matInput type="text" [(ngModel)]="moveIntoDirName"
+                                                    (ngModelChange)="onMoveIntoDirNameChanged()"
+                                                    [matAutocomplete]="auto1">
+                                                <mat-autocomplete #auto1="matAutocomplete">
+                                                    <mat-option *ngFor="let option of autoCompMoveIntoDirs"
+                                                        [value]="option">
+                                                        {{option}}
+                                                    </mat-option>
+                                                </mat-autocomplete>
+                                            </mat-form-field>
+                                        </div>
+                                        <div class="col">
+                                            <button mat-raised-button
+                                                (click)="doMoveToDir(curr.uuid, moveIntoDirName, true)">
+                                                {{moveIntoDirLabel}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <!-- third row end -->
+
                             </div>
                         </div>
                     </ng-container>
@@ -439,7 +458,7 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns">
             </tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"
-                [class.expanded-row]="idEquals(row, expandedElement)" (click)="expandedElement = getExpandedEle(row)">
+                [class.expanded-row]="idEquals(row, curr)" (click)="curr = getExpandedEle(row)">
             </tr>
             <tr mat-row *matRowDef="let element; columns: ['expandedElement'];" class="detail-row">
         </table>

@@ -243,6 +243,10 @@ const ttable = {
     moveOutOfDir: {
         EN: 'Move Out Of Directory',
         CN: '移出目录'
+    },
+    all: {
+        EN: 'All',
+        CN: '全部'
     }
 }
 

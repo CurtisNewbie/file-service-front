@@ -1,7 +1,7 @@
 <div class="container bootstrap p-3 mt-3 mb-5 shadow" *ngIf="creatingFolder">
     <h4 class="mt-2 mb-2">New Folder</h4>
 
-    <mat-form-field appearance="fill" style="width: 100%;">
+    <mat-form-field style="width: 100%;">
         <mat-label>Folder Name</mat-label>
         <input matInput type="text" [(ngModel)]="newFolderName">
         <button *ngIf="newFolderName" class="btn-close" matSuffix aria-label="Clear" (click)="newFolderName=''">
@@ -13,7 +13,7 @@
     </div>
 </div>
 
-<mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-3">
+<mat-form-field style="width: 100%;" class="mb-1 mt-3">
     <mat-label>Virtual Folder Name:</mat-label>
     <input matInput type="text" [(ngModel)]="searchParam.name">
     <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''" class="btn-close">

@@ -1,5 +1,6 @@
 import { Paging } from "./paging";
 import { Option } from "./select-util";
+import { translate } from "./translate";
 
 export interface FileInfo {
   /**
@@ -72,6 +73,10 @@ export interface FileInfo {
    * whether fileType == 'DIR'
    */
   isDir: boolean;
+
+  isFileAndIsOwner: boolean;
+  isDirAndIsOwner: boolean;
+  isDisplayable: boolean;
 }
 
 export enum FileType {
@@ -121,22 +126,31 @@ export interface FileUserGroupOption {
   value: FileUserGroupEnum | number;
 }
 
-export const FILE_USER_GROUP_OPTIONS: Option<FileUserGroupEnum>[] = [
-  { name: "All", value: null },
-  { name: "privateGroup", value: FileUserGroupEnum.USER_GROUP_PRIVATE },
-  { name: "publicGroup", value: FileUserGroupEnum.USER_GROUP_PUBLIC },
-];
+export function getFileUserGroupOpts(includesAll: boolean = true): Option<FileUserGroupEnum>[] {
+  let l = [];
+  if (includesAll) l.push({ name: "all", value: null });
 
-export const FILE_OWNERSHIP_OPTIONS: Option<FileOwnershipEnum>[] = [
-  { name: "allFiles", value: FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES },
-  { name: "myFiles", value: FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES },
-];
+  l.push({ name: translate("privateGroup"), value: FileUserGroupEnum.USER_GROUP_PRIVATE });
+  l.push({ name: translate("publicGroup"), value: FileUserGroupEnum.USER_GROUP_PUBLIC });
+  return l;
+}
 
-export const FILE_TYPE_OPTIONS: Option<FileType>[] = [
-  { name: "All", value: null },
-  { name: "file", value: FileType.FILE },
-  { name: "dir", value: FileType.DIR }
-]
+export function getFileOwnershipOpts(): Option<FileOwnershipEnum>[] {
+  return [
+    { name: translate("allFiles"), value: FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES },
+    { name: translate("myFiles"), value: FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES },
+  ]
+}
+
+export function getFileTypeOpts(includesAll: boolean = true): Option<FileType>[] {
+  let l = [];
+  if (includesAll) l.push({ name: "all", value: null });
+
+  l.push({ name: translate("file"), value: FileType.FILE });
+  l.push({ name: translate("dir"), value: FileType.DIR });
+  return l;
+}
+
 
 /** Brief info for DIR type file */
 export interface DirBrief {
