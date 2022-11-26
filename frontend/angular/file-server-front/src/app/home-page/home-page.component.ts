@@ -413,6 +413,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   goIntoDir(dir: FileInfo, event: any) {
     event.stopPropagation();
     this.curr = null;
+    this.resetSearchParam();
     this.nav.navigateTo(NavType.HOME_PAGE, [
       { parentDirName: dir.name, parentDirKey: dir.uuid },
     ]);
