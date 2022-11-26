@@ -325,14 +325,17 @@
                 <td mat-cell *matCellDef="let f">
                     <!-- download / preview -->
                     <ng-container *ngIf="f.isFile">
-                        <a (click)="$event.stopPropagation() || jumpToDownloadUrl(f.id)"><small>{{downloadLabel}}</small></a>
-                        <ng-container *ngIf="isMobile && f.isDisplayable">
-                            <br> <a (click)="$event.stopPropagation() || preview(f)"><small>{{previewLabel}}</small></a>
+                        <a class="m-2"
+                            (click)="$event.stopPropagation() || jumpToDownloadUrl(f.id)"><small>{{downloadLabel}}</small></a>
+                        <ng-container *ngIf="f.isDisplayable">
+                            <a class="m-2"
+                                (click)="$event.stopPropagation() || preview(f)"><small>{{previewLabel}}</small></a>
                         </ng-container>
                     </ng-container>
                     <!-- Go into dir  -->
                     <ng-container *ngIf="f.isDir">
-                        <a class="mt-1" (click)="$event.stopPropagation() || goIntoDir(f)"><small>{{goIntoLabel}}</small></a>
+                        <a class="m-2"
+                            (click)="$event.stopPropagation() || goIntoDir(f)"><small>{{goIntoLabel}}</small></a>
                     </ng-container>
                 </td>
             </ng-container>

@@ -33,12 +33,7 @@ export class ImageViewerComponent implements OnInit, OnDestroy {
     _lbConfig.fadeDuration = 0.1;
     _lbConfig.showRotate = false;
     _lbConfig.fitImageInViewPort = true;
-  }
 
-  ngOnDestroy(): void {
-  }
-
-  ngOnInit() {
     this.lbsub = this._lightboxEvent.lightboxEvent$.subscribe((evt: any) => {
       if (evt.id === LIGHTBOX_EVENT.CLOSE) {
         this.lbsub.unsubscribe();
@@ -53,5 +48,10 @@ export class ImageViewerComponent implements OnInit, OnDestroy {
     }], 0, {});
   }
 
+  ngOnDestroy(): void {
+  }
+
+  ngOnInit() {
+  }
 
 }
