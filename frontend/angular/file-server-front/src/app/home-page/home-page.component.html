@@ -112,7 +112,7 @@
                 <mat-form-field style="width: 90%;" class="mb-1 mt-3">
                     <mat-label>{{filenameLabel}}</mat-label>
                     <input matInput type="text" id="searchFilenameInput" [(ngModel)]="searchParam.name"
-                        (keyup)="searchNameInputKeyPressed($event)">
+                        (keyup)="isEnterKeyPressed($event) && fetchFileInfoList()">
                     <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''"
                         class="btn-close">
                     </button>
@@ -205,12 +205,14 @@
         </div>
         <!-- search param ned -->
 
+
+        <!-- create directory  -->
         <div class="container bootstrap p-3 mt-3 mb-5 shadow" *ngIf="makingDir">
             <h4 class="mt-2 mb-2">{{newDirLabel}}</h4>
 
             <mat-form-field style="width: 100%;">
                 <mat-label>{{dirNameLabel}}</mat-label>
-                <input matInput type="text" [(ngModel)]="newDirName">
+                <input matInput type="text" (keyup)="isEnterKeyPressed($event) && mkdir()" [(ngModel)]="newDirName">
                 <button *ngIf="newDirName" class="btn-close" matSuffix aria-label="Clear" (click)="newDirName=''">
                 </button>
             </mat-form-field>
@@ -274,7 +276,7 @@
                 <th mat-header-cell *matHeaderCellDef> <span (click)="selectAllFiles()">{{selectedLabel}}</span> </th>
                 <td mat-cell *matCellDef="let f">
                     <mat-checkbox [checked]="f._selected" (change)="selectFile($event, f)"
-                        (click)="$event.stopPropagation();" ></mat-checkbox>
+                        (click)="$event.stopPropagation();"></mat-checkbox>
                 </td>
             </ng-container>
 
@@ -323,9 +325,14 @@
                 <td mat-cell *matCellDef="let f">
                     <ng-container *ngIf="f.isFile">
                         <a (click)="jumpToDownloadUrl(f.id, $event)"><small>{{downloadLabel}}</small></a>
+
+                        <ng-container *ngIf="isMobile && f.isDisplayable">
+                            <br>
+                            <a (click)="preview(f)"><small>{{previewLabel}}</small></a>
+                        </ng-container>
                     </ng-container>
                     <ng-container *ngIf="f.isDir">
-                        <a (click)="goIntoDir(f, $event)"><small>{{goIntoLabel}}</small></a>
+                        <a class="mt-1" (click)="goIntoDir(f, $event)"><small>{{goIntoLabel}}</small></a>
                     </ng-container>
                 </td>
             </ng-container>
@@ -347,8 +354,7 @@
                                     </div>
                                     <ng-container *ngIf="curr.isDisplayable">
                                         <div class="col">
-                                            <button mat-raised-button (click)="preview(curr)">
-                                                Preview
+                                            <button mat-raised-button (click)="preview(curr)"> {{previewLabel}}
                                             </button>
                                         </div>
                                     </ng-container>

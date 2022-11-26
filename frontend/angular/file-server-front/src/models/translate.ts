@@ -20,6 +20,10 @@ export function getLLang(): LLang {
 }
 
 const ttable = {
+    preview: {
+        EN: "Preview",
+        CN: "展示"
+    },
     leaveDir: {
         EN: "Leave Directory",
         CN: "离开文件夹"

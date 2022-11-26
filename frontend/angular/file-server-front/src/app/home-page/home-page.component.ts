@@ -45,6 +45,7 @@ import { onLangChange, translate } from "src/models/translate";
 import { resolveSize } from "../util/file";
 import { MediaStreamerComponent } from "../media-streamer/media-streamer.component";
 import { Option } from "src/models/select-util";
+import { isEnterKey } from "../util/condition";
 
 export enum TokenType {
   DOWNLOAD = "DOWNLOAD",
@@ -127,6 +128,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   isImage = (f: FileInfo): boolean => this._isImage(f);
   idEquals = isIdEqual;
   getExpandedEle = (row): FileInfo => getExpanded(row, this.curr, this.isMobile);
+  isEnterKeyPressed = isEnterKey;
 
   /*
   -----------------------
@@ -265,6 +267,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   moveIntoDirLabel: string;
   moveOutOfDirLabel: string;
   leaveDirLabel: string;
+  previewLabel: string;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
@@ -339,6 +342,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.moveIntoDirLabel = translate('moveIntoDir');
     this.moveOutOfDirLabel = translate('moveOutOfDir');
     this.leaveDirLabel = translate('leaveDir');
+    this.previewLabel = translate('preview')
   }
 
   ngDoCheck(): void {
@@ -702,13 +706,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         });
       }
     });
-  }
-
-  searchNameInputKeyPressed(event: any): void {
-    if (event.key === "Enter") {
-      console.log("Pressed 'Enter' key, init search file list procedure");
-      this.fetchFileInfoList();
-    }
   }
 
   fileExtToolTip(): string {
