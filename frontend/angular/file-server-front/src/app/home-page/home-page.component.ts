@@ -418,8 +418,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   // Go into dir, i.e., list files under the directory
-  goIntoDir(dir: FileInfo, event: any) {
-    event.stopPropagation();
+  goIntoDir(dir: FileInfo) {
     this.curr = null;
     this.resetSearchParam();
     this.nav.navigateTo(NavType.HOME_PAGE, [
@@ -873,8 +872,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
    * Fetch download url and open it in a new tab
    * @param fileId
    */
-  jumpToDownloadUrl(fileId: number, event: any): void {
-    event.stopPropagation();
+  jumpToDownloadUrl(fileId: number): void {
     this.generateFileTempToken(fileId).subscribe({
       next: (resp) => {
         const token = resp.data;
