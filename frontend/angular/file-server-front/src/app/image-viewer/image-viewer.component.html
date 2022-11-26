@@ -1,8 +1,9 @@
 <div>
-    <div *ngIf="!data.name" class="ml-5 mr-5 alert alert-secondary">
-        No Image selected. Consider picking one to preview?
-    </div>
-    <div mat-dialog-content class="imgdiv">
-        <img [src]="data.url" [alt]="'Rendered - ' + data.name" />
+    <ng-container *ngIf="!data.name">
+        <div class="ml-5 mr-5 alert alert-secondary">
+            No Image selected. Consider picking one to preview?
+        </div>
+    </ng-container>
+    <div id="lightboxdiv">
     </div>
 </div>

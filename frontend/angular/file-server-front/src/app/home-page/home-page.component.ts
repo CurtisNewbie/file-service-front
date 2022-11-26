@@ -800,7 +800,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
             this.dialog.open(ImageViewerComponent, {
               data: {
                 name: u.name,
-                url: getDownloadUrl()
+                url: getDownloadUrl(),
+                isMobile: this.isMobile
               },
             });
           }
