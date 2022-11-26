@@ -262,8 +262,7 @@
                 (click)="exportAsZip()">{{exportAsZipLabel}}</button>
 
             <!-- go back -->
-            <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="leaveDir()">Go
-                Back</button>
+            <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="leaveDir()">{{leaveDirLabel}}</button>
 
             <button mat-raised-button class="m-2" (click)="fetchFileInfoList()">{{fetchLabel}}</button>
             <button mat-raised-button class="m-2" (click)="resetSearchParam()">{{resetLabel}}</button>
@@ -275,7 +274,7 @@
                 <th mat-header-cell *matHeaderCellDef> <span (click)="selectAllFiles()">{{selectedLabel}}</span> </th>
                 <td mat-cell *matCellDef="let f">
                     <mat-checkbox [checked]="f._selected" (change)="selectFile($event, f)"
-                        (click)="$event.stopPropagation();" [disabled]="!f.isFile"></mat-checkbox>
+                        (click)="$event.stopPropagation();" ></mat-checkbox>
                 </td>
             </ng-container>
 

@@ -20,6 +20,10 @@ export function getLLang(): LLang {
 }
 
 const ttable = {
+    leaveDir: {
+        EN: "Leave Directory",
+        CN: "离开文件夹"
+    },
     filename: {
         EN: "Filename",
         CN: "文件名"

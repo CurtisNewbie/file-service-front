@@ -123,6 +123,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** currently displayed columns */
   displayedColumns: string[] = this._selectColumns();
 
+  isOwner = (f: FileInfo): boolean => f.isOwner;
+  isImage = (f: FileInfo): boolean => this._isImage(f);
   idEquals = isIdEqual;
   getExpandedEle = (row): FileInfo => getExpanded(row, this.curr, this.isMobile);
 
@@ -262,6 +264,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   exportAsZipLabel: string;
   moveIntoDirLabel: string;
   moveOutOfDirLabel: string;
+  leaveDirLabel: string;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
@@ -335,6 +338,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.exportAsZipLabel = translate('exportAsZip');
     this.moveIntoDirLabel = translate('moveIntoDir');
     this.moveOutOfDirLabel = translate('moveOutOfDir');
+    this.leaveDirLabel = translate('leaveDir');
   }
 
   ngDoCheck(): void {
@@ -434,7 +438,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       key = "";
     }
 
-    const selected = this.filterSelected(true, false);
+    const selected = this.filterSelected(this.isOwner);
     if (!selected || selected.length < 1) {
       this.notifi.toast("Please select files first");
       return;
@@ -1005,7 +1009,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     const addToGalleryNo = this._extractToGalleryNo()
     if (!addToGalleryNo) return;
 
-    let selected = this.filterSelected(true, true)
+    let selected = this.filterSelected(this.isOwner, this.isImage)
       .map((f) => {
         return {
           name: f.name,
@@ -1036,12 +1040,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   selectFile(event: any, f: FileInfo) {
-    if (f.isFile) {
-      const isChecked = event.checked;
-      f._selected = isChecked;
-      let delta = isChecked ? 1 : -1;
-      this.selectedCount += delta;
-    }
+    const isChecked = event.checked;
+    f._selected = isChecked;
+    let delta = isChecked ? 1 : -1;
+    this.selectedCount += delta;
   }
 
   selectAllFiles() {
@@ -1059,7 +1061,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   exportAsZip() {
-    let selected = this.filterSelected(true, false);
+    let selected = this.filterSelected(this.isOwner);
     if (!selected) {
       this.notifi.toast("Please select files first")
       return;
@@ -1451,12 +1453,14 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   /** Filter selected files */
-  private filterSelected(ownerRequired: boolean, imageRequired: boolean): FileInfo[] {
+  private filterSelected(...predicates): FileInfo[] {
     return this.fileInfoList
       .map((v) => {
         if (!v._selected) return null;
-        if (ownerRequired && !v.isOwner) return null;
-        if (imageRequired && !this._isImage(v)) return null;
+        for (let p of predicates) {
+          if (!p(v)) return null;
+        }
+
         return v;
       })
       .filter(v => v != null);
