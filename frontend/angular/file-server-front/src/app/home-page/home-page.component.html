@@ -355,12 +355,12 @@
                                                 [disabled]="!curr.isOwner">
                                         </mat-form-field>
                                     </div>
-                                    <ng-container *ngIf="curr.isDisplayable">
+                                    <!-- <ng-container *ngIf="curr.isDisplayable">
                                         <div class="col">
                                             <button mat-raised-button (click)="preview(curr)"> {{previewLabel}}
                                             </button>
                                         </div>
-                                    </ng-container>
+                                    </ng-container> -->
                                     <ng-container *ngIf="curr.isFile">
                                         <div class="col">
                                             <button mat-raised-button (click)="popToManageTag(curr)">

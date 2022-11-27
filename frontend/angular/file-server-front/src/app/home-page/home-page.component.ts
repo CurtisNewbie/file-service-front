@@ -86,7 +86,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   ];
   readonly MOBILE_COLUMNS = ["fileType", "name", "operation"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp", "webp", "apng", "avif"]);
-  readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) => this._fetchTags());
+  // readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) => this._fetchTags());
 
   userGroupOptsWithAll: Option<FileUserGroupEnum>[] = [];
   userGroupOpts: Option<FileUserGroupEnum>[] = [];
@@ -352,7 +352,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngOnDestroy(): void {
-    this.fetchTagTimerSub.unsubscribe();
+    // this.fetchTagTimerSub.unsubscribe();
     this.onLangChangeSub.unsubscribe();
   }
 

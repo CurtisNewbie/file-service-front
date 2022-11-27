@@ -22,7 +22,7 @@ export function getLLang(): LLang {
 const ttable = {
     preview: {
         EN: "Preview",
-        CN: "展示"
+        CN: "预览"
     },
     leaveDir: {
         EN: "Leave Directory",
