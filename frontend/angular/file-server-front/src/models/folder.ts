@@ -5,13 +5,13 @@ export interface VFolder {
   id: number;
 
   /** when the record is created */
-  createTime: string;
+  createTime: Date;
 
   /** who created this record */
   createBy: string;
 
   /** when the record is updated */
-  updateTime: string;
+  updateTime: Date;
 
   /** who updated this record */
   updateBy: string;
@@ -25,12 +25,6 @@ export interface VFolder {
   /** ownership */
   ownership: string;
 }
-
-export interface FolderListResp {
-  payload: VFolder[];
-  pagingVo: Paging;
-}
-
 
 export interface VFolderBrief {
   /** folder no */

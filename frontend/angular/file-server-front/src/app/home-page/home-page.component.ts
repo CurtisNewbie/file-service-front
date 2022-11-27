@@ -13,7 +13,6 @@ import { Observable, Subscription, timer } from "rxjs";
 import {
   DirBrief,
   emptyUploadFileParam,
-  FetchFileInfoList,
   FileInfo,
   FileOwnershipEnum,
   FileType,
@@ -539,7 +538,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** fetch file info list */
   fetchFileInfoList() {
-    this.hclient.post<FetchFileInfoList>(
+    this.hclient.post<any>(
       environment.fileServicePath, "/file/list",
       {
         pagingVo: this.pagingController.paging,
@@ -553,17 +552,22 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       }
     ).subscribe({
       next: (resp) => {
-        this.fileInfoList = resp.data.payload;
-        for (let f of this.fileInfoList) {
-          if (f.fileType) {
-            f.fileTypeLabel = translate(f.fileType.toLowerCase());
+        this.fileInfoList = [];
+        if (resp.data.payload) {
+          for (let f of resp.data.payload) {
+            if (f.fileType) {
+              f.fileTypeLabel = translate(f.fileType.toLowerCase());
+            }
+            f.isFile = f.fileType == FileType.FILE;
+            f.isDir = !f.isFile;
+            f.sizeLabel = resolveSize(f.sizeInBytes);
+            f.isFileAndIsOwner = f.isOwner && f.isFile;
+            f.isDirAndIsOwner = f.isOwner && f.isDir;
+            f.isDisplayable = this.isDisplayable(f);
+            f.updateTime = new Date(f.updateTime);
+            f.uploadTime = new Date(f.uploadTime);
+            this.fileInfoList.push(f);
           }
-          f.isFile = f.fileType == FileType.FILE;
-          f.isDir = !f.isFile;
-          f.sizeLabel = resolveSize(f.sizeInBytes);
-          f.isFileAndIsOwner = f.isOwner && f.isFile;
-          f.isDirAndIsOwner = f.isOwner && f.isDir;
-          f.isDisplayable = this.isDisplayable(f);
         }
 
         this.pagingController.onTotalChanged(resp.data.pagingVo);

@@ -20,7 +20,7 @@ export interface FileInfo {
   uploaderName: string;
 
   /** upload time */
-  uploadTime: string;
+  uploadTime: Date;
 
   /**
    * size in bytes
@@ -43,7 +43,7 @@ export interface FileInfo {
   fileType: FileType;
 
   /** Update time */
-  updateTime: string;
+  updateTime: Date;
 
   /*
     ---------------------------
@@ -110,15 +110,6 @@ export enum FileOwnershipEnum {
   FILE_OWNERSHIP_ALL_FILES = 0,
   /** my files  */
   FILE_OWNERSHIP_MY_FILES = 1,
-}
-
-/** Response model for fetching file info list */
-export interface FetchFileInfoList {
-  /** list of file info */
-  payload: FileInfo[];
-
-  /** paging vo */
-  pagingVo: Paging;
 }
 
 export interface FileUserGroupOption {
@@ -237,11 +228,6 @@ export interface UpdateFileUserGroupParam {
   name: string;
 }
 
-export interface ListGrantedAccessResp {
-  list: FileAccessGranted[];
-  pagingVo: Paging;
-}
-
 export interface FileAccessGranted {
   /** id of this file_sharing record */
   id: number;
@@ -250,7 +236,7 @@ export interface FileAccessGranted {
   /** user who is granted access to this file*/
   username: string;
   /** the date that this access is granted */
-  createDate: string;
+  createDate: Date;
   /** the access is granted by */
   createdBy: string;
 }
@@ -262,7 +248,7 @@ export interface Tag {
   name: string;
 
   /** when the record is created */
-  createTime: string;
+  createTime: Date;
 
   /** who created this record */
   createBy: string;

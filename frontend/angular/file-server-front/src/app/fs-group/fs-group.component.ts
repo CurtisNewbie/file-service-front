@@ -96,10 +96,18 @@ export class FsGroupComponent implements OnInit {
       },
     ).subscribe({
       next: (resp) => {
-        this.fsGroups = resp.data.payload.map(f => {
-          f.sizeLabel = resolveSize(f.size);
-          return f;
-        });
+        this.fsGroups = [];
+        if (resp.data.payload) {
+          this.fsGroups = [];
+          if (resp.data.payload) {
+            this.fsGroups = resp.data.payload.map(f => {
+              f.createTime = new Date(f.createTime);
+              f.scanTime = new Date(f.scanTime);
+              f.sizeLabel = resolveSize(f.size);
+              return f;
+            });
+          }
+        }
         this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });

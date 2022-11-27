@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import {
   emptySearchFileExtParam,
-  FetchFileExtList,
   FileExt,
   FileExtIsEnabled,
   FileExtIsEnabledOption,
@@ -68,12 +67,19 @@ export class ManageExtensionComponent implements OnInit {
     }
     this.searchParam.pagingVo = this.pagingController.paging;
 
-    this.http.post<FetchFileExtList>(
+    this.http.post<any>(
       environment.fileServicePath, "/file/extension/list",
       this.searchParam,
     ).subscribe({
       next: (resp) => {
-        this.fileExt = resp.data.payload;
+        this.fileExt = [];
+        if (resp.data.payload) {
+          for (let r of resp.data.payload) {
+            r.updateTime = new Date(r.updateTime);
+            r.createTime = new Date(r.createTime);
+            this.fileExt.push(r);
+          }
+        }
         this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });

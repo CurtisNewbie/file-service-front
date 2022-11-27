@@ -41,7 +41,7 @@
             <span>&nbsp;&nbsp;By: {{folder.createBy}}</span>
         </p>
         <p matLine>
-            <span>&nbsp;&nbsp;{{folder.createTime}}</span>
+            <span>&nbsp;&nbsp;{{folder.createTime | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
         </p>
         <p matLine>
             <span>&nbsp;&nbsp;Folder No: {{folder.folderNo}}</span>

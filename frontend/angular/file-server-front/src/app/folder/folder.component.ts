@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { environment } from "src/environments/environment";
-import { VFolder, FolderListResp } from "src/models/folder";
+import { VFolder } from "src/models/folder";
 import { Paging, PagingController } from "src/models/paging";
 import { Resp } from "src/models/resp";
 import { NavigationService, NavType } from "../navigation.service";
@@ -42,14 +42,21 @@ export class FolderComponent implements OnInit {
   fetchFolders(): void {
     this.searchParam.pagingVo = this.pagingController.paging;
     this.http
-      .post<Resp<FolderListResp>>(
+      .post<Resp<any>>(
         buildApiPath("/vfolder/list", environment.fileServicePath),
         this.searchParam,
         buildOptions()
       )
       .subscribe({
         next: (resp) => {
-          this.folders = resp.data.payload;
+          this.folders = [];
+          if (resp.data.payload) {
+            this.folders = resp.data.payload.map(r => {
+              r.createTime = new Date(r.createTime);
+              r.updateTime = new Date(r.updateTime);
+              return r;
+            });
+          }
           this.pagingController.onTotalChanged(resp.data.pagingVo);
         },
       });
@@ -75,7 +82,6 @@ export class FolderComponent implements OnInit {
       )
       .subscribe({
         next: (resp) => {
-          console.log("Created folder, ", resp.data);
           this.fetchFolders();
           this.newFolderName = "";
         },

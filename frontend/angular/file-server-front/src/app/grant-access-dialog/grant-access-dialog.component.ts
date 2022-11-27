@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { environment } from "src/environments/environment";
-import { FileAccessGranted, ListGrantedAccessResp } from "src/models/file-info";
+import { FileAccessGranted } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
 import { NotificationService } from "../notification.service";
 import { HClient } from "../util/api-util";
@@ -66,7 +66,7 @@ export class GrantAccessDialogComponent implements OnInit {
   }
 
   fetchAccessGranted() {
-    this.http.post<ListGrantedAccessResp>(
+    this.http.post<any>(
       environment.fileServicePath, "/file/list-granted-access",
       {
         fileId: this.data.fileId,
@@ -74,7 +74,13 @@ export class GrantAccessDialogComponent implements OnInit {
       },
     ).subscribe({
       next: (resp) => {
-        this.grantedAccesses = resp.data.list;
+        this.grantedAccesses = [];
+        if (resp.data.list) {
+          for (let g of resp.data.list) {
+            g.createDate = new Date(g.createDate);
+            this.grantedAccesses.push(g);
+          }
+        }
         this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });

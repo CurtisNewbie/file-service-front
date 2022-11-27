@@ -19,17 +19,11 @@ export interface FileExt {
 
   createBy: string;
 
-  createTime: string;
+  createTime: Date;
 
   updateBy: string;
 
-  updateTime: string;
-}
-
-export interface FetchFileExtList {
-  payload: FileExt[];
-
-  pagingVo: Paging;
+  updateTime: Date;
 }
 
 export enum FileExtIsEnabled {
