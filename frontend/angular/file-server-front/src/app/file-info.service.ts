@@ -58,12 +58,15 @@ export class FileInfoService {
     uploadParam: UploadFileParam
   ): Observable<HttpEvent<any>> {
     let headers = new HttpHeaders()
-      .append("parentFile", encodeURI(uploadParam.parentFile))
       .append("fileName", encodeURI(uploadParam.fileName))
       .append("Authorization", getToken())
       .append("userGroup", uploadParam.userGroup.toString())
       .append("ignoreOnDupName", uploadParam.ignoreOnDupName.toString())
       .append("Content-Type", "application/octet-stream");
+
+    if (uploadParam.parentFile) {
+      headers = headers.append("parentFile", encodeURI(uploadParam.parentFile));
+    }
 
     if (uploadParam.tags) headers = headers.append("tag", uploadParam.tags);
 
