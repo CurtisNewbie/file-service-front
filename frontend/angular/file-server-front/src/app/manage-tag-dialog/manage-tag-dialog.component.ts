@@ -65,12 +65,18 @@ export class ManageTagDialogComponent implements OnInit {
   }
 
   fetchTags(): void {
-    this.http.post<ListTagsForFileResp>(
+    this.http.post<any>(
       environment.fileServicePath, "/file/tag/list-for-file",
       { fileId: this.data.fileId, pagingVo: this.pagingController.paging },
     ).subscribe({
       next: (resp) => {
-        this.tags = resp.data.payload;
+        this.tags = [];
+        if (resp.data.payload) {
+          for (let r of resp.data.payload) {
+            if (r.createTime) r.createTime = new Date(r.createTime);
+            this.tags.push(r);
+          }
+        }
         this.pagingController.onTotalChanged(resp.data.pagingVo);
       },
     });

@@ -75,8 +75,8 @@ export class ManageExtensionComponent implements OnInit {
         this.fileExt = [];
         if (resp.data.payload) {
           for (let r of resp.data.payload) {
-            r.updateTime = new Date(r.updateTime);
-            r.createTime = new Date(r.createTime);
+            if (r.updateTime) r.updateTime = new Date(r.updateTime);
+            if (r.createTime) r.createTime = new Date(r.createTime);
             this.fileExt.push(r);
           }
         }

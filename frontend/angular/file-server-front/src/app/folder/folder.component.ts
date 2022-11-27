@@ -52,8 +52,8 @@ export class FolderComponent implements OnInit {
           this.folders = [];
           if (resp.data.payload) {
             this.folders = resp.data.payload.map(r => {
-              r.createTime = new Date(r.createTime);
-              r.updateTime = new Date(r.updateTime);
+              if (r.createTime) r.createTime = new Date(r.createTime);
+              if (r.updateTime) r.updateTime = new Date(r.updateTime);
               return r;
             });
           }

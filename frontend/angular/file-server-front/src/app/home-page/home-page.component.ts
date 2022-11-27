@@ -564,8 +564,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
             f.isFileAndIsOwner = f.isOwner && f.isFile;
             f.isDirAndIsOwner = f.isOwner && f.isDir;
             f.isDisplayable = this.isDisplayable(f);
-            f.updateTime = new Date(f.updateTime);
-            f.uploadTime = new Date(f.uploadTime);
+            if (f.updateTime) f.updateTime = new Date(f.updateTime);
+            if (f.uploadTime) f.uploadTime = new Date(f.uploadTime);
             this.fileInfoList.push(f);
           }
         }

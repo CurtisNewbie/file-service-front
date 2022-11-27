@@ -101,8 +101,8 @@ export class FsGroupComponent implements OnInit {
           this.fsGroups = [];
           if (resp.data.payload) {
             this.fsGroups = resp.data.payload.map(f => {
-              f.createTime = new Date(f.createTime);
-              f.scanTime = new Date(f.scanTime);
+              if (f.createTime) f.createTime = new Date(f.createTime);
+              if (f.scanTime) f.scanTime = new Date(f.scanTime);
               f.sizeLabel = resolveSize(f.size);
               return f;
             });
