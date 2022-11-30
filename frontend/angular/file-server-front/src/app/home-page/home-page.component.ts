@@ -400,11 +400,18 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return;
     }
 
+    let findParentFileRes = this._findUploadParentFile();
+    if (findParentFileRes.errMsg) {
+      this.notifi.toast(findParentFileRes.errMsg);
+      return;
+    }
+
     this.newDirName = null;
     this.hclient.post(
       environment.fileServicePath, "/file/make-dir",
       {
         name: dirName,
+        parentFile: findParentFileRes.fileKey,
         userGroup: FileUserGroupEnum.USER_GROUP_PRIVATE
       },
     ).subscribe({
@@ -1281,22 +1288,29 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.progress = ps;
   }
 
-  private _doUpload(uploadParam: UploadFileParam, fetchOnComplete: boolean = true) {
+  /** Find parent file for uploading / makding dir */
+  private _findUploadParentFile(): { fileKey?: string, errMsg?: string } {
     if (this.uploadDirName) {
       let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === this.uploadDirName)
       if (!matched || matched.length < 1) {
-        this.notifi.toast("Directory not found, please check and try again")
-        return
+        return { errMsg: "Directory not found, please check and try again" }
       }
       if (matched.length > 1) {
-        this.notifi.toast("Found multiple directories with the same name, please update their names and try again")
-        return
+        return { errMsg: "Found multiple directories with the same name, please update their names and try again" }
       }
-      uploadParam.parentFile = matched[0].uuid;
-    } else {
-      uploadParam.parentFile = null;
+      return { fileKey: matched[0].uuid }
+    }
+    return {}
+  }
+
+  private _doUpload(uploadParam: UploadFileParam, fetchOnComplete: boolean = true) {
+    let findParentFileRes = this._findUploadParentFile();
+    if (findParentFileRes.errMsg) {
+      this.notifi.toast(findParentFileRes.errMsg);
+      return;
     }
 
+    uploadParam.parentFile = findParentFileRes.fileKey;
     const onComplete = () => {
       if (fetchOnComplete)
         setTimeout(() => this.fetchFileInfoList(), 1_000);

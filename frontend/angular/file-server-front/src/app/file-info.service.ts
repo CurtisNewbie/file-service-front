@@ -30,6 +30,11 @@ export class FileInfoService {
     let formData = new FormData();
     formData.append("fileName", uploadParam.fileName);
     formData.append("userGroup", uploadParam.userGroup.toString());
+
+    if (uploadParam.parentFile) {
+      formData.append("parentFile", uploadParam.parentFile);
+    }
+
     if (uploadParam.tags) {
       for (let t of uploadParam.tags) {
         formData.append("tag", t);
