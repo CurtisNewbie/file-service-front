@@ -246,21 +246,20 @@
             <button mat-raised-button class="m-2" *ngIf="!inFolderName && inDirFileName && anySelected"
                 (click)="moveSelectedToDir(false)">{{moveOutOfDirLabel}}</button>
 
-            <!-- toggale upload panel -->
-            <ng-container *ngIf="!isGuest && !inFolderNo">
+
+            <ng-container *ngIf="!isGuest && !inFolderNo && !anySelected">
+                <!-- toggale upload panel -->
                 <button mat-raised-button class="m-2" [class.status-green]="expandUploadPanel"
                     (click)="doExpandUploadPanel()">{{uploadPanelLabel}}</button>
-            </ng-container>
 
-            <!-- make directory -->
-            <ng-container *ngIf="!isGuest && !inFolderNo && !inDirFileName">
+                <!-- make directory -->
                 <button mat-raised-button class="m-2" (click)="makingDir=!makingDir"
                     [class.status-green]="makingDir">{{mkdirLabel}}</button>
             </ng-container>
 
 
             <!-- export as zip -->
-            <button mat-raised-button class="m-2" *ngIf="!isGuest && selectedCount > 1"
+            <button mat-raised-button class="m-2" *ngIf="!isGuest && anySelected"
                 (click)="exportAsZip()">{{exportAsZipLabel}}</button>
 
             <!-- go back -->

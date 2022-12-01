@@ -400,7 +400,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return;
     }
 
-    let findParentFileRes = this._findUploadParentFile();
+    // console.log("inDirFileName", this.inDirFileName, "dirBriefList", this.dirBriefList);
+    let findParentFileRes = this._findUploadParentFile(this.inDirFileName);
     if (findParentFileRes.errMsg) {
       this.notifi.toast(findParentFileRes.errMsg);
       return;
@@ -1289,14 +1290,14 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   /** Find parent file for uploading / makding dir */
-  private _findUploadParentFile(): { fileKey?: string, errMsg?: string } {
-    if (this.uploadDirName) {
-      let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === this.uploadDirName)
+  private _findUploadParentFile(dirName : string): { fileKey?: string, errMsg?: string } {
+    if (dirName) {
+      let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === dirName)
       if (!matched || matched.length < 1) {
-        return { errMsg: "Directory not found, please check and try again" }
+        return { errMsg: `Directory (${dirName}) not found, please check and try again` }
       }
       if (matched.length > 1) {
-        return { errMsg: "Found multiple directories with the same name, please update their names and try again" }
+        return { errMsg: `Found multiple directories with the same name (${dirName}), please update their names and try again` }
       }
       return { fileKey: matched[0].uuid }
     }
@@ -1304,7 +1305,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _doUpload(uploadParam: UploadFileParam, fetchOnComplete: boolean = true) {
-    let findParentFileRes = this._findUploadParentFile();
+    let findParentFileRes = this._findUploadParentFile(this.uploadDirName);
     if (findParentFileRes.errMsg) {
       this.notifi.toast(findParentFileRes.errMsg);
       return;
