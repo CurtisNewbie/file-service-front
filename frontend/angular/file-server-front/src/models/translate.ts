@@ -255,8 +255,13 @@ const ttable = {
     all: {
         EN: 'All',
         CN: '全部'
+    },
+    goPrevDir : {
+        EN: 'Go back',
+        CN: '返回上一级目录'
     }
 }
+
 
 // let count = 0;
 export function translate(key: string, lang: LLang = null) {

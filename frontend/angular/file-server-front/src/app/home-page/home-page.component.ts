@@ -175,6 +175,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   dirBriefList: DirBrief[] = [];
   /** the name of the directory that we are currently in */
   inDirFileName: string = null;
+  /** the file key of the directory that we are currently in */
+  inDirFileKey: string = null;
   /** auto complete for dirs that we may move file into */
   autoCompMoveIntoDirs: string[] = [];
   /** name of dir that we may move file into */
@@ -267,6 +269,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   moveOutOfDirLabel: string;
   leaveDirLabel: string;
   previewLabel: string;
+  goPrevDirLabel: string;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
@@ -342,6 +345,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.moveOutOfDirLabel = translate('moveOutOfDir');
     this.leaveDirLabel = translate('leaveDir');
     this.previewLabel = translate('preview')
+    this.goPrevDirLabel = translate('goPrevDir')
   }
 
   ngDoCheck(): void {
@@ -365,9 +369,16 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.inFolderName = params.get("folderName");
 
       // directory
-      this.searchParam._parentFileName = params.get("parentDirName");
-      this.inDirFileName = this.searchParam._parentFileName;
-      this.searchParam.parentFile = params.get("parentDirKey");
+      let parentDirKey = params.get("parentDirKey");
+      let parentDirName = params.get("parentDirName");
+
+      if (parentDirKey && parentDirName) {
+        this.inDirFileName = parentDirName;
+        this.inDirFileKey = parentDirKey;
+      } else {
+        this.inDirFileKey = null;
+        this.inDirFileName = null;
+      }
 
       // if we are already in a directory, by default we upload to current directory
       if (this.expandUploadPanel && this.inDirFileName) {
@@ -424,12 +435,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     });
   }
 
-  // Go into dir, i.e., list files under the directory
-  goIntoDir(dir: FileInfo) {
+  // Go to dir, i.e., list files under the directory
+  goToDir(name, fileKey) {
     this.curr = null;
     this.resetSearchParam();
     this.nav.navigateTo(NavType.HOME_PAGE, [
-      { parentDirName: dir.name, parentDirKey: dir.uuid },
+      { parentDirName: name, parentDirKey: fileKey },
     ]);
   }
 
@@ -546,6 +557,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** fetch file info list */
   fetchFileInfoList() {
+    this.searchParam.parentFile = this.inDirFileKey;
+
     this.hclient.post<any>(
       environment.fileServicePath, "/file/list",
       {
@@ -579,7 +592,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         }
 
         this.pagingController.onTotalChanged(resp.data.pagingVo);
-        this.inDirFileName = this.searchParam._parentFileName;
         this.isAllSelected = false;
         this.selectedCount = 0;
       },
@@ -664,26 +676,42 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return "";
   }
 
-  leaveDir() {
-    this._resetFileUploadParam();
-    this.resetSearchParam();
-    this.nav.navigateTo(NavType.HOME_PAGE, [
-    ]);
+  // leaveDir() {
+  //   this.inDirFileKey = null;
+  //   this.inDirFileName = null;
+  //   this._resetFileUploadParam();
+  //   this.resetSearchParam();
+  //   this.nav.navigateTo(NavType.HOME_PAGE, [
+  //   ]);
+  // }
+
+  goPrevDir() {
+    if (!this.inDirFileKey || !this.inDirFileName) {
+      this.inDirFileKey = null;
+      this.inDirFileName = null;
+      return;
+    }
+
+    this.hclient.get<any>(environment.fileServicePath, `/file/parent?fileKey=${this.inDirFileKey}`)
+      .subscribe({
+        next: (resp) => {
+          console.log("fetchParentFileKey", resp)
+          if (resp.data) {
+            this.goToDir(resp.data.fileName, resp.data.fileKey);
+          } else {
+            this.nav.navigateTo(NavType.HOME_PAGE, [
+            ]);
+          }
+        }
+      })
   }
 
   /** Reset all parameters used for searching, and the fetch the list */
-  resetSearchParam(resetParentFile: boolean = false): void {
-
-    let prevParentFile = this.searchParam.parentFile
-    let prevParentFileName = this.searchParam._parentFileName
-    this.searchParam = {};
-
-    if (!resetParentFile) {
-      this.searchParam.parentFile = prevParentFile;
-      this.searchParam._parentFileName = prevParentFileName
-    }
+  resetSearchParam(): void {
 
     if (this.fantahseaEnabled) this.addToGalleryName = null;
+
+    this.searchParam = {};
     this.inFolderNo = null;
     this.addToVFolderName = null;
     this.moveIntoDirName = null;
@@ -1094,7 +1122,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
+  fetchParentFileInfo() {
 
+  }
 
   // -------------------------- private helper methods ------------------------
 
@@ -1290,7 +1320,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   /** Find parent file for uploading / makding dir */
-  private _findUploadParentFile(dirName : string): { fileKey?: string, errMsg?: string } {
+  private _findUploadParentFile(dirName: string): { fileKey?: string, errMsg?: string } {
     if (dirName) {
       let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === dirName)
       if (!matched || matched.length < 1) {

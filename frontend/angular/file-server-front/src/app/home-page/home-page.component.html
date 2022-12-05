@@ -262,8 +262,13 @@
             <button mat-raised-button class="m-2" *ngIf="!isGuest && anySelected"
                 (click)="exportAsZip()">{{exportAsZipLabel}}</button>
 
-            <!-- go back -->
-            <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="leaveDir()">{{leaveDirLabel}}</button>
+            <!-- leave directory -->
+            <!--
+                <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="leaveDir()">{{leaveDirLabel}}</button>
+            -->
+
+            <!-- go back to previous dir -->
+            <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="goPrevDir()">{{goPrevDirLabel}}</button>
 
             <button mat-raised-button class="m-2" (click)="fetchFileInfoList()">{{fetchLabel}}</button>
             <button mat-raised-button class="m-2" (click)="resetSearchParam()">{{resetLabel}}</button>
@@ -334,7 +339,7 @@
                     <!-- Go into dir  -->
                     <ng-container *ngIf="f.isDir">
                         <a class="m-2"
-                            (click)="$event.stopPropagation() || goIntoDir(f)"><small>{{goIntoLabel}}</small></a>
+                            (click)="$event.stopPropagation() || goToDir(f.name, f.uuid)"><small>{{goIntoLabel}}</small></a>
                     </ng-container>
                 </td>
             </ng-container>

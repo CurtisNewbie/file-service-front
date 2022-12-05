@@ -166,9 +166,6 @@ export interface SearchFileInfoParam {
   parentFile?: string;
   /** fileType */
   fileType?: FileType;
-
-  /** parent file name (not used by backend) */
-  _parentFileName?: string;
 }
 
 /** Parameters for uploading a file */
