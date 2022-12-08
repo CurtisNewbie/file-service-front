@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, DoCheck, OnInit, ViewChild } from "@angular/core";
+import { MatSelectionList, MatSelectionListChange } from "@angular/material/list";
 import { environment } from "src/environments/environment";
 import { VFolder } from "src/models/folder";
 import { Paging, PagingController } from "src/models/paging";
@@ -7,13 +8,14 @@ import { Resp } from "src/models/resp";
 import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
 import { buildApiPath, buildOptions } from "../util/api-util";
+import { isEnterKey } from "../util/condition";
 
 @Component({
   selector: "app-folder",
   templateUrl: "./folder.component.html",
   styleUrls: ["./folder.component.css"],
 })
-export class FolderComponent implements OnInit {
+export class FolderComponent implements OnInit, DoCheck {
   pagingController: PagingController;
   newFolderName: string = "";
   creatingFolder: boolean = false;
@@ -22,12 +24,32 @@ export class FolderComponent implements OnInit {
     pagingVo: null,
   };
   folders: VFolder[] = [];
+  selected: VFolder[] = [];
+  onEnterPressed = isEnterKey;
+  isOneSelected: boolean;
+
+  @ViewChild("folderList")
+  folderList: MatSelectionList;
 
   constructor(
     private http: HttpClient,
     private notification: NotificationService,
     private navi: NavigationService
   ) {
+  }
+
+  ngDoCheck(): void {
+    if (!this.folderList) {
+      this.isOneSelected = false;
+      return;
+    }
+
+    let selected = this.folderList.selectedOptions.selected;
+    this.isOneSelected = selected.length == 1;
+  }
+
+  selectionChanged(event: MatSelectionListChange): void {
+    this.selected = event.options.filter(o => o.selected).map(o => o.value);
   }
 
   ngOnInit(): void {
@@ -64,6 +86,7 @@ export class FolderComponent implements OnInit {
 
   resetSearchParam(): void {
     this.searchParam.name = "";
+    this.folderList.deselectAll();
     this.fetchFolders();
   }
 

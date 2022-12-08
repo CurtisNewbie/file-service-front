@@ -268,9 +268,13 @@
             -->
 
             <!-- go back to previous dir -->
-            <button mat-raised-button class="m-2" *ngIf="inDirFileName" (click)="goPrevDir()">{{goPrevDirLabel}}</button>
+            <button mat-raised-button class="m-2" *ngIf="inDirFileKey" (click)="goPrevDir()">{{goPrevDirLabel}}</button>
+            <!-- go back to folder list page -->
+            <button mat-raised-button class="m-2" *ngIf="inFolderNo" (click)="leaveFolder()">{{leaveFolderLabel}}</button>
 
+            <!-- Fetch  -->
             <button mat-raised-button class="m-2" (click)="fetchFileInfoList()">{{fetchLabel}}</button>
+            <!-- Reset  -->
             <button mat-raised-button class="m-2" (click)="resetSearchParam()">{{resetLabel}}</button>
         </div>
 
@@ -346,7 +350,7 @@
 
             <ng-container matColumnDef="expandedElement">
                 <td mat-cell *matCellDef="let u" [attr.colspan]="displayedColumns.length">
-                    <ng-container *ngIf="curr != null">
+                    <ng-container *ngIf="curr != null && !inFolderNo">
                         <div class="element-detail" [@detailExpand]="idEquals(u, curr) ? 'expanded' : 'collapsed'">
                             <div class="container-fluid m-2">
 

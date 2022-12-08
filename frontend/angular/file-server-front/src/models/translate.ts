@@ -256,9 +256,13 @@ const ttable = {
         EN: 'All',
         CN: '全部'
     },
-    goPrevDir : {
-        EN: 'Go back',
+    goPrevDir: {
+        EN: 'Go Back',
         CN: '返回上一级目录'
+    },
+    leaveFolder: {
+        EN: 'Go Back',
+        CN: '返回虚拟文件夹列表'
     }
 }
 

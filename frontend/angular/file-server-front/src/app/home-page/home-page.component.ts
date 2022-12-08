@@ -270,6 +270,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   leaveDirLabel: string;
   previewLabel: string;
   goPrevDirLabel: string;
+  leaveFolderLabel: string;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
@@ -346,6 +347,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.leaveDirLabel = translate('leaveDir');
     this.previewLabel = translate('preview')
     this.goPrevDirLabel = translate('goPrevDir')
+    this.leaveFolderLabel = translate('leaveFolder')
   }
 
   ngDoCheck(): void {
@@ -438,7 +440,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   // Go to dir, i.e., list files under the directory
   goToDir(name, fileKey) {
     this.curr = null;
-    this.resetSearchParam();
+    this.resetSearchParam(false);
     this.nav.navigateTo(NavType.HOME_PAGE, [
       { parentDirName: name, parentDirKey: fileKey },
     ]);
@@ -646,6 +648,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
+  leaveFolder() {
+    if (!this.inFolderNo) return;
+
+    this.nav.navigateTo(NavType.FOLDERS);
+  }
+
   /** Handle events on file selected/changed */
   onFileSelected(files: File[]): void {
     if (this.isUploading) return; // files can't be changed while uploading
@@ -707,16 +715,15 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   /** Reset all parameters used for searching, and the fetch the list */
-  resetSearchParam(): void {
+  resetSearchParam(fetchFileInfoList: boolean = true): void {
 
     if (this.fantahseaEnabled) this.addToGalleryName = null;
 
     this.searchParam = {};
-    this.inFolderNo = null;
     this.addToVFolderName = null;
     this.moveIntoDirName = null;
     this.pagingController.firstPage();
-    this.fetchFileInfoList();
+    if (fetchFileInfoList) this.fetchFileInfoList();
   }
 
   /**
