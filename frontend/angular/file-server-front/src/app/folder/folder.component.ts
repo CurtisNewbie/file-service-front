@@ -1,12 +1,17 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, DoCheck, OnInit, ViewChild } from "@angular/core";
+import { Component, DoCheck, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatSelectionList, MatSelectionListChange } from "@angular/material/list";
+import { Subscription } from "rxjs";
 import { environment } from "src/environments/environment";
 import { VFolder } from "src/models/folder";
-import { Paging, PagingController } from "src/models/paging";
+import { PagingController } from "src/models/paging";
 import { Resp } from "src/models/resp";
+import { UserInfo } from "src/models/user-info";
+import { GrantAccessDialogComponent, GrantTarget } from "../grant-access-dialog/grant-access-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
+import { UserService } from "../user.service";
 import { buildApiPath, buildOptions } from "../util/api-util";
 import { isEnterKey } from "../util/condition";
 
@@ -15,11 +20,13 @@ import { isEnterKey } from "../util/condition";
   templateUrl: "./folder.component.html",
   styleUrls: ["./folder.component.css"],
 })
-export class FolderComponent implements OnInit, DoCheck {
+export class FolderComponent implements OnInit, DoCheck, OnDestroy {
+  user: UserInfo;
+  userSub: Subscription;
   pagingController: PagingController;
   newFolderName: string = "";
   creatingFolder: boolean = false;
-  searchParam: { name: string; pagingVo: Paging } = {
+  searchParam = {
     name: "",
     pagingVo: null,
   };
@@ -34,8 +41,18 @@ export class FolderComponent implements OnInit, DoCheck {
   constructor(
     private http: HttpClient,
     private notification: NotificationService,
-    private navi: NavigationService
-  ) {
+    private navi: NavigationService,
+    private dialog: MatDialog,
+    private userService: UserService
+  ) { }
+
+  ngOnInit(): void {
+    this.userSub = this.userService.userInfoObservable.subscribe(u => this.user = u);
+    this.userService.fetchUserInfo();
+  }
+
+  ngOnDestroy(): void {
+    if (this.userSub) this.userSub.unsubscribe();
   }
 
   ngDoCheck(): void {
@@ -48,11 +65,26 @@ export class FolderComponent implements OnInit, DoCheck {
     this.isOneSelected = selected.length == 1;
   }
 
-  selectionChanged(event: MatSelectionListChange): void {
-    this.selected = event.options.filter(o => o.selected).map(o => o.value);
+  isOwner(f: VFolder): boolean {
+    return f.createBy == this.user.username;
   }
 
-  ngOnInit(): void {
+  popToGrantAccess(f: VFolder): void {
+    if (!f) return;
+
+    const dialogRef: MatDialogRef<GrantAccessDialogComponent, boolean> =
+      this.dialog.open(GrantAccessDialogComponent, {
+        width: "700px",
+        data: { folderNo: f.folderNo, name: f.name, target: GrantTarget.FOLDER },
+      });
+
+    dialogRef.afterClosed().subscribe((confirm) => {
+      // do nothing
+    });
+  }
+
+  selectionChanged(event: MatSelectionListChange): void {
+    this.selected = event.options.filter(o => o.selected).map(o => o.value);
   }
 
   selectFolder(f: VFolder): void {

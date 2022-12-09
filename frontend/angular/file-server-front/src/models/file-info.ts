@@ -229,7 +229,9 @@ export interface FileAccessGranted {
   /** id of this file_sharing record */
   id: number;
   /** id of user */
-  userId: number;
+  userId?: number;
+  /* userNo */
+  userNo?: string;
   /** user who is granted access to this file*/
   username: string;
   /** the date that this access is granted */

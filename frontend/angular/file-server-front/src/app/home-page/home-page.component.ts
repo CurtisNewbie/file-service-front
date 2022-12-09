@@ -30,7 +30,7 @@ import { UserService } from "../user.service";
 import { animateElementExpanding, getExpanded, isIdEqual } from "../../animate/animate-util";
 import { buildApiPath, HClient } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
-import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
+import { GrantAccessDialogComponent, GrantTarget } from "../grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile, isServiceEnabled } from "../util/env-util";
@@ -892,7 +892,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     const dialogRef: MatDialogRef<GrantAccessDialogComponent, boolean> =
       this.dialog.open(GrantAccessDialogComponent, {
         width: "700px",
-        data: { fileId: u.id, fileName: u.name },
+        data: { fileId: u.id, name: u.name, target: GrantTarget.FILE },
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {

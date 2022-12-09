@@ -5,10 +5,17 @@ import { FileAccessGranted } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
 import { NotificationService } from "../notification.service";
 import { HClient } from "../util/api-util";
+import { isEnterKey } from "../util/condition";
+
+export enum GrantTarget {
+  FILE, FOLDER
+}
 
 export interface GrantAccessDialogData {
-  fileId: number;
-  fileName: string;
+  fileId?: number;
+  folderNo?: string;
+  name: string;
+  target: GrantTarget;  
 }
 
 @Component({
@@ -17,28 +24,22 @@ export interface GrantAccessDialogData {
   styleUrls: ["./grant-access-dialog.component.css"],
 })
 export class GrantAccessDialogComponent implements OnInit {
-
-  readonly COLUMN_TO_BE_DISPLAYED: string[] = [
-    "userId",
+  readonly columns: string[] = [
     "username",
     "createDate",
-    "createdBy",
     "removeButton",
   ];
   grantedTo: string = "";
   grantedAccesses: FileAccessGranted[] = [];
   pagingController: PagingController;
+  isEnterPressed = isEnterKey;
 
   constructor(
     private http: HClient,
     private notifi: NotificationService,
-    public dialogRef: MatDialogRef<
-      GrantAccessDialogComponent,
-      GrantAccessDialogData
-    >,
+    public dialogRef: MatDialogRef< GrantAccessDialogComponent, GrantAccessDialogData >,
     @Inject(MAT_DIALOG_DATA) public data: GrantAccessDialogData
   ) {
-
   }
 
   ngOnInit() {
@@ -46,6 +47,11 @@ export class GrantAccessDialogComponent implements OnInit {
   }
 
   grantAccess() {
+    if (this.isForFolder()) this.grantFolderAccess();      
+    else this.grantFileAccess();
+  }
+
+  grantFileAccess() {
     if (!this.grantedTo) {
       this.notifi.toast("Enter username first");
       return;
@@ -65,7 +71,54 @@ export class GrantAccessDialogComponent implements OnInit {
     });
   }
 
+  grantFolderAccess() {
+    if (!this.grantedTo) {
+      this.notifi.toast("Enter username first");
+      return;
+    }
+
+    this.http.post<void>(
+      environment.fileServicePath, "/vfolder/share",
+      {
+        folderNo: this.data.folderNo,
+        username: this.grantedTo,
+      },
+    ).subscribe({
+      next: () => {
+        this.notifi.toast("Access granted");
+        this.fetchAccessGranted();
+      },
+    });
+  }
+
+
   fetchAccessGranted() {
+    if (this.isForFolder()) this.fetchFolderAccessGranted();
+    else this.fetchFileAccessGranted();
+  }
+
+  fetchFolderAccessGranted() {
+    this.http.post<any>(
+      environment.fileServicePath, "/vfolder/granted/list",
+      {
+        folderNo: this.data.folderNo,
+        pagingVo: this.pagingController.paging,
+      },
+    ).subscribe({
+      next: (resp) => {
+        this.grantedAccesses = [];
+        if (resp.data.payload) {
+          for (let g of resp.data.payload) {
+            g.createDate = new Date(g.createTime);
+            this.grantedAccesses.push(g);
+          }
+        }
+        this.pagingController.onTotalChanged(resp.data.pagingVo);
+      },
+    });
+  }
+
+  fetchFileAccessGranted() {
     this.http.post<any>(
       environment.fileServicePath, "/file/list-granted-access",
       {
@@ -86,13 +139,30 @@ export class GrantAccessDialogComponent implements OnInit {
     });
   }
 
-  removeAccess(userId: number): void {
+  isForFolder() : boolean {
+    return this.data.target == GrantTarget.FOLDER;
+  }
+
+  removeAccess(access): void {
+    if (this.isForFolder()) this.removeFolderAccess(access.userNo);
+    else this.removeFileAccess(access.userId);
+  }
+
+  removeFolderAccess(userNo: string): void {
+    this.http.post<void>(
+      environment.fileServicePath, "/vfolder/access/remove",
+      { userNo: userNo, folderNo: this.data.folderNo },
+    ).subscribe({
+      next: () => {
+        this.fetchAccessGranted();
+      },
+    });
+  }
+
+  removeFileAccess(userId: number): void {
     this.http.post<void>(
       environment.fileServicePath, "/file/remove-granted-access",
-      {
-        userId: userId,
-        fileId: this.data.fileId,
-      },
+      { userId: userId, fileId: this.data.fileId },
     ).subscribe({
       next: () => {
         this.fetchAccessGranted();
