@@ -20,10 +20,10 @@ const routes: Routes = [
     path: "login-page",
     component: LoginComponent,
   },
-  {
-    path: "manage-extension",
-    component: ManageExtensionComponent,
-  },
+  // {
+  //   path: "manage-extension",
+  //   component: ManageExtensionComponent,
+  // },
   {
     path: "manage-fsgroup",
     component: FsGroupComponent,

@@ -95,7 +95,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** expanded fileInfo */
   curr: FileInfo;
   /** file extension name set */
-  fileExtSet: Set<string> = new Set();
+  // fileExtSet: Set<string> = new Set();
   /** list of files fetched */
   fileInfoList: FileInfo[] = [];
   /** searching param */
@@ -237,7 +237,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   multiUploadTipLabel: string;
   compressedLabel: string;
   ignoreOnDupNameLabel: string;
-  supportedFileExtLabel: string;
+  // supportedFileExtLabel: string;
   ownerLabel: string;
   tagsLabel: string;
   fantahseaGalleryLabel: string;
@@ -314,7 +314,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.multiUploadTipLabel = translate('multiUploadTip');
     this.compressedLabel = translate("compressed");
     this.ignoreOnDupNameLabel = translate("ignoreOnDupName");
-    this.supportedFileExtLabel = translate("supportedFileExt");
+    // this.supportedFileExtLabel = translate("supportedFileExt");
     this.ownerLabel = translate("owner");
     this.tagsLabel = translate('tags');
     this.fantahseaGalleryLabel = translate('fantahseaGallery');
@@ -394,7 +394,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
       this.fileListTitle = this._getListTitle();
       this.userService.fetchUserInfo();
-      this._fetchSupportedExtensions();
+      // this._fetchSupportedExtensions();
       this._fetchTags();
       this._fetchDirBriefList();
       this._fetchOwnedVFolderBrief();
@@ -633,15 +633,15 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       displayedUploadName, otherwise we validate every single file 
     */
     if (isSingleUpload || isZipCompressed) {
-      if (!this._validateFileExt(this.displayedUploadName)) return;
+      // if (!this._validateFileExt(this.displayedUploadName)) return;
 
       this.isUploading = true;
       this.uploadParam.fileName = this.displayedUploadName;
       this._doUpload(this.uploadParam);
     } else {
-      for (let f of this.uploadParam.files) {
-        if (!this._validateFileExt(f.name)) return;
-      }
+      // for (let f of this.uploadParam.files) {
+      //   if (!this._validateFileExt(f.name)) return;
+      // }
 
       this.isUploading = true;
       this._doUpload(this._prepNextUpload(), false);
@@ -754,9 +754,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     });
   }
 
-  fileExtToolTip(): string {
-    return this.subSetToStr(this.fileExtSet, this.fileExtSet.size);
-  }
+  // fileExtToolTip(): string {
+  //   return this.subSetToStr(this.fileExtSet, this.fileExtSet.size);
+  // }
 
   subSetToStr(set: Set<string>, maxCount: number): string {
     let s: string = "";
@@ -1136,19 +1136,19 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   // -------------------------- private helper methods ------------------------
 
   /** fetch supported file extension */
-  private _fetchSupportedExtensions(): void {
-    this.hclient.get<string[]>(
-      environment.fileServicePath, "/file/extension/name",
-    ).subscribe({
-      next: (resp) => {
-        this.fileExtSet.clear();
-        for (let e of resp.data) {
-          this.fileExtSet.add(e.toLowerCase());
-        }
-      },
-      error: (err) => console.log(err),
-    });
-  }
+  // private _fetchSupportedExtensions(): void {
+  //   this.hclient.get<string[]>(
+  //     environment.fileServicePath, "/file/extension/name",
+  //   ).subscribe({
+  //     next: (resp) => {
+  //       this.fileExtSet.clear();
+  //       for (let e of resp.data) {
+  //         this.fileExtSet.add(e.toLowerCase());
+  //       }
+  //     },
+  //     error: (err) => console.log(err),
+  //   });
+  // }
 
   private _fetchTags(): void {
     this.hclient.get<string[]>(
@@ -1278,29 +1278,29 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     };
   }
 
-  private _validateFileExt(name: string): boolean {
-    let file_ext = this._parseFileExt(name);
-    if (!file_ext) {
-      this.notifi.toast(`File extension must not be empty`);
-      return false;
-    }
+  // private _validateFileExt(name: string): boolean {
+  //   let file_ext = this._parseFileExt(name);
+  //   if (!file_ext) {
+  //     this.notifi.toast(`File extension must not be empty`);
+  //     return false;
+  //   }
 
-    if (!this._isFileExtSupported(file_ext)) {
-      this.notifi.toast(`File extension '${file_ext}' isn't supported`);
-      return false;
-    }
-    return true;
-  }
+  //   if (!this._isFileExtSupported(file_ext)) {
+  //     this.notifi.toast(`File extension '${file_ext}' isn't supported`);
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
-  private _isFileExtSupported(fileExt: string): boolean {
-    if (!fileExt) return false;
+  // private _isFileExtSupported(fileExt: string): boolean {
+  //   if (!fileExt) return false;
 
-    fileExt = fileExt.toLowerCase();
-    if (!this.fileExtSet.has(fileExt)) {
-      return false;
-    }
-    return true;
-  }
+  //   fileExt = fileExt.toLowerCase();
+  //   if (!this.fileExtSet.has(fileExt)) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   private _updateUploadProgress(filename: string, loaded: number, total: number) {
     // how many files left
