@@ -97,7 +97,9 @@ export class GalleryImageComponent implements OnInit {
   onPagingControllerReady(pc: any) {
     this.pagingController = pc;
     this.pagingController.onPageChanged = () => this.fetchImages();
-    this.pagingController.setPageLimit(30);
+    this.pagingController.setPageLimit(40);
+    this.pagingController.PAGE_LIMIT_OPTIONS = [20, 40, 60, 100, 500];
+
     this.fetchImages();
   }
 }
