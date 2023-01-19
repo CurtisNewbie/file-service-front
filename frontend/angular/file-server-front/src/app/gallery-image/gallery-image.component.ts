@@ -59,16 +59,16 @@ export class GalleryImageComponent implements OnInit {
           this.pagingController.onTotalChanged(resp.data.pagingVo);
 
           this.images = [];
-          if (resp.data.imageNos) {
-            let imgs = resp.data.imageNos;
+          if (resp.data.images) {
+            let imgs = resp.data.images;
             this.images = [];
             for (let i = 0; i < imgs.length; i++) {
               let src = buildApiPath(
-                `/gallery/image/download?token=${imgs[i]}&thumbnail=${false}`,
-                environment.fantahseaPath
+                "/file/token/download?token=" + imgs[i].fileTempToken,
+                environment.fileServicePath
               );
               let thumb = buildApiPath(
-                `/gallery/image/download?token=${imgs[i]}&thumbnail=${true}`,
+                "/gallery/image/download?token=" + imgs[i].thumbnailToken,
                 environment.fantahseaPath
               );
               this.images.push({

@@ -9,10 +9,10 @@ export const environment = {
   fantahseaPath: "fantahsea",
   fileServicePath: "file-service",
   authServicePath: "auth-service",
-  // services: [fileServiceOpt, fantahseaOpt],
+  services: [fileServiceOpt, fantahseaOpt],
   loginRedirect: true,
   // if fantahsea is down
-  services: [fileServiceOpt],
+  // services: [fileServiceOpt],
 };
 
 /*

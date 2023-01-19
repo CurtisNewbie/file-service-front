@@ -18,7 +18,7 @@ export interface Gallery {
 }
 
 export interface ListGalleryImagesResp {
-  imageNos: string[];
+  images: { thumbnailToken: string, fileTempToken: string }[];
   pagingVo: Paging;
 }
 
