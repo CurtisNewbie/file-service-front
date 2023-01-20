@@ -1,0 +1,54 @@
+<div class="mt-5">
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+        <button mat-raised-button class="m-2" (click)="fetchFileTaskList()">Fetch</button>
+    </div>
+
+    <div style="overflow: auto; max-height: 550px;" class="mb-2">
+        <table mat-table [dataSource]="fileTaskList" class="mb-2" style="width: 100%;" multiTemplateDataRows>
+            <ng-container matColumnDef="taskNo">
+                <th mat-header-cell *matHeaderCellDef> Task No </th>
+                <td mat-cell *matCellDef="let u"> {{u.taskNo}} </td>
+            </ng-container>
+            <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef> Type </th>
+                <td mat-cell *matCellDef="let u"> {{u.type}} </td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let u"> {{u.status}} </td>
+            </ng-container>
+            <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef> Description </th>
+                <td mat-cell *matCellDef="let u"> {{u.description}} </td>
+            </ng-container>
+            <ng-container matColumnDef="startTime">
+                <th mat-header-cell *matHeaderCellDef> Start Time </th>
+                <td mat-cell *matCellDef="let u"> {{u.startTime | date: 'yyyy-MM-dd HH:mm:ss'}} </td>
+            </ng-container>
+            <ng-container matColumnDef="endTime">
+                <th mat-header-cell *matHeaderCellDef> End Time </th>
+                <td mat-cell *matCellDef="let u"> {{u.endTime | date: 'yyyy-MM-dd HH:mm:ss'}} </td>
+            </ng-container>
+            <ng-container matColumnDef="remark">
+                <th mat-header-cell *matHeaderCellDef> Remark </th>
+                <td mat-cell *matCellDef="let u"> {{u.remark}} </td>
+            </ng-container>
+            <ng-container matColumnDef="operation">
+                <th mat-header-cell *matHeaderCellDef> Operation </th>
+                <td mat-cell *matCellDef="let f">
+                    <ng-container *ngIf="f.fileKey">
+                        <a class="m-2" (click)="$event.stopPropagation() || jumpToDownloadUrl(f.fileKey)"><small>
+                                Download
+                            </small></a>
+                    </ng-container>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="titles"></tr>
+            <tr mat-row *matRowDef="let row; columns: titles;"></tr>
+        </table>
+    </div>
+
+    <app-controlled-paginator (controllerReady)="onPagingControllerReady($event)"></app-controlled-paginator>
+</div>

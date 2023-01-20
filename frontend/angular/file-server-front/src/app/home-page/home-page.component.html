@@ -325,7 +325,7 @@
                         <!-- download / preview -->
                         <ng-container *ngIf="f.isFile">
                             <a class="m-2"
-                                (click)="$event.stopPropagation() || jumpToDownloadUrl(f.id)"><small>{{downloadLabel}}</small></a>
+                                (click)="$event.stopPropagation() || jumpToDownloadUrl(f.uuid)"><small>{{downloadLabel}}</small></a>
                             <ng-container *ngIf="f.isDisplayable">
                                 <a class="m-2"
                                     (click)="$event.stopPropagation() || preview(f)"><small>{{previewLabel}}</small></a>

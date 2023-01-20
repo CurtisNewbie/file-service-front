@@ -22,11 +22,11 @@ const fileServicesLinks: NLink[] = [
     name: "Virtual Folders",
     permitRoles: anyRoles,
   },
-  // {
-  //   route: "/manage-extension",
-  //   name: "Manage File Extension",
-  //   permitRoles: adminOnly,
-  // },
+  {
+    route: "/file-task",
+    name: "File Task",
+    permitRoles: anyRoles
+  },
   {
     route: "/manage-fsgroup",
     name: "Manage FsGroup",

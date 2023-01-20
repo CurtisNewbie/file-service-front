@@ -830,7 +830,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** Display the file */
   preview(u: FileInfo): void {
     const isStreaming = this._isStreamableVideo(u.name);
-    this.generateFileTempToken(u.id, isStreaming ? TokenType.STREAMING : TokenType.DOWNLOAD)
+    this.generateFileTempToken(u.uuid, isStreaming ? TokenType.STREAMING : TokenType.DOWNLOAD)
       .subscribe({
         next: (resp) => {
           const token = resp.data;
@@ -876,7 +876,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   generateTempToken(u: FileInfo): void {
     if (!u) return;
 
-    this.generateFileTempToken(u.id).subscribe({
+    this.generateFileTempToken(u.uuid).subscribe({
       next: (resp) => {
         const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
           this.dialog.open(ConfirmDialogComponent, {
@@ -932,10 +932,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /**
    * Fetch download url and open it in a new tab
-   * @param fileId
    */
-  jumpToDownloadUrl(fileId: number): void {
-    this.generateFileTempToken(fileId).subscribe({
+  jumpToDownloadUrl(fileKey: string): void {
+    this.generateFileTempToken(fileKey).subscribe({
       next: (resp) => {
         const token = resp.data;
         const url = buildApiPath(
@@ -1417,10 +1416,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /**
    * Generate file temporary token
    */
-  private generateFileTempToken(id: number, tokenType: TokenType = TokenType.DOWNLOAD): Observable<Resp<string>> {
+  private generateFileTempToken(fileKey: string, tokenType: TokenType = TokenType.DOWNLOAD): Observable<Resp<string>> {
     return this.hclient.post<string>(
       environment.fileServicePath, "/file/token/generate",
-      { id: id, tokenType: tokenType },
+      { fileKey: fileKey, tokenType: tokenType },
     );
   }
 

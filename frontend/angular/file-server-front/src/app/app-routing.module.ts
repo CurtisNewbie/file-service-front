@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
+import { FileTaskComponent } from "./file-task/file-task.component";
 import { FolderComponent } from "./folder/folder.component";
 import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { GalleryImageComponent } from "./gallery-image/gallery-image.component";
@@ -20,10 +21,10 @@ const routes: Routes = [
     path: "login-page",
     component: LoginComponent,
   },
-  // {
-  //   path: "manage-extension",
-  //   component: ManageExtensionComponent,
-  // },
+  {
+    path: "file-task",
+    component: FileTaskComponent,
+  },
   {
     path: "manage-fsgroup",
     component: FsGroupComponent,

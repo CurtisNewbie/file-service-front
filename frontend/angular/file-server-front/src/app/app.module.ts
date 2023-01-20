@@ -48,6 +48,7 @@ import { MatListModule } from "@angular/material/list";
 import { HClient as HttpWrapper } from "./util/api-util";
 import { ControlledPaginatorComponent } from './controlled-paginator/controlled-paginator.component';
 import { MediaStreamerComponent } from './media-streamer/media-streamer.component';
+import { FileTaskComponent } from './file-task/file-task.component';
 
 @NgModule({
   exports: [],
@@ -68,6 +69,7 @@ import { MediaStreamerComponent } from './media-streamer/media-streamer.componen
     FolderComponent,
     ControlledPaginatorComponent,
     MediaStreamerComponent,
+    FileTaskComponent,
   ],
   imports: [
     MatTabsModule,
