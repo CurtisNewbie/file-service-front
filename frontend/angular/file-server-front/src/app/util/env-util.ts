@@ -7,3 +7,9 @@ export function isMobile(): boolean {
 export function isServiceEnabled(service: string): boolean {
   return environment.services.find((v) => v.base === service) != null;
 }
+
+export function doOnServiceEnabled(service: string, callback) {
+  if (isServiceEnabled(service)) {
+    callback()
+  }
+}

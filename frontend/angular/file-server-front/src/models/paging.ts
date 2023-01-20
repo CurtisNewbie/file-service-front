@@ -1,4 +1,5 @@
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
+import { time } from "src/app/util/date-util";
 
 /** Pagination info */
 export interface Paging {
@@ -48,6 +49,11 @@ export class PagingController {
     this.paginator.firstPage();
   }
 
+  /** is at first page */
+  public atFirstPage(): boolean {
+    return this.paginator.pageIndex == 0;
+  }
+
   /** set the paginator controlled by this controller */
   public control(paginator: MatPaginator) {
     this.paginator = paginator;
@@ -80,7 +86,7 @@ export class PagingController {
   }
 
   public onPageEvent(e: PageEvent): void {
-    // console.log(e);
+    console.log("onPageEvent", e, time());
     this.paging.page = e.pageIndex + 1;
     this.paging.limit = e.pageSize;
     if (this.onPageChanged) this.onPageChanged();

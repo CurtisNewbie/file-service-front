@@ -45,6 +45,7 @@ import { resolveSize } from "../util/file";
 import { MediaStreamerComponent } from "../media-streamer/media-streamer.component";
 import { Option } from "src/models/select-util";
 import { isEnterKey } from "../util/condition";
+import { time } from "../util/date-util";
 
 export enum TokenType {
   DOWNLOAD = "DOWNLOAD",
@@ -85,17 +86,14 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   ];
   readonly MOBILE_COLUMNS = ["fileType", "name", "operation"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp", "webp", "apng", "avif"]);
-  // readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) => this._fetchTags());
 
-  userGroupOptsWithAll: Option<FileUserGroupEnum>[] = [];
+  allUserGroupOpts: Option<FileUserGroupEnum>[] = [];
+  allFileTypeOpts: Option<FileType>[] = [];
   userGroupOpts: Option<FileUserGroupEnum>[] = [];
   fileOwnershipOpts: Option<FileOwnershipEnum>[] = [];
-  fileTypeOptsWithAll: Option<FileType>[] = [];
 
   /** expanded fileInfo */
   curr: FileInfo;
-  /** file extension name set */
-  // fileExtSet: Set<string> = new Set();
   /** list of files fetched */
   fileInfoList: FileInfo[] = [];
   /** searching param */
@@ -237,7 +235,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   multiUploadTipLabel: string;
   compressedLabel: string;
   ignoreOnDupNameLabel: string;
-  // supportedFileExtLabel: string;
   ownerLabel: string;
   tagsLabel: string;
   fantahseaGalleryLabel: string;
@@ -298,10 +295,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   refreshLabel(): void {
-    this.userGroupOptsWithAll = getFileUserGroupOpts(true);
+    this.allUserGroupOpts = getFileUserGroupOpts(true);
     this.userGroupOpts = getFileUserGroupOpts(false);
     this.fileOwnershipOpts = getFileOwnershipOpts();
-    this.fileTypeOptsWithAll = getFileTypeOpts(true);
+    this.allFileTypeOpts = getFileTypeOpts(true);
 
     this.filenameLabel = translate("filename");
     this.withTagsLabel = translate("withTags");
@@ -314,7 +311,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.multiUploadTipLabel = translate('multiUploadTip');
     this.compressedLabel = translate("compressed");
     this.ignoreOnDupNameLabel = translate("ignoreOnDupName");
-    // this.supportedFileExtLabel = translate("supportedFileExt");
     this.ownerLabel = translate("owner");
     this.tagsLabel = translate('tags');
     this.fantahseaGalleryLabel = translate('fantahseaGallery');
@@ -388,13 +384,17 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       }
 
       if (this.pagingController) {
-        this.pagingController.firstPage();
-        this.fetchFileInfoList();
+        if (!this.pagingController.atFirstPage()) {
+          this.pagingController.firstPage(); // this also triggers fetchFileInfoList
+          console.log("ngOnInit.firstPage", time())
+        } else {
+          this.fetchFileInfoList();
+          console.log("ngOnInit.fetchFileInfoList", time())
+        }
       }
 
       this.fileListTitle = this._getListTitle();
       this.userService.fetchUserInfo();
-      // this._fetchSupportedExtensions();
       this._fetchTags();
       this._fetchDirBriefList();
       this._fetchOwnedVFolderBrief();
@@ -440,7 +440,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   // Go to dir, i.e., list files under the directory
   goToDir(name, fileKey) {
     this.curr = null;
-    this.resetSearchParam(false);
+    this.resetSearchParam(false, false);
     this.nav.navigateTo(NavType.HOME_PAGE, [
       { parentDirName: name, parentDirKey: fileKey },
     ]);
@@ -684,15 +684,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return "";
   }
 
-  // leaveDir() {
-  //   this.inDirFileKey = null;
-  //   this.inDirFileName = null;
-  //   this._resetFileUploadParam();
-  //   this.resetSearchParam();
-  //   this.nav.navigateTo(NavType.HOME_PAGE, [
-  //   ]);
-  // }
-
   goPrevDir() {
     if (!this.inDirFileKey || !this.inDirFileName) {
       this.inDirFileKey = null;
@@ -715,15 +706,19 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   /** Reset all parameters used for searching, and the fetch the list */
-  resetSearchParam(fetchFileInfoList: boolean = true): void {
-
+  resetSearchParam(setFirstPage: boolean = true, fetchFileInfoList: boolean = true): void {
     if (this.fantahseaEnabled) this.addToGalleryName = null;
 
     this.searchParam = {};
     this.addToVFolderName = null;
     this.moveIntoDirName = null;
-    this.pagingController.firstPage();
-    if (fetchFileInfoList) this.fetchFileInfoList();
+    if (setFirstPage && !this.pagingController.atFirstPage()) {
+      this.pagingController.firstPage(); // this also triggers fetchFileInfoList
+      console.log("resetSearchParam.firstPage", time())
+    } else {
+      if (fetchFileInfoList)
+        this.fetchFileInfoList();
+    }
   }
 
   /**
@@ -753,10 +748,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       }
     });
   }
-
-  // fileExtToolTip(): string {
-  //   return this.subSetToStr(this.fileExtSet, this.fileExtSet.size);
-  // }
 
   subSetToStr(set: Set<string>, maxCount: number): string {
     let s: string = "";
@@ -962,31 +953,17 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return;
     }
 
-    // console.log("pre-filtered: ", this.fileInfoList);
-
     let fileKeys = this.fileInfoList
-      .map((v) => {
-        if (v._selected && v.isOwner) {
-          return v;
-        }
-        return null;
-      })
+      .map((v) => (v._selected && v.isOwner) ? v : null)
       .filter((v) => v != null)
-      .map((f) => {
-        return f.uuid;
-      });
-
-    //console.log("(post-filtered) selected: ", fileKeys);
+      .map((f) => f.uuid);
 
     if (!fileKeys) return;
 
     this.hclient
       .post(
         environment.fileServicePath, "/vfolder/file/add",
-        {
-          folderNo: addToFolderNo,
-          fileKeys: fileKeys,
-        },
+        { folderNo: addToFolderNo, fileKeys: fileKeys, },
       )
       .subscribe({
         complete: () => {
@@ -1022,27 +999,22 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {
-      console.log(confirm);
       if (confirm) {
-        this.hclient
-          .post(
-            environment.fantahseaPath, "/gallery/image/dir/transfer",
-            {
-              fileKey: inDirFileKey,
-              galleryNo: addToGalleryNo
-            },
-          )
-          .subscribe({
-            complete: () => {
-              this.curr = null;
-              this.notifi.toast("Request success! It may take a while.");
-            },
-          });
+        this.hclient.post(
+          environment.fantahseaPath, "/gallery/image/dir/transfer",
+          { fileKey: inDirFileKey, galleryNo: addToGalleryNo },
+        ).subscribe({
+          complete: () => {
+            this.curr = null;
+            this.notifi.toast("Request success! It may take a while.");
+          },
+        });
       }
     });
   }
 
   onPagingControllerReady(pagingController: PagingController) {
+    console.log("onPagingControllerReady", time());
     this.pagingController = pagingController;
     this.pagingController.onPageChanged = () => this.fetchFileInfoList();
     this.fetchFileInfoList();
@@ -1067,12 +1039,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
 
     this.hclient
-      .post(
-        environment.fantahseaPath, "/gallery/image/transfer",
-        {
-          images: selected,
-        },
-      )
+      .post(environment.fantahseaPath, "/gallery/image/transfer", { images: selected, })
       .subscribe({
         complete: () => {
           this.curr = null;
@@ -1129,26 +1096,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
-  fetchParentFileInfo() {
-
-  }
-
   // -------------------------- private helper methods ------------------------
-
-  /** fetch supported file extension */
-  // private _fetchSupportedExtensions(): void {
-  //   this.hclient.get<string[]>(
-  //     environment.fileServicePath, "/file/extension/name",
-  //   ).subscribe({
-  //     next: (resp) => {
-  //       this.fileExtSet.clear();
-  //       for (let e of resp.data) {
-  //         this.fileExtSet.add(e.toLowerCase());
-  //       }
-  //     },
-  //     error: (err) => console.log(err),
-  //   });
-  // }
 
   private _fetchTags(): void {
     this.hclient.get<string[]>(
@@ -1163,13 +1111,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   private _concatTempFileDownloadUrl(tempToken: string): string {
     return (
-      window.location.protocol +
-      "//" +
-      window.location.host +
-      buildApiPath(
-        "/file/token/download?token=" + tempToken,
-        environment.fileServicePath
-      )
+      window.location.protocol + "//" + window.location.host +
+      buildApiPath("/file/token/download?token=" + tempToken, environment.fileServicePath)
     );
   }
 
@@ -1192,22 +1135,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   private _isImage(f: FileInfo): boolean {
     if (f == null || !f.isFile) return false;
     return this._isImageByName(f.name);
-  }
-
-  /**
-   * Get file extension
-   * @param {*} path
-   * @returns fileExtension, or "" if there isn't one
-   */
-  private _parseFileExt(path: string): string {
-    if (!path || path.endsWith(".")) {
-      return "";
-    }
-    let i = path.lastIndexOf(".");
-    if (i <= 0) {
-      return "";
-    }
-    return path.substring(i + 1);
   }
 
   private _setDisplayedFileName(): void {
@@ -1277,30 +1204,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       ignoreOnDupName: this.uploadParam.ignoreOnDupName
     };
   }
-
-  // private _validateFileExt(name: string): boolean {
-  //   let file_ext = this._parseFileExt(name);
-  //   if (!file_ext) {
-  //     this.notifi.toast(`File extension must not be empty`);
-  //     return false;
-  //   }
-
-  //   if (!this._isFileExtSupported(file_ext)) {
-  //     this.notifi.toast(`File extension '${file_ext}' isn't supported`);
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
-  // private _isFileExtSupported(fileExt: string): boolean {
-  //   if (!fileExt) return false;
-
-  //   fileExt = fileExt.toLowerCase();
-  //   if (!this.fileExtSet.has(fileExt)) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
 
   private _updateUploadProgress(filename: string, loaded: number, total: number) {
     // how many files left
