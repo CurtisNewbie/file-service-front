@@ -1,20 +1,15 @@
-<div>
-  <div class="container-fluid mt-4 mb-3">
-    <h2>File Land</h2>
-    <div>
-      <app-nav (baseChangeEvent)="onBaseChange($event)"></app-nav>
+<div style="max-height: 100vh; overflow: auto">
+  <div class="container-fluid mt-2">
+    <h3>File Land</h3>
+    <app-nav (baseChangeEvent)="onBaseChange($event)"></app-nav>
 
-      <nav mat-tab-nav-bar *ngIf="userInfo">
-        <a mat-tab-link *ngFor="let link of links" (click)="onNavClicked(link)" [active]="isActive(link)"
-          [routerLink]="link.route" routerLinkActive [routerLinkActiveOptions]="{ exact: true }">
-          {{link.name}}
-        </a>
-      </nav>
+    <nav mat-tab-nav-bar *ngIf="userInfo">
+      <a mat-tab-link *ngFor="let link of links" (click)="onNavClicked(link)" [active]="isActive(link)"
+        [routerLink]="link.route" routerLinkActive [routerLinkActiveOptions]="{ exact: true }">
+        {{link.name}}
+      </a>
+    </nav>
 
-      <div class="p-2">
-        <router-outlet></router-outlet>
-      </div>
-
-    </div>
+    <router-outlet></router-outlet>
   </div>
 </div>

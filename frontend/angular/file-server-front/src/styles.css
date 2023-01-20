@@ -4,6 +4,7 @@
 html,
 body {
   height: 100%;
+  max-height: 100vh;
 }
 
 body {
@@ -14,7 +15,15 @@ body {
 @media only screen and (min-width: 801px) {
 
   html,
-  .mat-option {
+  .mat-tab-nav-bar,
+  .mat-tab-link,
+  .mat-option,
+  .mat-raised-button,
+  mat-form-field,
+  mat-label,
+  mat-table,
+  .mat-header-cell,
+  .mat-cell {
     font-size: 12px;
   }
 

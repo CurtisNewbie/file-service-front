@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { Observable, Subscription, timer } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 
 import {
   DirBrief,
@@ -94,6 +94,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   /** expanded fileInfo */
   curr: FileInfo;
+  /** expanded fileInfo's id or -1 */
+  currId: number = -1;
+
   /** list of files fetched */
   fileInfoList: FileInfo[] = [];
   /** searching param */
@@ -116,15 +119,43 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   selectedCount: number = 0;
   /** is any file selected */
   anySelected: boolean = false;
-  /** title of the list section */
-  fileListTitle: string = null;
   /** currently displayed columns */
   displayedColumns: string[] = this._selectColumns();
 
   isOwner = (f: FileInfo): boolean => f.isOwner;
   isImage = (f: FileInfo): boolean => this._isImage(f);
   idEquals = isIdEqual;
-  getExpandedEle = (row): FileInfo => getExpanded(row, this.curr, this.isMobile);
+  handcopy = (f: FileInfo): FileInfo => {
+    return {
+      id: f.id,
+      uuid: f.uuid,
+      name: f.name,
+      uploaderName: f.uploaderName,
+      uploadTime: f.uploadTime,
+      sizeInBytes: f.sizeInBytes,
+      userGroup: f.userGroup,
+      isOwner: f.isOwner,
+      fileType: f.fileType,
+      updateTime: f.updateTime,
+      fileTypeLabel: f.fileTypeLabel,
+      sizeLabel: f.sizeLabel,
+      _selected: f._selected,
+      isFile: f.isFile,
+      isDir: f.isDir,
+      isFileAndIsOwner: f.isFileAndIsOwner,
+      isDirAndIsOwner: f.isDirAndIsOwner,
+      isDisplayable: f.isDisplayable
+    }
+  }
+
+  // getExpandedEle = (row): FileInfo => getExpanded(row, this.curr, this.isMobile);
+  selectExpanded = (row): FileInfo => {
+    if (this.isMobile) return null;
+    // null means row is the expanded one, so we return null to make it collapsed
+    this.curr = (this.currId > -1 && row.id == this.currId) ? null : this.handcopy(row);
+    this.currId = this.curr ? this.curr.id : -1;
+  }
+
   isEnterKeyPressed = isEnterKey;
 
   /*
@@ -393,7 +424,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         }
       }
 
-      this.fileListTitle = this._getListTitle();
       this.userService.fetchUserInfo();
       this._fetchTags();
       this._fetchDirBriefList();
@@ -1330,12 +1360,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     return candidates.filter((option) =>
       option.toLowerCase().includes(value.toLowerCase())
     );
-  }
-
-  private _getListTitle() {
-    if (this.inFolderName) return translate('inFolderTitle');
-    if (this.inDirFileName) return translate('underDirTitle');
-    return translate("fileList")
   }
 
   // fetch dir brief list

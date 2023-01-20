@@ -1,15 +1,18 @@
-<div class="mt-3 mb-4" *ngIf="userInfo">
-    <button mat-button [matMenuTriggerFor]="menu">{{menuLabel}}</button>
-    <mat-menu #menu="matMenu">
-        <button mat-menu-item *ngFor="let o of baseOptions" (click)="emitBaseChangeEvent(o.base)">{{o.name}}</button>
-    </mat-menu>
+<ng-container *ngIf="userInfo">
+    <div class="mt-2 mb-2">
+        <button mat-button [matMenuTriggerFor]="menu">{{menuLabel}}</button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item *ngFor="let o of baseOptions"
+                (click)="emitBaseChangeEvent(o.base)">{{o.name}}</button>
+        </mat-menu>
 
-    <button mat-button [matMenuTriggerFor]="userMenu">{{userInfo.username}}</button>
-    <mat-menu #userMenu="matMenu" class="m-2">
-        <button mat-menu-item>{{idLabel}}: {{userInfo.id}}</button>
-        <button mat-menu-item>{{roleLabel}}: {{userInfo.role}}</button>
-    </mat-menu>
+        <button mat-button [matMenuTriggerFor]="userMenu">{{userInfo.username}}</button>
+        <mat-menu #userMenu="matMenu" class="m-2">
+            <button mat-menu-item>{{idLabel}}: {{userInfo.id}}</button>
+            <button mat-menu-item>{{roleLabel}}: {{userInfo.role}}</button>
+        </mat-menu>
 
-    <button mat-button (click)="changeLang()">{{langLabel}}: {{lang}}</button>
-    <button mat-button (click)="logout()">{{logoutLabel}}</button>
-</div>
+        <button mat-button (click)="changeLang()">{{langLabel}}: {{lang}}</button>
+        <button mat-button (click)="logout()">{{logoutLabel}}</button>
+    </div>
+</ng-container>
