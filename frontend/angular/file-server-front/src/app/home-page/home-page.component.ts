@@ -27,7 +27,7 @@ import { PagingController } from "src/models/paging";
 import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.component";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
-import { animateElementExpanding, getExpanded, isIdEqual } from "../../animate/animate-util";
+import { animateElementExpanding, isIdEqual } from "../../animate/animate-util";
 import { buildApiPath, HClient } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent, GrantTarget } from "../grant-access-dialog/grant-access-dialog.component";
@@ -393,21 +393,14 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.isMobile = isMobile();
 
     this.route.paramMap.subscribe((params) => {
+
       // vfolder
       this.inFolderNo = params.get("folderNo");
       this.inFolderName = params.get("folderName");
 
       // directory
-      let parentDirKey = params.get("parentDirKey");
-      let parentDirName = params.get("parentDirName");
-
-      if (parentDirKey && parentDirName) {
-        this.inDirFileName = parentDirName;
-        this.inDirFileKey = parentDirKey;
-      } else {
-        this.inDirFileKey = null;
-        this.inDirFileName = null;
-      }
+      this.inDirFileName = params.get("parentDirName");
+      this.inDirFileKey = params.get("parentDirKey");
 
       // if we are already in a directory, by default we upload to current directory
       if (this.expandUploadPanel && this.inDirFileName) {
