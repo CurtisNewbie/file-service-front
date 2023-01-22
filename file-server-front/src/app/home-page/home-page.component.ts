@@ -87,6 +87,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   ];
   readonly MOBILE_COLUMNS = ["fileType", "name", "operation"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp", "webp", "apng", "avif"]);
+  readonly TXT_SUFFIX = new Set(["conf", "txt", "yml", "yaml", "properties", "json", "sh", "md", "java", "js", "html", "ts", "css", "list"]);
   readonly i18n = translate;
 
   allUserGroupOpts: Option<FileUserGroupEnum>[] = [];
@@ -395,11 +396,18 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       key = "";
     }
 
-    const selected = this.filterSelected(this.isOwner);
+    const selected = this.filterSelected();
     if (!selected || selected.length < 1) {
       this.notifi.toast("Please select files first");
       return;
     }
+
+    let nonOwnerFile = selected.find(f => f.isOwner ? null : f);
+    if (nonOwnerFile) {
+      this.notifi.toast(`You are not the owner of '${nonOwnerFile.name}'`);
+      return;
+    }
+    
 
     let msgs = [];
     let first = into ? `You sure you want to move these files to '${moveIntoDirName}'?` :
@@ -721,7 +729,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     const filename: string = f.name;
     if (!filename) return false;
 
-    return this._isPdf(filename) || this._isImageByName(filename) || this._isStreamableVideo(filename);
+    return this._isPdf(filename) || this._isImageByName(filename) || this._isStreamableVideo(filename) || this._isTxt(filename);
+  }
+
+  _isTxt(fname: string): boolean {
+    return this._fileSuffixAnyMatch(fname, this.TXT_SUFFIX);
   }
 
   /** Display the file */
@@ -754,7 +766,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
             this.nav.navigateTo(NavType.PDF_VIEWER, [
               { name: u.name, url: getDownloadUrl(), uuid: u.uuid },
             ]);
-          } else {
+          } else if (this._isTxt(u.name)) {
+            this.nav.navigateTo(NavType.TXT_VIEWER, [
+              { name: u.name, url: getDownloadUrl(), uuid: u.uuid },
+            ]);
+          } else { // image
             this.dialog.open(ImageViewerComponent, {
               data: {
                 name: u.name,
@@ -1085,11 +1101,15 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private _isImageByName(filename: string): boolean {
-    let i = filename.lastIndexOf(".");
-    if (i < 0 || i == filename.length - 1) return false;
+    return this._fileSuffixAnyMatch(filename, this.IMAGE_SUFFIX);
+  }
 
-    let suffix = filename.slice(i + 1);
-    return this.IMAGE_SUFFIX.has(suffix.toLowerCase());
+  private _fileSuffixAnyMatch(name: string, candidates: Set<string>): boolean {
+    let i = name.lastIndexOf(".");
+    if (i < 0 || i == name.length - 1) return false;
+
+    let suffix = name.slice(i + 1);
+    return candidates.has(suffix.toLowerCase());
   }
 
   private _isImage(f: FileInfo): boolean {

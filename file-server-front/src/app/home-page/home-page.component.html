@@ -188,7 +188,7 @@
 
                 <div class="col">
                     <mat-form-field style="width: 100%;" class="mb-1" *ngIf="!isMobile">
-                        <mat-label>{{i18n('moveIntoDir')}}</mat-label>
+                        <mat-label>{{i18n('dir')}}</mat-label>
                         <input matInput type="text" [(ngModel)]="moveIntoDirName"
                             (ngModelChange)="onMoveIntoDirNameChanged()" [matAutocomplete]="auto1">
                         <mat-autocomplete #auto1="matAutocomplete">

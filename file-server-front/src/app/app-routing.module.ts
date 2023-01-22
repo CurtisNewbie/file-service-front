@@ -11,6 +11,7 @@ import { LoginComponent } from "./login/login.component";
 import { MediaStreamerComponent } from "./media-streamer/media-streamer.component";
 import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
 import { NavType } from "./routes";
+import { TxtViewerComponent } from "./txt-viewer/txt-viewer.component";
 
 const routes: Routes = [
   {
@@ -52,6 +53,10 @@ const routes: Routes = [
   {
     path: NavType.MEDIA_STREAMER,
     component: MediaStreamerComponent,
+  },
+  {
+    path: NavType.TXT_VIEWER,
+    component: TxtViewerComponent,
   },
   { path: "**", redirectTo: "/" + NavType.LOGIN_PAGE },
 ];

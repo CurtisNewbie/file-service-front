@@ -11,5 +11,6 @@ export enum NavType {
     MEDIA_STREAMER = "media",
     FILE_TASK = "file-task",
     MANAGE_FSGROUP = "manage-fsgroup",
+    TXT_VIEWER = "txt-viewer",
 }
 

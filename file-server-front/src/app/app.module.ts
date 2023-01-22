@@ -49,6 +49,7 @@ import { HClient as HttpWrapper } from "./util/api-util";
 import { ControlledPaginatorComponent } from './controlled-paginator/controlled-paginator.component';
 import { MediaStreamerComponent } from './media-streamer/media-streamer.component';
 import { FileTaskComponent } from './file-task/file-task.component';
+import { TxtViewerComponent } from './txt-viewer/txt-viewer.component';
 
 @NgModule({
   exports: [],
@@ -70,6 +71,7 @@ import { FileTaskComponent } from './file-task/file-task.component';
     ControlledPaginatorComponent,
     MediaStreamerComponent,
     FileTaskComponent,
+    TxtViewerComponent,
   ],
   imports: [
     MatTabsModule,
