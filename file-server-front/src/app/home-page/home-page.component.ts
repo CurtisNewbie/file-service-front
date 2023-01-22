@@ -87,6 +87,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   ];
   readonly MOBILE_COLUMNS = ["fileType", "name", "operation"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp", "webp", "apng", "avif"]);
+  readonly i18n = translate;
 
   allUserGroupOpts: Option<FileUserGroupEnum>[] = [];
   allFileTypeOpts: Option<FileType>[] = [];
@@ -124,7 +125,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   displayedColumns: string[] = this._selectColumns();
 
   isOwner = (f: FileInfo): boolean => f.isOwner;
-  isImage = (f: FileInfo): boolean => this._isImage(f);
+  // isImage = (f: FileInfo): boolean => this._isImage(f);
   idEquals = isIdEqual;
   handcopy = (f: FileInfo): FileInfo => {
     return {
@@ -252,54 +253,16 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   
   ----------------------------------
   */
-  onLangChangeSub = onLangChange.subscribe(() => {
+  refreshLabel = () => {
+    this.allUserGroupOpts = getFileUserGroupOpts(true);
+    this.userGroupOpts = getFileUserGroupOpts(false);
+    this.fileOwnershipOpts = getFileOwnershipOpts();
+    this.allFileTypeOpts = getFileTypeOpts(true);
+  };
+  onLangChangeSub = onLangChange.subscribe((evt) => {
     this.refreshLabel();
     this.fetchFileInfoList();
   });
-  filenameLabel: string;
-  withTagsLabel: string;
-  userGroupLabel: string;
-  uploadToDirLabel: string;
-  uploadLabel: string;
-  cancelLabel: string;
-  progressLabel: string;
-  singleUploadTipLabel: string;
-  multiUploadTipLabel: string;
-  compressedLabel: string;
-  ignoreOnDupNameLabel: string;
-  ownerLabel: string;
-  tagsLabel: string;
-  fantahseaGalleryLabel: string;
-  virtualFolderLabel: string;
-  newDirLabel: string;
-  dirNameLabel: string;
-  hostOnFantahseaLabel: string;
-  addToVFolderLabel: string;
-  uploadPanelLabel: string;
-  mkdirLabel: string;
-  fetchLabel: string;
-  resetLabel: string;
-  selectedLabel: string;
-  nameLabel: string;
-  uploaderLabel: string;
-  uploadTimeLabel: string;
-  fileSizeLabel: string;
-  fileTypeLabel: string;
-  publicGroupLabel: string;
-  privateGroupLabel: string;
-  updateTimeLabel: string;
-  operationLabel: string;
-  downloadLabel: string;
-  goIntoLabel: string;
-  dirLabel: string;
-  submitLabel: string;
-  exportAsZipLabel: string;
-  moveIntoDirLabel: string;
-  moveOutOfDirLabel: string;
-  leaveDirLabel: string;
-  previewLabel: string;
-  goPrevDirLabel: string;
-  leaveFolderLabel: string;
 
   @ViewChild("uploadFileInput")
   uploadFileInput: ElementRef;
@@ -326,58 +289,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.userService.roleObservable.subscribe((role) => (this.isGuest = role === "guest"));
   }
 
-  refreshLabel(): void {
-    this.allUserGroupOpts = getFileUserGroupOpts(true);
-    this.userGroupOpts = getFileUserGroupOpts(false);
-    this.fileOwnershipOpts = getFileOwnershipOpts();
-    this.allFileTypeOpts = getFileTypeOpts(true);
-
-    this.filenameLabel = translate("filename");
-    this.withTagsLabel = translate("withTags");
-    this.userGroupLabel = translate("userGroup");
-    this.uploadToDirLabel = translate("uploadToDirectory");
-    this.uploadLabel = translate("upload");
-    this.cancelLabel = translate("cancel");
-    this.progressLabel = translate('progress');
-    this.singleUploadTipLabel = translate('singleUploadTip');
-    this.multiUploadTipLabel = translate('multiUploadTip');
-    this.compressedLabel = translate("compressed");
-    this.ignoreOnDupNameLabel = translate("ignoreOnDupName");
-    this.ownerLabel = translate("owner");
-    this.tagsLabel = translate('tags');
-    this.fantahseaGalleryLabel = translate('fantahseaGallery');
-    this.virtualFolderLabel = translate("virtualFolder");
-    this.newDirLabel = translate('newDir');
-    this.dirNameLabel = translate('dirName');
-    this.hostOnFantahseaLabel = translate('hostOnFantahsea');
-    this.addToVFolderLabel = translate('addToVFolder');
-    this.uploadPanelLabel = translate('uploadPanel');
-    this.mkdirLabel = translate('makeDirectory');
-    this.fetchLabel = translate('fetch');
-    this.resetLabel = translate('reset');
-    this.selectedLabel = translate('selected');
-    this.nameLabel = translate('name');
-    this.uploaderLabel = translate('uploader');
-    this.uploadTimeLabel = translate('uploadTime');
-    this.fileSizeLabel = translate('fileSize');
-    this.fileTypeLabel = translate("type");
-    this.publicGroupLabel = translate('publicGroup');
-    this.privateGroupLabel = translate('privateGroup');
-    this.updateTimeLabel = translate("updateTime");
-    this.operationLabel = translate("operation");
-    this.downloadLabel = translate('download');
-    this.goIntoLabel = translate('goInto');
-    this.dirLabel = translate('directory');
-    this.submitLabel = translate('submit');
-    this.exportAsZipLabel = translate('exportAsZip');
-    this.moveIntoDirLabel = translate('moveIntoDir');
-    this.moveOutOfDirLabel = translate('moveOutOfDir');
-    this.leaveDirLabel = translate('leaveDir');
-    this.previewLabel = translate('preview')
-    this.goPrevDirLabel = translate('goPrevDir')
-    this.leaveFolderLabel = translate('leaveFolder')
-  }
-
   ngDoCheck(): void {
     this.anySelected = this.selectedCount > 0;
     this.displayedColumns = this._selectColumns();
@@ -385,7 +296,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngOnDestroy(): void {
-    // this.fetchTagTimerSub.unsubscribe();
     this.onLangChangeSub.unsubscribe();
   }
 
@@ -597,7 +507,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         if (resp.data.payload) {
           for (let f of resp.data.payload) {
             if (f.fileType) {
-              f.fileTypeLabel = translate(f.fileType.toLowerCase());
+              f.fileTypeLabel = translate[f.fileType.toLowerCase()];
             }
             f.isFile = f.fileType == FileType.FILE;
             f.isDir = !f.isFile;
@@ -1041,29 +951,51 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     const addToGalleryNo = this._extractToGalleryNo()
     if (!addToGalleryNo) return;
 
-    let selected = this.filterSelected(this.isOwner, this.isImage)
-      .map((f) => {
-        return {
-          name: f.name,
-          fileKey: f.uuid,
-          galleryNo: addToGalleryNo,
-        };
-      });
+    let selected = this.filterSelected(this.isOwner, (f: FileInfo): boolean => this._isImage(f) || f.isDir);
 
     if (!selected) {
-      this.notifi.toast("Please select image files")
+      this.notifi.toast("Please select images or directory first")
       return;
     }
 
-    this.hclient
-      .post(environment.fantahseaPath, "/gallery/image/transfer", { images: selected, })
-      .subscribe({
-        complete: () => {
-          this.curr = null;
-          this.fetchFileInfoList();
-          this.notifi.toast("Request success! It may take a while.");
+    let icnt = selected.filter(f => this._isImage(f)).length;
+    let dcnt = selected.length - icnt;
+
+    let msgs = [];
+    msgs.push(`You have selected ${icnt} images and ${dcnt} directores.`);
+    msgs.push(`All images will transferred and hosted on gallery '${this.addToGalleryName}', it may take a while.`);
+    msgs.push("");
+
+    const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
+      this.dialog.open(ConfirmDialogComponent, {
+        width: "500px",
+        data: {
+          title: `Hosting Images On Fantahsea Gallery '${this.addToGalleryName}'`,
+          msg: msgs,
+          isNoBtnDisplayed: true,
         },
       });
+
+    dialogRef.afterClosed().subscribe((confirm) => {
+      if (confirm) {
+        let params = selected.map((f) => {
+          return {
+            fileKey: f.uuid,
+            galleryNo: addToGalleryNo,
+          };
+        });
+
+        this.hclient
+          .post(environment.fantahseaPath, "/gallery/image/transfer", { images: params, })
+          .subscribe({
+            complete: () => {
+              this.curr = null;
+              this.fetchFileInfoList();
+              this.notifi.toast("Request success! It may take a while.");
+            },
+          });
+      }
+    });
   }
 
   selectFile(event: any, f: FileInfo) {
@@ -1409,7 +1341,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   private _extractToGalleryNo(): string {
     const gname = this.addToGalleryName;
     if (!gname) {
-      this.notifi.toast("Please enter Fantahsea gallery name first");
+      this.notifi.toast(translate('msg:select:gallery'));
       return;
     }
 

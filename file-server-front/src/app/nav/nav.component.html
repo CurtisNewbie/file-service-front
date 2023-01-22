@@ -1,6 +1,6 @@
 <ng-container *ngIf="userInfo">
     <div class="mt-2 mb-2">
-        <button mat-button [matMenuTriggerFor]="menu">{{menuLabel}}</button>
+        <button mat-button [matMenuTriggerFor]="menu">{{i18n('menu')}}</button>
         <mat-menu #menu="matMenu">
             <button mat-menu-item *ngFor="let o of baseOptions"
                 (click)="emitBaseChangeEvent(o.base)">{{o.name}}</button>
@@ -8,11 +8,11 @@
 
         <button mat-button [matMenuTriggerFor]="userMenu">{{userInfo.username}}</button>
         <mat-menu #userMenu="matMenu" class="m-2">
-            <button mat-menu-item>{{idLabel}}: {{userInfo.id}}</button>
-            <button mat-menu-item>{{roleLabel}}: {{userInfo.role}}</button>
+            <button mat-menu-item>{{i18n('id')}}: {{userInfo.id}}</button>
+            <button mat-menu-item>{{i18n('role')}}: {{userInfo.role}}</button>
         </mat-menu>
 
-        <button mat-button (click)="changeLang()">{{langLabel}}: {{lang}}</button>
-        <button mat-button (click)="logout()">{{logoutLabel}}</button>
+        <button mat-button (click)="changeLang()">{{i18n('lang')}}: {{lang}}</button>
+        <button mat-button (click)="logout()">{{i18n('logout')}}</button>
     </div>
 </ng-container>

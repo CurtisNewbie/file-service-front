@@ -12,26 +12,19 @@ import { getToken } from "../util/api-util";
   templateUrl: "./nav.component.html",
   styleUrls: ["./nav.component.css"],
 })
-export class NavComponent implements OnInit, DoCheck, OnDestroy {
+export class NavComponent implements OnInit, OnDestroy {
   isAdmin: boolean = false;
   userInfo: UserInfo = null;
   baseOptions: BaseOpt[] = environment.services;
   base: string = "file-service";
+
   lang: LLang = getLLang();
-
-  /* 
-  ---------------------
-
-  Labels  
-
-  ---------------------
-  */
-  onLangChangeSub = onLangChange.subscribe(() => this.refreshLabel());
-  menuLabel: string;
-  idLabel: string;
-  roleLabel: string;
-  langLabel: string;
-  logoutLabel: string;
+  i18n = translate;
+  onLangChangeSub = onLangChange.subscribe({
+    next: (e) => {
+      this.lang = e.lang;
+    }
+  });
 
   @Output() baseChangeEvent = new EventEmitter<string>();
 
@@ -41,25 +34,12 @@ export class NavComponent implements OnInit, DoCheck, OnDestroy {
     this.onLangChangeSub.unsubscribe();
   }
 
-  refreshLabel() {
-    this.menuLabel = translate('menu');
-    this.idLabel = translate('id');
-    this.roleLabel = translate('role');
-    this.langLabel = translate('lang');
-    this.logoutLabel = translate('logout');
-  }
-
-  ngDoCheck(): void {
-    this.lang = getLLang();
-  }
-
   emitBaseChangeEvent(event: string): void {
     this.base = event;
     this.baseChangeEvent.emit(this.base);
   }
 
   ngOnInit(): void {
-    this.refreshLabel();
     if (getToken()) {
       this.userService.fetchUserInfo();
     }
