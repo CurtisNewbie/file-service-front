@@ -321,10 +321,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       if (this.pagingController) {
         if (!this.pagingController.atFirstPage()) {
           this.pagingController.firstPage(); // this also triggers fetchFileInfoList
-          console.log("ngOnInit.firstPage", time())
+          // console.log("ngOnInit.firstPage", time())
         } else {
           this.fetchFileInfoList();
-          console.log("ngOnInit.fetchFileInfoList", time())
+          // console.log("ngOnInit.fetchFileInfoList", time())
         }
       }
 
@@ -420,7 +420,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         isNoBtnDisplayed: true,
       },
     }).afterClosed().subscribe((confirm) => {
-      console.log(confirm);
+      // console.log(confirm);
       if (confirm) this._moveEachToDir(selected, key, 0);
     });
   }
@@ -611,7 +611,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.hclient.get<any>(environment.fileServicePath, `/file/parent?fileKey=${this.inDirFileKey}`)
       .subscribe({
         next: (resp) => {
-          console.log("fetchParentFileKey", resp)
+          // console.log("fetchParentFileKey", resp)
           if (resp.data) {
             this.goToDir(resp.data.fileName, resp.data.fileKey);
           } else {
@@ -634,7 +634,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.moveIntoDirName = null;
     if (setFirstPage && !this.pagingController.atFirstPage()) {
       this.pagingController.firstPage(); // this also triggers fetchFileInfoList
-      console.log("resetSearchParam.firstPage", time())
+      // console.log("resetSearchParam.firstPage", time())
     } else {
       if (fetchFileInfoList)
         this.fetchFileInfoList();
@@ -656,7 +656,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {
-      console.log(confirm);
+      // console.log(confirm);
       if (confirm) {
         this.hclient.post<any>(
           environment.fileServicePath, "/file/delete",
@@ -926,7 +926,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   onPagingControllerReady(pagingController: PagingController) {
-    console.log("onPagingControllerReady", time());
+    // console.log("onPagingControllerReady", time());
     this.pagingController = pagingController;
     this.pagingController.onPageChanged = () => this.fetchFileInfoList();
     this.fetchFileInfoList();
@@ -1020,7 +1020,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         isNoBtnDisplayed: true,
       },
     }).afterClosed().subscribe((confirm) => {
-      console.log(confirm);
+      // console.log(confirm);
       if (confirm) {
         let fileIds = selected.map(f => f.id);
         this.hclient.post<void>(environment.fileServicePath, '/file/export-as-zip', {
