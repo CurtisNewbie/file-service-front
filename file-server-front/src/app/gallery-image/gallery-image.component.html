@@ -1,12 +1,12 @@
-<div id="lightboxdiv">
-
-    <div class="row row-cols-lg-auto g-3 align-items-center">
-        <div *ngFor="let image of images; let i=index">
-            <div class="col-12">
-                <img [src]="image.thumb" (click)="open(i)" class="m-2" />
-            </div>
+<div class="row row-cols-lg-auto g-3 align-items-center">
+    <div *ngFor="let image of images; let i=index">
+        <div class="col-12">
+            <img [src]="image.thumb" (click)="open(i)" class="m-2" />
         </div>
     </div>
+</div>
+
+<div id="lightboxdiv">
 </div>
 
 <app-controlled-paginator (controllerReady)="onPagingControllerReady($event)"></app-controlled-paginator>
