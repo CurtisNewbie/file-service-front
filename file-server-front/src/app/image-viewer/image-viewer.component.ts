@@ -28,10 +28,10 @@ export class ImageViewerComponent implements OnInit, OnDestroy {
       doc.getElementById("lightboxdiv");
     _lbConfig.wrapAround = false;
     _lbConfig.disableScrolling = true;
-    _lbConfig.showZoom = true;
+    _lbConfig.showZoom = false;
     _lbConfig.resizeDuration = 0.1;
     _lbConfig.fadeDuration = 0.1;
-    _lbConfig.showRotate = false;
+    _lbConfig.showRotate = true;
     _lbConfig.fitImageInViewPort = true;
     _lbConfig.showImageNumberLabel = false;
 

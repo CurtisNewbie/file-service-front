@@ -37,3 +37,20 @@ export const environment = {
 };
 ```
 
+## Known Issue
+
+ngx-lightbox2 is used in this project. When image rotate, the background may be out-of-sync with the image's rotation, as a result, you may see a white background behind the image. After some investigation, I personally think that this may be caused by the attribute `text-align: center` in class `.lightbox` in `node_modules/ngx-lightbox/lightbox.css`. Removing it will somehow fix the issue :D.
+
+```css
+.lightbox {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  z-index: 10000;
+  text-align: center;
+  line-height: 0;
+  font-weight: normal;
+  box-sizing: content-box;
+  outline: none;
+}
+```

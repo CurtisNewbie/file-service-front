@@ -33,10 +33,10 @@ export class GalleryImageComponent implements OnInit {
       doc.getElementById("lightboxdiv");
     _lbConfig.wrapAround = false;
     _lbConfig.disableScrolling = false;
-    _lbConfig.showZoom = true;
+    _lbConfig.showZoom = false;
     _lbConfig.resizeDuration = 0.2;
     _lbConfig.fadeDuration = 0.2;
-    _lbConfig.showRotate = false;
+    _lbConfig.showRotate = true;
     _lbConfig.showImageNumberLabel = true;
   }
 
