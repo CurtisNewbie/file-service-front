@@ -32,7 +32,7 @@ import { buildApiPath, HClient } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent, GrantTarget } from "../grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
-import { NavigationService, NavType } from "../navigation.service";
+import { NavigationService } from "../navigation.service";
 import { isMobile, isServiceEnabled } from "../util/env-util";
 import { environment } from "src/environments/environment";
 import { ActivatedRoute } from "@angular/router";
@@ -46,6 +46,7 @@ import { MediaStreamerComponent } from "../media-streamer/media-streamer.compone
 import { Option } from "src/models/select-util";
 import { isEnterKey } from "../util/condition";
 import { time } from "../util/date-util";
+import { NavType } from "../routes";
 
 export enum TokenType {
   DOWNLOAD = "DOWNLOAD",

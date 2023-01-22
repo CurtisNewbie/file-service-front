@@ -6,8 +6,9 @@ import { ListGalleryImagesResp } from "src/models/gallery";
 import { buildApiPath, buildOptions } from "../util/api-util";
 import { environment } from "src/environments/environment";
 import { Resp } from "src/models/resp";
-import { NavigationService, NavType } from "../navigation.service";
+import { NavigationService } from "../navigation.service";
 import { IAlbum, Lightbox, LightboxConfig } from "ngx-lightbox";
+import { NavType } from "../routes";
 
 @Component({
   selector: "app-gallery-image",

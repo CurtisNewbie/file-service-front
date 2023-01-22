@@ -8,52 +8,52 @@ import { GalleryComponent } from "./gallery/gallery.component";
 import { HomePageComponent } from "./home-page/home-page.component";
 import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
 import { LoginComponent } from "./login/login.component";
-import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
 import { MediaStreamerComponent } from "./media-streamer/media-streamer.component";
 import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
+import { NavType } from "./routes";
 
 const routes: Routes = [
   {
-    path: "home-page",
+    path: NavType.HOME_PAGE,
     component: HomePageComponent,
   },
   {
-    path: "login-page",
+    path: NavType.LOGIN_PAGE,
     component: LoginComponent,
   },
   {
-    path: "file-task",
+    path: NavType.FILE_TASK,
     component: FileTaskComponent,
   },
   {
-    path: "manage-fsgroup",
+    path: NavType.MANAGE_FSGROUP,
     component: FsGroupComponent,
   },
   {
-    path: "pdf-viewer",
+    path: NavType.PDF_VIEWER,
     component: PdfViewerComponent,
   },
   {
-    path: "image-viewer",
+    path: NavType.IMAGE_VIEWER,
     component: ImageViewerComponent,
   },
   {
-    path: "gallery",
+    path: NavType.GALLERY,
     component: GalleryComponent,
   },
   {
-    path: "gallery-image",
+    path: NavType.GALLERY_IMAGE,
     component: GalleryImageComponent,
   },
   {
-    path: "folders",
+    path: NavType.FOLDERS,
     component: FolderComponent,
   },
   {
-    path: "media",
+    path: NavType.MEDIA_STREAMER,
     component: MediaStreamerComponent,
   },
-  { path: "**", redirectTo: "/login-page" },
+  { path: "**", redirectTo: "/" + NavType.LOGIN_PAGE },
 ];
 
 @NgModule({

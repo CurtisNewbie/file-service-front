@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { NavigationService, NavType } from "../navigation.service";
+import { NavigationService } from "../navigation.service";
 import { NotificationService } from "../notification.service";
+import { NavType } from "../routes";
 import { UserService } from "../user.service";
 import { setToken, getToken } from "../util/api-util";
 
