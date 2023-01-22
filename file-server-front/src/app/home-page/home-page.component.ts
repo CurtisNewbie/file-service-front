@@ -502,22 +502,16 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       msgs.push(` ${++c}. ${f.name}`);
     }
 
-    const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
-      this.dialog.open(ConfirmDialogComponent, {
-        width: "500px",
-        data: {
-          title: "Move Files",
-          msg: msgs,
-          isNoBtnDisplayed: true,
-        },
-      });
-
-    dialogRef.afterClosed().subscribe((confirm) => {
+    this.dialog.open(ConfirmDialogComponent, {
+      width: "500px",
+      data: {
+        title: "Move Files",
+        msg: msgs,
+        isNoBtnDisplayed: true,
+      },
+    }).afterClosed().subscribe((confirm) => {
       console.log(confirm);
-      if (confirm) {
-        // move each of them recursively
-        this._moveEachToDir(selected, key, 0);
-      }
+      if (confirm) this._moveEachToDir(selected, key, 0);
     });
   }
 
@@ -1100,12 +1094,29 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return;
     }
 
-    let fileIds = selected.map(f => f.id);
-    this.hclient.post<void>(environment.fileServicePath, '/file/export-as-zip', {
-      fileIds: fileIds
-    }).subscribe({
-      next: (r) => {
-        this.notifi.toast("Exporting, this may take a while");
+    let msgs = [`You have selected ${selected.length} file(s) to export, these files will be compressed as a zip file, it may take a while.`,
+      "Directories will be unpacked, files under it will be included in the zip file as well.",
+      "If you are already exporting, this request will be rejected."];
+
+    this.dialog.open(ConfirmDialogComponent, {
+      width: "500px",
+      data: {
+        title: "Export Files As Zip",
+        msg: msgs,
+        isNoBtnDisplayed: true,
+      },
+    }).afterClosed().subscribe((confirm) => {
+      console.log(confirm);
+      if (confirm) {
+        let fileIds = selected.map(f => f.id);
+        this.hclient.post<void>(environment.fileServicePath, '/file/export-as-zip', {
+          fileIds: fileIds
+        }).subscribe({
+          next: (r) => {
+            this.notifi.toast("Exporting, this may take a while");
+          }
+        });
+
       }
     });
   }
@@ -1247,8 +1258,8 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     let p = Math.round((100 * loaded) / total).toFixed(2);
     let ps;
     if (p == "100.00")
-      ps = `Processing '${filename}' ... ${remaining}`;
-    else ps = `Uploading ${filename} ${p}% ${remaining}`;
+      ps = `Processing '${filename}' ... ${remaining} `;
+    else ps = `Uploading ${filename} ${p}% ${remaining} `;
     this.progress = ps;
   }
 
@@ -1257,10 +1268,10 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     if (dirName) {
       let matched: DirBrief[] = this.dirBriefList.filter(v => v.name === dirName)
       if (!matched || matched.length < 1) {
-        return { errMsg: `Directory (${dirName}) not found, please check and try again` }
+        return { errMsg: `Directory(${dirName}) not found, please check and try again` }
       }
       if (matched.length > 1) {
-        return { errMsg: `Found multiple directories with the same name (${dirName}), please update their names and try again` }
+        return { errMsg: `Found multiple directories with the same name(${dirName}), please update their names and try again` }
       }
       return { fileKey: matched[0].uuid }
     }
@@ -1303,7 +1314,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         error: () => {
           this.progress = null;
           this.isUploading = false;
-          this.notifi.toast(`Failed to upload file ${name}`);
+          this.notifi.toast(`Failed to upload file ${name} `);
           this._resetFileUploadParam();
         },
       });
@@ -1313,7 +1324,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       uploadFileCallback();
     } else {
       // preflight check whether the filename exists already
-      this.hclient.get<boolean>(environment.fileServicePath, `/file/upload/duplication/preflight?fileName=${encodeURIComponent(name)}`)
+      this.hclient.get<boolean>(environment.fileServicePath, `/ file / upload / duplication / preflight ? fileName = ${encodeURIComponent(name)} `)
         .subscribe({
           next: (resp) => {
             let isDuplicate = resp.data;
