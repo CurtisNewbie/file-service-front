@@ -386,7 +386,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     let key;
     if (into) {
       if (!moveIntoDirName) {
-        this.notifi.toast('Please enter directory name first');
+        this.notifi.toast(translate('msg:dir:name:required'));
         return;
       }
       key = this.findMoveIntoDirFileKey(moveIntoDirName);
@@ -507,11 +507,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
         if (resp.data.payload) {
           for (let f of resp.data.payload) {
             if (f.fileType) {
-              f.fileTypeLabel = translate[f.fileType.toLowerCase()];
+              f.fileTypeLabel = translate(f.fileType.toLowerCase());
             }
             f.isFile = f.fileType == FileType.FILE;
             f.isDir = !f.isFile;
-            f.sizeLabel = resolveSize(f.sizeInBytes);
+            f.sizeLabel = f.isDir ? "" : resolveSize(f.sizeInBytes);
             f.isFileAndIsOwner = f.isOwner && f.isFile;
             f.isDirAndIsOwner = f.isOwner && f.isDir;
             f.isDisplayable = this.isDisplayable(f);
@@ -532,12 +532,12 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** Upload file */
   upload(): void {
     if (this.isUploading) {
-      this.notifi.toast("Uploading, please wait a moment or cancel it first");
+      this.notifi.toast(translate('msg:file:uploading'));
       return;
     }
 
     if (this.uploadParam.files.length < 1) {
-      this.notifi.toast("Please select a file to upload");
+      this.notifi.toast(translate('msg:file:upload:required'));
       return;
     }
 
@@ -546,7 +546,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     // single file upload or multiple upload as a zip, name is required
     if (!this.displayedUploadName && (isSingleUpload || isZipCompressed)) {
-      this.notifi.toast("File name cannot be empty");
+      this.notifi.toast(translate('msg:file:name:required'));
       return;
     }
 
@@ -556,21 +556,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.uploadParam.tags = this.selectedTags ? this.selectedTags : [];
     this.uploadParam.ignoreOnDupName = this.ignoreOnDupName;
 
-    /*
-      if it's a single file upload, or it's zip compressed, we only validate the 
-      displayedUploadName, otherwise we validate every single file 
-    */
     if (isSingleUpload || isZipCompressed) {
-      // if (!this._validateFileExt(this.displayedUploadName)) return;
-
       this.isUploading = true;
       this.uploadParam.fileName = this.displayedUploadName;
       this._doUpload(this.uploadParam);
     } else {
-      // for (let f of this.uploadParam.files) {
-      //   if (!this._validateFileExt(f.name)) return;
-      // }
-
       this.isUploading = true;
       this._doUpload(this._prepNextUpload(), false);
     }
@@ -588,7 +578,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
     if (files.length < 1) {
       this._resetFileUploadParam();
-      console.log("files clear");
       return;
     }
 
@@ -636,6 +625,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   /** Reset all parameters used for searching, and the fetch the list */
   resetSearchParam(setFirstPage: boolean = true, fetchFileInfoList: boolean = true): void {
     if (this.fantahseaEnabled) this.addToGalleryName = null;
+
+    this.curr = null;
+    this.currId = -1;
 
     this.searchParam = {};
     this.addToVFolderName = null;
@@ -822,16 +814,9 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   popToManageTag(u: FileInfo): void {
     if (!u) return;
 
-    const dialogRef: MatDialogRef<ManageTagDialogComponent, boolean> =
-      this.dialog.open(ManageTagDialogComponent, {
-        width: "700px",
-        data: { fileId: u.id, filename: u.name, autoComplete: this.tags },
-      });
-
-    dialogRef.afterClosed().subscribe((confirm) => {
-      this._fetchTags();
-      this.curr = null;
-      this.addToGalleryName = null;
+    this.dialog.open(ManageTagDialogComponent, {
+      width: "700px",
+      data: { fileId: u.id, filename: u.name, autoComplete: this.tags },
     });
   }
 
@@ -1005,17 +990,14 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     this.selectedCount += delta;
   }
 
-  selectAllFiles() {
+  selectAll() {
     this.isAllSelected = !this.isAllSelected;
     let total = 0;
 
     this.fileInfoList.forEach((v) => {
-      if (v.isFile) {
-        v._selected = this.isAllSelected;
-        total += 1;
-      }
+      v._selected = this.isAllSelected;
+      total += 1;
     });
-
     this.selectedCount = this.isAllSelected ? total : 0;
   }
 
@@ -1053,12 +1035,24 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     });
   }
 
-  doExpandUploadPanel() {
+  toggleMkdirPanel() {
+    this.makingDir = !this.makingDir;
+    if (this.makingDir) {
+      this.expandUploadPanel = false;
+    }
+  }
+
+  toggleUploadPanel() {
     this.expandUploadPanel = !this.expandUploadPanel;
 
-    // if we are already in a directory, by default we upload to current directory
-    if (this.expandUploadPanel && !this.uploadParam.parentFile && this.inDirFileName) {
-      this.uploadDirName = this.inDirFileName;
+    if (this.expandUploadPanel) {
+
+      this.makingDir = false;
+
+      // if we are already in a directory, by default we upload to current directory
+      if (!this.uploadParam.parentFile && this.inDirFileName) {
+        this.uploadDirName = this.inDirFileName;
+      }
     }
   }
 

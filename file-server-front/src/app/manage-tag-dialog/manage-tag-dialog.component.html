@@ -1,9 +1,9 @@
-<h1 mat-dialog-title>Mange File Tags for '{{data.filename}}'</h1>
+<h1 mat-dialog-title>{{i18n('file:tags:mng')}} '{{data.filename}}'</h1>
 <div mat-dialog-content>
     <form class="mb-2">
-        <p>Note: These tags are only visible to you</p>
+        <p>{{i18n('file:tags:tip')}}</p>
         <mat-form-field style="width: 100%;">
-            <mat-label>New Tag Name</mat-label>
+            <mat-label>{{i18n('file:tag:new')}}</mat-label>
             <input matInput type="text" [(ngModel)]="tagName" (ngModelChange)="onTagNameChanged()"
                 [matAutocomplete]="auto" [ngModelOptions]="{standalone: true}">
             <mat-autocomplete #auto="matAutocomplete">
@@ -13,12 +13,12 @@
             </mat-autocomplete>
         </mat-form-field>
         <div class=" d-flex justify-content-md-end">
-            <button mat-button (click)="tagFile()">Submit</button>
+            <button mat-button (click)="tagFile()">{{i18n('submit')}}</button>
         </div>
     </form>
 
     <ng-container>
-        <h6 class="mb-3">Tags For This File:</h6>
+        <h6 class="mb-3">{{i18n('file:own:tags')}}</h6>
 
         <table mat-table [dataSource]="tags" class="mat-elevation-z8 mb-4" style="width: 100%;" multiTemplateDataRows>
             <ng-container matColumnDef="id">
@@ -26,22 +26,22 @@
                 <td mat-cell *matCellDef="let t"> {{t.id}} </td>
             </ng-container>
             <ng-container matColumnDef="tagName">
-                <th mat-header-cell *matHeaderCellDef> Name </th>
+                <th mat-header-cell *matHeaderCellDef> {{i18n('name')}} </th>
                 <td mat-cell *matCellDef="let t"> {{t.name}} </td>
             </ng-container>
             <ng-container matColumnDef="createTime">
-                <th mat-header-cell *matHeaderCellDef> Date Created </th>
+                <th mat-header-cell *matHeaderCellDef> {{i18n('create:time')}} </th>
                 <td mat-cell *matCellDef="let t"> {{t.createTime}} </td>
             </ng-container>
             <ng-container matColumnDef="createBy">
-                <th mat-header-cell *matHeaderCellDef> Created By </th>
+                <th mat-header-cell *matHeaderCellDef> {{i18n('create:by')}} </th>
                 <td mat-cell *matCellDef="let t"> {{t.createBy}} </td>
             </ng-container>
             <ng-container matColumnDef="removeButton">
-                <th mat-header-cell *matHeaderCellDef> Remove Tag </th>
+                <th mat-header-cell *matHeaderCellDef> {{i18n('operation')}} </th>
                 <td mat-cell *matCellDef="let t">
                     <button mat-raised-button (click)="untag(t.name)">
-                        Remove
+                        {{i18n('remove')}}
                     </button>
                 </td>
             </ng-container>
