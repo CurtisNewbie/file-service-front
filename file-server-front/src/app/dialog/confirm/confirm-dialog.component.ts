@@ -10,7 +10,17 @@ export interface ConfirmDialogData {
 
 @Component({
   selector: "confirm-dialog-component",
-  templateUrl: "confirm-dialog.component.html",
+  template: `
+    <h1 mat-dialog-title>{{data.title}}
+    </h1>
+    <div mat-dialog-content>
+        <p *ngFor="let line of data.msg">{{ line }}</p>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-button [mat-dialog-close]="true">Yes</button>
+        <button mat-button *ngIf="data.isNoBtnDisplayed" [mat-dialog-close]="false" cdkFocusInitial>No</button>
+    </div>
+  `,
 })
 export class ConfirmDialogComponent {
   constructor(
