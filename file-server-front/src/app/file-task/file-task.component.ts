@@ -31,7 +31,6 @@ export class FileTaskComponent implements OnInit {
 
   ngOnInit(): void {
     this.userService.fetchUserInfo();
-    this.fetchFileTaskList();
   }
 
   fetchFileTaskList() {

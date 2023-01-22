@@ -133,8 +133,8 @@ export class UserService {
           } else {
             this.notifi.toast("Please login first");
             setToken(null);
-            this.nav.navigateTo(NavType.LOGIN_PAGE);
             this.notifyLoginStatus(false);
+            this.nav.navigateTo(NavType.LOGIN_PAGE);
           }
         },
       });
