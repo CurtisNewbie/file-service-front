@@ -146,7 +146,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       isDir: f.isDir,
       isFileAndIsOwner: f.isFileAndIsOwner,
       isDirAndIsOwner: f.isDirAndIsOwner,
-      isDisplayable: f.isDisplayable
+      isDisplayable: f.isDisplayable,
     }
   }
 

@@ -14,6 +14,7 @@ export interface FileTask {
   startTime?: Date
   endTime?: Date
   remark?: string
+  updateTime?: Date
 }
 
 @Component({
@@ -23,7 +24,7 @@ export interface FileTask {
 })
 export class FileTaskComponent implements OnInit {
 
-  readonly titles = ["taskNo", "type", "status", "description", "startTime", "endTime", "remark", "operation"];
+  readonly titles = ["taskNo", "type", "status", "description", "startTime", "endTime", "remark", "updateTime", "operation"];
   pagingController: PagingController;
   fileTaskList: FileTask[] = [];
 
@@ -44,6 +45,7 @@ export class FileTaskComponent implements OnInit {
           for (let r of resp.data.payload) {
             if (r.startTime) r.startTime = new Date(r.startTime);
             if (r.endTime) r.endTime = new Date(r.endTime);
+            if (r.updateTime) r.updateTime = new Date(r.updateTime);
             this.fileTaskList.push(r);
           }
 
