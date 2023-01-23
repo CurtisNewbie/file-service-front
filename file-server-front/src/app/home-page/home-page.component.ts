@@ -1087,7 +1087,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   private _concatTempFileDownloadUrl(tempToken: string): string {
     return (
-      window.location.protocol + "//" + window.location.host +
+      window.location.protocol + "//" + window.location.host + "/" + 
       buildApiPath("/file/token/download?token=" + tempToken, environment.fileServicePath)
     );
   }
