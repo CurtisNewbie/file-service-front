@@ -11,7 +11,6 @@ import { getToken } from "./util/api-util";
   styleUrls: ["./app.component.css"],
 })
 export class AppComponent {
-  isAdmin: boolean = false;
   userInfo: UserInfo = null;
   activeRoute: string = "";
   links: NLink[] = [];
@@ -36,15 +35,18 @@ export class AppComponent {
     }
     this.userService.userInfoObservable.subscribe({
       next: (user) => {
-        this.isAdmin = user.role === "admin";
         this.userInfo = user;
-        this.selectLinks();
+        this.userService.fetchUserResources().subscribe({
+          complete: () => {
+            this.selectLinks();
+          }
+        });;
+
       },
     });
     this.userService.isLoggedInObservable.subscribe({
       next: (isLoggedIn) => {
         if (!isLoggedIn) {
-          this.isAdmin = false;
           this.userInfo = null;
           this.links = [];
         }
@@ -62,8 +64,9 @@ export class AppComponent {
   selectLinks(): void {
     this.links = selectLinks(
       this.base,
-      this.userInfo ? this.userInfo.role : null
+      (c) => this.userService.hasResource(c)
     );
+    console.log(this.links);
   }
 
 }

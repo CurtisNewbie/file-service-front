@@ -1,36 +1,29 @@
 export interface NLink {
   route: string;
   name: string;
-  permitRoles: Set<string>;
+  resCode:string;
 }
-
-const anyRoles: Set<string> = new Set<string>()
-  .add("guest")
-  .add("admin")
-  .add("user");
-
-const adminOnly: Set<string> = new Set<string>().add("admin");
 
 const fileServicesLinks: NLink[] = [
   {
     route: "/home-page",
     name: "Files",
-    permitRoles: anyRoles,
+    resCode: "manage-files"
   },
   {
     route: "/folders",
     name: "Virtual Folders",
-    permitRoles: anyRoles,
+    resCode: "manage-files"
   },
   {
     route: "/file-task",
     name: "File Task",
-    permitRoles: anyRoles
+    resCode: "admin-file-service"
   },
   {
     route: "/manage-fsgroup",
     name: "Manage FsGroup",
-    permitRoles: adminOnly,
+    resCode: "admin-file-service"
   },
 ];
 
@@ -38,7 +31,7 @@ const fantahseaLinks: NLink[] = [
   {
     route: "/gallery",
     name: "Gallery",
-    permitRoles: anyRoles,
+    resCode: "manage-files"
   },
 ];
 
@@ -47,9 +40,8 @@ const linkGroups: Map<string /* base */, NLink[]> = new Map<string, NLink[]>([
   ["fantahsea", fantahseaLinks],
 ]);
 
-export function selectLinks(base: string, role: string): NLink[] {
-  if (!role) return [];
+export function selectLinks(base: string, hasResource): NLink[] {
   return linkGroups
     .get(base)
-    .filter((v, i, a) => (v.permitRoles.has(role) ? v : null));
+    .filter((v, i, a) => (hasResource(v.resCode) ? v : null));
 }

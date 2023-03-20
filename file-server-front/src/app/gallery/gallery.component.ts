@@ -37,7 +37,6 @@ export class GalleryComponent implements OnInit {
   galleries: Gallery[] = [];
   isMobile: boolean = isMobile();
   expandedElement: Gallery = null;
-  role: string = "";
   newGalleryName: string = "";
   showCreateGalleryDiv: boolean = false;
 
@@ -46,7 +45,6 @@ export class GalleryComponent implements OnInit {
 
   constructor(
     private http: HClient,
-    private userService: UserService,
     private notification: NotificationService,
     private navigation: NavigationService,
     private dialog: MatDialog,
@@ -54,7 +52,6 @@ export class GalleryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userService.roleObservable.subscribe((role) => (this.role = role));
   }
 
   fetchGalleries() {

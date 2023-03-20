@@ -1,4 +1,4 @@
-<div *ngIf="!isGuest && !inFolderNo && expandUploadPanel" class="container-fluid bootstrap p-3 shadow rounded mt-3 border">
+<div *ngIf="!inFolderNo && expandUploadPanel" class="container-fluid bootstrap p-3 shadow rounded mt-3 border">
 
     <h4 class="mt-3 mb-3">{{i18n('title:upload')}}</h4>
 
@@ -104,7 +104,7 @@
         </div>
 
         <!-- search param start -->
-        <div *ngIf="!isGuest && !inFolderNo && !makingDir && !expandUploadPanel">
+        <div *ngIf="!inFolderNo && !makingDir && !expandUploadPanel">
             <div class="row row-cols-lg-auto g-3 align-items-center">
                 <mat-form-field style="width: 90%;" class="mb-1 mt-3">
                     <mat-label>{{i18n("filename")}}</mat-label>
@@ -239,7 +239,7 @@
             </ng-container>
 
 
-            <ng-container *ngIf="!isGuest && !inFolderNo && !anySelected">
+            <ng-container *ngIf="!inFolderNo && !anySelected">
                 <!-- toggale upload panel -->
                 <button mat-raised-button class="m-2" [class.status-green]="expandUploadPanel"
                     (click)="toggleUploadPanel()">{{i18n('uploadPanel')}}</button>
@@ -251,7 +251,7 @@
 
 
             <!-- export as zip -->
-            <button mat-raised-button class="m-2" *ngIf="!isGuest && anySelected"
+            <button mat-raised-button class="m-2" *ngIf="anySelected"
                 (click)="exportAsZip()">{{i18n('exportAsZip')}}</button>
 
             <!-- go back to previous dir -->

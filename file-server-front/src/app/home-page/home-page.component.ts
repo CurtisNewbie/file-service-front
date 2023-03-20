@@ -104,8 +104,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
   fileInfoList: FileInfo[] = [];
   /** searching param */
   searchParam: SearchFileInfoParam = {}
-  /** whether current user is a guest */
-  isGuest: boolean = true;
   /** controller for pagination */
   pagingController: PagingController;
   /** progress string */
@@ -287,7 +285,6 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     private hclient: HClient,
     private route: ActivatedRoute
   ) {
-    this.userService.roleObservable.subscribe((role) => (this.isGuest = role === "guest"));
   }
 
   ngDoCheck(): void {

@@ -9,11 +9,10 @@ import { NavigationService } from "./navigation.service";
 import { NotificationService } from "./notification.service";
 import { NavType } from "./routes";
 import {
-  buildApiPath,
-  buildOptions,
   getToken,
   setToken,
   onEmptyToken,
+  HClient,
 } from "./util/api-util";
 
 @Injectable({
@@ -23,6 +22,7 @@ export class UserService {
   private roleSubject = new Subject<string>();
   private isLoggedInSubject = new Subject<boolean>();
   private userInfoSubject = new Subject<UserInfo>();
+  private resources: Set<string> = null;
 
   // refreshed every 5min
   private tokenRefresher: Subscription = timer(60_000, 360_000).subscribe(
@@ -45,11 +45,32 @@ export class UserService {
     this.isLoggedInSubject.asObservable();
 
   constructor(
-    private http: HttpClient,
+    private http: HClient,
     private nav: NavigationService,
     private notifi: NotificationService
   ) {
     onEmptyToken(() => this.logout());
+  }
+
+  public fetchUserResources(): Observable<any> {
+    let sub = new Subject<any>();
+    this.http.get<any>(environment.goauthPath, "/resource/brief/user").subscribe({
+      next: (res) => {
+        this.resources = new Set();
+        if (res.data) {
+          for (let r of res.data) {
+            this.resources.add(r.code);
+          }
+        }
+        sub.complete();
+      }
+    });
+    return sub.asObservable();
+  }
+
+  hasResource(code): boolean {
+    if (this.resources == null) return false;
+    return this.resources.has(code);
   }
 
   /**
@@ -59,14 +80,11 @@ export class UserService {
    */
   public login(username: string, password: string): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      buildApiPath("/user/login", environment.authServicePath),
+      environment.authServicePath, "/user/login",
       {
         username: username,
         password: password,
         appName: "file-service",
-      },
-      {
-        withCredentials: true,
       }
     );
   }
@@ -93,10 +111,9 @@ export class UserService {
     password: string,
     userRole: string
   ): Observable<Resp<any>> {
-    return this.http.post<Resp<any>>(
-      buildApiPath("/user/register", environment.authServicePath),
+    return this.http.post<any>(
+      environment.authServicePath, "/user/register",
       { username, password, userRole },
-      buildOptions()
     );
   }
 
@@ -107,10 +124,9 @@ export class UserService {
    * @returns
    */
   public register(username: string, password: string): Observable<Resp<any>> {
-    return this.http.post<Resp<any>>(
-      buildApiPath("/user/register/request", environment.authServicePath),
+    return this.http.post<any>(
+      environment.authServicePath, "/user/register/request",
       { username, password },
-      buildOptions()
     );
   }
 
@@ -119,9 +135,8 @@ export class UserService {
    */
   public fetchUserInfo(callback = null): void {
     this.http
-      .get<Resp<UserInfo>>(
-        buildApiPath("/user/info", environment.authServicePath),
-        buildOptions()
+      .get<UserInfo>(
+        environment.authServicePath, "/user/info",
       )
       .subscribe({
         next: (resp) => {
@@ -165,20 +180,16 @@ export class UserService {
       registerDate;
     }>
   > {
-    return this.http.get<Resp<any>>(
-      buildApiPath("/user/detail", environment.authServicePath),
-      buildOptions()
-    );
+    return this.http.get<any>(environment.authServicePath, "/user/detail");
   }
 
   /**
    * Exchange Token
    */
   private exchangeToken(token: string): Observable<Resp<string>> {
-    return this.http.post<Resp<any>>(
-      buildApiPath("/token/exchange", environment.authServicePath),
+    return this.http.post<any>(
+      environment.authServicePath, "/token/exchange",
       { token: token },
-      buildOptions()
     );
   }
 }
