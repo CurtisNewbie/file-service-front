@@ -7,6 +7,7 @@ export const environment = {
   authServicePath: "auth-service",
   services: [fileServiceOpt, fantahseaOpt],
   loginRedirect: true,
+  goauthPath: "goauth",
 
   // if fantahsea is down
   // services: [fileServiceOpt],
