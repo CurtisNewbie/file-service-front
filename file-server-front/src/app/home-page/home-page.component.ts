@@ -1267,7 +1267,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       uploadFileCallback();
     } else {
       // preflight check whether the filename exists already
-      this.hclient.get<boolean>(environment.fileServicePath, `/ file / upload / duplication / preflight ? fileName = ${encodeURIComponent(name)} `)
+      this.hclient.get<boolean>(environment.fileServicePath, `/file/upload/duplication/preflight?fileName=${encodeURIComponent(name)}`)
         .subscribe({
           next: (resp) => {
             let isDuplicate = resp.data;
