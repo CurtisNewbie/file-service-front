@@ -66,10 +66,6 @@
                 </button>
             </div>
             <div class="col">
-                <small style="color: cadetblue;" *ngIf="progress != null">{{i18n('progress')}}:
-                    {{progress}}</small>
-            </div>
-            <div class="col">
                 <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 1"
                     [matTooltip]="isCompressed ? i18n('multiUploadTip') : i18n('singleUploadTip')"
                     matTooltipPosition="below">
@@ -84,6 +80,10 @@
                         (ngModelChange)="onIsCompressedChanged()">{{i18n("ignoreOnDupName")}}
                     </mat-checkbox>
                 </section>
+            </div>
+            <div class="col">
+                <small style="color: cadetblue;" *ngIf="progress != null">{{i18n('progress')}}:
+                    {{progress}}</small>
             </div>
         </div>
     </div>
