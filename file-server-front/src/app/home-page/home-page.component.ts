@@ -371,6 +371,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   // Go to dir, i.e., list files under the directory
   goToDir(name, fileKey) {
+    this.expandUploadPanel = false;
     this.curr = null;
     this.resetSearchParam(false, false);
     this.nav.navigateTo(NavType.HOME_PAGE, [
@@ -613,6 +614,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       return;
     }
 
+    this.expandUploadPanel = false;
     this.hclient.get<any>(environment.fileServicePath, `/file/parent?fileKey=${this.inDirFileKey}`)
       .subscribe({
         next: (resp) => {
