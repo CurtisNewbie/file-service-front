@@ -79,8 +79,7 @@
                 </section>
             </div>
             <div class="col">
-                <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 0 && !isCompressed"
-                    [matTooltip]="'Ignore files with duplicate name'" matTooltipPosition="below">
+                <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 0 && !isCompressed">
                     <mat-checkbox class="m-1" [disabled]="isUploading" [(ngModel)]="ignoreOnDupName"
                         (ngModelChange)="onIsCompressedChanged()">{{i18n("ignoreOnDupName")}}
                     </mat-checkbox>

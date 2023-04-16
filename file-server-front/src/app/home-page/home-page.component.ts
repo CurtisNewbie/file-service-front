@@ -404,7 +404,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
       this.notifi.toast(`You are not the owner of '${nonOwnerFile.name}'`);
       return;
     }
-    
+
 
     let msgs = [];
     let first = into ? `You sure you want to move these files to '${moveIntoDirName}'?` :
@@ -1084,7 +1084,7 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
 
   private _concatTempFileDownloadUrl(tempToken: string): string {
     return (
-      window.location.protocol + "//" + window.location.host + "/" + 
+      window.location.protocol + "//" + window.location.host + "/" +
       buildApiPath("/file/token/download?token=" + tempToken, environment.fileServicePath)
     );
   }
@@ -1266,8 +1266,11 @@ export class HomePageComponent implements OnInit, OnDestroy, DoCheck {
     if (!uploadParam.ignoreOnDupName) {
       uploadFileCallback();
     } else {
+      let pf = uploadParam.parentFile ? encodeURIComponent(uploadParam.parentFile) : ""
+
       // preflight check whether the filename exists already
-      this.hclient.get<boolean>(environment.fileServicePath, `/file/upload/duplication/preflight?fileName=${encodeURIComponent(name)}`)
+      this.hclient.get<boolean>(environment.fileServicePath,
+        `/file/upload/duplication/preflight?fileName=${encodeURIComponent(name)}&parentFileKey=${pf}`)
         .subscribe({
           next: (resp) => {
             let isDuplicate = resp.data;
