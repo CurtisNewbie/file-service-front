@@ -34,6 +34,7 @@ export class ImageViewerComponent implements OnInit, OnDestroy {
     _lbConfig.showRotate = true;
     _lbConfig.fitImageInViewPort = true;
     _lbConfig.showImageNumberLabel = false;
+    _lbConfig.centerVertically = true;
 
     this.lbsub = this._lightboxEvent.lightboxEvent$.subscribe((evt: any) => {
       if (evt.id === LIGHTBOX_EVENT.CLOSE) {

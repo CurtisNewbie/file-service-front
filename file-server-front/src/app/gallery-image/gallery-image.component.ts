@@ -38,6 +38,7 @@ export class GalleryImageComponent implements OnInit {
     _lbConfig.fadeDuration = 0.2;
     _lbConfig.showRotate = true;
     _lbConfig.showImageNumberLabel = true;
+    _lbConfig.centerVertically = true;
   }
 
   ngOnInit(): void {
