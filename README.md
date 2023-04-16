@@ -1,10 +1,10 @@
-# file-service-front v1.2.1
+# file-service-front v1.2.2
 
 Angular frontend for file-service and fantahsea.
 
 **Requirements:**
 
-- file-server >= [v1.2.6](https://github.com/CurtisNewbie/file-server/tree/v1.2.6)
+- file-server >= [v1.2.7](https://github.com/CurtisNewbie/file-server/tree/v1.2.7)
 - auth-service >= [v1.1.6](https://github.com/CurtisNewbie/auth-service/tree/v1.1.6)
 - fantahsea >= [v1.0.3.5](https://github.com/CurtisNewbie/fantahsea/tree/v1.0.3.5) (optional, webpage for fantahsea can be disabled in environment.prod.ts, it's enabled by default)
 - auth-gateway >= [v1.1.1](https://github.com/CurtisNewbie/auth-gateway/tree/v1.1.1) (no direct dependency, but of course you will need it)
